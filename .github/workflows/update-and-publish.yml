@@ -55,44 +55,42 @@ jobs:
         if: steps.compare.outputs.needs_update == 'true'
         run: npm install
 
-      - name: Generate SDK using openapi-typescript
+      - name: Download and convert OpenAPI spec to 3.1
         if: steps.compare.outputs.needs_update == 'true'
         run: |
-          # Install openapi-typescript which handles OpenAPI 3.x better
-          npm install -D openapi-typescript openapi-fetch
+          # Download OpenAPI 3.2.0 spec
+          curl -o openapi-3.2.json https://api.linkbreakers.com/internal/openapi/api/v1/api.swagger.json
 
-          # Generate TypeScript types from OpenAPI spec
-          npx openapi-typescript https://api.linkbreakers.com/internal/openapi/api/v1/api.swagger.json \
-            -o src/generated/schema.ts
+          # Convert OpenAPI 3.2 to 3.1 (remove 3.2-specific fields)
+          node -e "
+            const fs = require('fs');
+            const spec = JSON.parse(fs.readFileSync('openapi-3.2.json', 'utf8'));
 
-          echo "✅ SDK types generated successfully"
+            // Change version to 3.1.0
+            spec.openapi = '3.1.0';
 
-      - name: Create runtime SDK wrapper
+            // Remove 3.2-specific fields
+            delete spec.jsonSchemaDialect;
+
+            fs.writeFileSync('openapi-3.1.json', JSON.stringify(spec, null, 2));
+          "
+
+          echo "✅ OpenAPI spec converted from 3.2 to 3.1"
+
+      - name: Generate SDK using OpenAPI Generator
         if: steps.compare.outputs.needs_update == 'true'
         run: |
-          # Create a simple runtime wrapper
-          mkdir -p src/generated
+          # Generate SDK using OpenAPI Generator with typescript-fetch (creates proper SDK classes)
+          npx @openapitools/openapi-generator-cli generate \
+            -i openapi-3.1.json \
+            -g typescript-fetch \
+            -o src/generated \
+            --additional-properties=npmName=@linkbreakers/sdk,supportsES6=true,withInterfaces=true
 
-          cat > src/generated/index.ts << 'EOF'
-          import createClient from 'openapi-fetch';
-          import type { paths } from './schema';
+          # Clean up spec files
+          rm openapi-3.2.json openapi-3.1.json
 
-          export type { paths, components } from './schema';
-
-          export function createLinkebreakersClient(config: {
-            baseUrl?: string;
-            headers?: Record<string, string>;
-          }) {
-            return createClient<paths>({
-              baseUrl: config.baseUrl || 'https://api.linkbreakers.com',
-              headers: config.headers,
-            });
-          }
-
-          export default createLinkebreakersClient;
-          EOF
-
-          echo "✅ Runtime wrapper created"
+          echo "✅ SDK generated successfully"
 
       - name: Update version files
         if: steps.compare.outputs.needs_update == 'true'

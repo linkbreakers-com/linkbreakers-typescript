@@ -14,58 +14,49 @@ npm install @linkbreakers/sdk
 ## Usage
 
 ```typescript
-import { createLinkebreakersClient } from '@linkbreakers/sdk';
+import { Configuration, LinksApi } from '@linkbreakers/sdk';
 
-// Create API client
-const client = createLinkebreakersClient({
-  baseUrl: 'https://api.linkbreakers.com',
-  headers: {
-    'Authorization': 'Bearer your_api_key_here',
-  },
+// Configure API client
+const config = new Configuration({
+  apiKey: 'your_api_key_here',
+  basePath: 'https://api.linkbreakers.com',
 });
+
+const linksApi = new LinksApi(config);
 
 // Create a shortened link
-const { data, error } = await client.POST('/api/v1/links', {
-  body: {
-    destination: 'https://example.com',
-    name: 'My Link',
-  },
+const link = await linksApi.createLink({
+  destination: 'https://example.com',
+  name: 'My Link',
 });
 
-if (error) {
-  console.error('Error:', error);
-} else {
-  console.log('Short link:', data?.shortlink);
-}
+console.log('Short link:', link.shortlink);
 ```
 
-### Type-Safe API Calls
+### Full API Support
 
-The SDK provides full TypeScript types for all endpoints:
+The SDK provides type-safe methods for all API operations:
 
 ```typescript
-// TypeScript will autocomplete endpoints and request/response types
-const { data, error } = await client.GET('/api/v1/links/{id}', {
-  params: {
-    path: { id: 'link-id' },
-  },
-});
+// Get a link by ID
+const link = await linksApi.getLink({ id: 'link-id' });
 
 // Update a link
-const { data: updated } = await client.PATCH('/api/v1/links/{id}', {
-  params: {
-    path: { id: 'link-id' },
-  },
-  body: {
+const updated = await linksApi.updateLink({
+  id: 'link-id',
+  updateLinkRequest: {
     name: 'Updated Name',
   },
 });
 
 // Delete a link
-await client.DELETE('/api/v1/links/{id}', {
-  params: {
-    path: { id: 'link-id' },
-  },
+await linksApi.deleteLink({ id: 'link-id' });
+
+// List links with filtering
+const links = await linksApi.listLinks({
+  pageSize: 50,
+  search: 'my-search',
+  tags: ['tag1', 'tag2'],
 });
 ```
 
