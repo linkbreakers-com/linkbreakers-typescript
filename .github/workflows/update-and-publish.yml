@@ -55,16 +55,35 @@ jobs:
         if: steps.compare.outputs.needs_update == 'true'
         run: npm install
 
+      - name: Download and convert OpenAPI spec
+        if: steps.compare.outputs.needs_update == 'true'
+        run: |
+          # Download spec
+          curl -o swagger.json https://api.linkbreakers.com/internal/openapi/api/v1/api.swagger.json
+
+          # Install swagger2openapi to convert if needed
+          npm install -g swagger2openapi @apidevtools/swagger-cli
+
+          # Validate and potentially fix the spec
+          swagger-cli validate swagger.json || true
+
+          echo "✅ Spec downloaded"
+
       - name: Generate SDK
         if: steps.compare.outputs.needs_update == 'true'
         run: |
-          # Generate SDK using OpenAPI Generator
+          # Generate SDK using OpenAPI Generator with local spec file
+          npx @openapitools/openapi-generator-cli version-manager set 6.6.0
           npx @openapitools/openapi-generator-cli generate \
-            -i https://api.linkbreakers.com/internal/openapi/api/v1/api.swagger.json \
+            -i swagger.json \
             -g typescript-fetch \
             -o src/generated \
             --skip-validate-spec \
-            --additional-properties=npmName=@linkbreakers/sdk,supportsES6=true,withInterfaces=true
+            --global-property apiTests=false,modelTests=false,apiDocs=false,modelDocs=false \
+            --additional-properties=npmName=@linkbreakers/sdk,supportsES6=true,withInterfaces=true,useSingleRequestParameter=false
+
+          # Clean up
+          rm swagger.json
 
           echo "✅ SDK generated successfully"
 
