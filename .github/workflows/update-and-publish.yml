@@ -55,37 +55,44 @@ jobs:
         if: steps.compare.outputs.needs_update == 'true'
         run: npm install
 
-      - name: Download and convert OpenAPI spec
+      - name: Generate SDK using openapi-typescript
         if: steps.compare.outputs.needs_update == 'true'
         run: |
-          # Download spec
-          curl -o swagger.json https://api.linkbreakers.com/internal/openapi/api/v1/api.swagger.json
+          # Install openapi-typescript which handles OpenAPI 3.x better
+          npm install -D openapi-typescript openapi-fetch
 
-          # Install swagger2openapi to convert if needed
-          npm install -g swagger2openapi @apidevtools/swagger-cli
+          # Generate TypeScript types from OpenAPI spec
+          npx openapi-typescript https://api.linkbreakers.com/internal/openapi/api/v1/api.swagger.json \
+            -o src/generated/schema.ts
 
-          # Validate and potentially fix the spec
-          swagger-cli validate swagger.json || true
+          echo "✅ SDK types generated successfully"
 
-          echo "✅ Spec downloaded"
-
-      - name: Generate SDK
+      - name: Create runtime SDK wrapper
         if: steps.compare.outputs.needs_update == 'true'
         run: |
-          # Generate SDK using OpenAPI Generator with local spec file
-          npx @openapitools/openapi-generator-cli version-manager set 6.6.0
-          npx @openapitools/openapi-generator-cli generate \
-            -i swagger.json \
-            -g typescript-fetch \
-            -o src/generated \
-            --skip-validate-spec \
-            --global-property apiTests=false,modelTests=false,apiDocs=false,modelDocs=false \
-            --additional-properties=npmName=@linkbreakers/sdk,supportsES6=true,withInterfaces=true,useSingleRequestParameter=false
+          # Create a simple runtime wrapper
+          mkdir -p src/generated
 
-          # Clean up
-          rm swagger.json
+          cat > src/generated/index.ts << 'EOF'
+          import createClient from 'openapi-fetch';
+          import type { paths } from './schema';
 
-          echo "✅ SDK generated successfully"
+          export type { paths, components } from './schema';
+
+          export function createLinkebreakersClient(config: {
+            baseUrl?: string;
+            headers?: Record<string, string>;
+          }) {
+            return createClient<paths>({
+              baseUrl: config.baseUrl || 'https://api.linkbreakers.com',
+              headers: config.headers,
+            });
+          }
+
+          export default createLinkebreakersClient;
+          EOF
+
+          echo "✅ Runtime wrapper created"
 
       - name: Update version files
         if: steps.compare.outputs.needs_update == 'true'
@@ -97,6 +104,9 @@ jobs:
 
           # Update package.json version
           npm version "$NEW_VERSION" --no-git-tag-version
+
+          # Add openapi-fetch as dependency
+          npm install --save-exact openapi-fetch
 
           echo "✅ Version files updated to $NEW_VERSION"
 
