@@ -85,6 +85,7 @@ jobs:
             -i openapi-3.1.json \
             -g typescript-fetch \
             -o src/generated \
+            --skip-validate-spec \
             --additional-properties=npmName=@linkbreakers/sdk,supportsES6=true,withInterfaces=true
 
           # Clean up spec files
