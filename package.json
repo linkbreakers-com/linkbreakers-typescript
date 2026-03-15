@@ -1,6 +1,6 @@
 {
   "name": "@linkbreakers/sdk",
-  "version": "1.32.0",
+  "version": "1.33.0",
   "description": "Official TypeScript/JavaScript SDK for the Linkbreakers API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -33,5 +33,8 @@
     "dist/",
     "README.md",
     "LICENSE"
-  ]
+  ],
+  "dependencies": {
+    "openapi-fetch": "0.17.0"
+  }
 }
