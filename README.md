@@ -1,20 +1,20 @@
-# @linkbreakers/sdk
+# linkbreakers
 
 Official TypeScript/JavaScript SDK for the Linkbreakers API.
 
-[![npm version](https://badge.fury.io/js/%40linkbreakers%2Fsdk.svg)](https://www.npmjs.com/package/@linkbreakers/sdk)
+[![npm version](https://badge.fury.io/js/linkbreakers.svg)](https://www.npmjs.com/package/linkbreakers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Installation
 
 ```bash
-npm install @linkbreakers/sdk
+npm install linkbreakers
 ```
 
 ## Usage
 
 ```typescript
-import { Configuration, LinksApi } from '@linkbreakers/sdk';
+import { Configuration, LinksApi } from 'linkbreakers';
 
 // Configure API client
 const config = new Configuration({

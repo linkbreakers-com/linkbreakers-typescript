@@ -92,7 +92,7 @@ jobs:
             -g typescript-fetch \
             -o generated-temp \
             --skip-validate-spec \
-            --additional-properties=npmName=@linkbreakers/sdk,supportsES6=true,withInterfaces=true
+            --additional-properties=npmName=linkbreakers,supportsES6=true,withInterfaces=true
 
           # Move only the source files to src/ (keep our package.json, tsconfig.json, etc.)
           mkdir -p src
