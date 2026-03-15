@@ -80,15 +80,29 @@ jobs:
       - name: Generate SDK using OpenAPI Generator
         if: steps.compare.outputs.needs_update == 'true'
         run: |
+          # Remove old generated code
+          rm -rf src
+
           # Generate SDK using OpenAPI Generator with typescript-fetch (creates proper SDK classes)
           npx @openapitools/openapi-generator-cli generate \
             -i openapi-3.1.json \
             -g typescript-fetch \
-            -o src/generated \
+            -o generated-temp \
             --skip-validate-spec \
             --additional-properties=npmName=@linkbreakers/sdk,supportsES6=true,withInterfaces=true
 
-          # Clean up spec files
+          # Move only the source files to src/ (keep our package.json, tsconfig.json, etc.)
+          mkdir -p src
+          if [ -d "generated-temp/src" ]; then
+            cp -r generated-temp/src/* src/
+          else
+            cp -r generated-temp/*.ts src/ 2>/dev/null || true
+            cp -r generated-temp/apis src/ 2>/dev/null || true
+            cp -r generated-temp/models src/ 2>/dev/null || true
+          fi
+
+          # Clean up
+          rm -rf generated-temp
           rm openapi-3.2.json openapi-3.1.json
 
           echo "✅ SDK generated successfully"
