@@ -1,0 +1,127 @@
+name: Update and Publish SDK
+
+on:
+  repository_dispatch:
+    types: [update-sdk]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  update-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Fetch current version from swagger
+        id: fetch-version
+        run: |
+          SWAGGER_URL="https://api.linkbreakers.com/internal/openapi/api/v1/api.swagger.json"
+          NEW_VERSION=$(curl -s "$SWAGGER_URL" | jq -r '.info.version')
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "Swagger version: $NEW_VERSION"
+
+      - name: Read current OPENAPI_VERSION
+        id: current-version
+        run: |
+          if [ -f OPENAPI_VERSION ]; then
+            CURRENT_VERSION=$(cat OPENAPI_VERSION)
+          else
+            CURRENT_VERSION="0.0.0"
+          fi
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION"
+
+      - name: Compare versions
+        id: compare
+        run: |
+          if [ "${{ steps.fetch-version.outputs.new_version }}" == "${{ steps.current-version.outputs.current_version }}" ]; then
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+            echo "✅ Versions match. No update needed."
+          else
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "🔄 Version changed: ${{ steps.current-version.outputs.current_version }} → ${{ steps.fetch-version.outputs.new_version }}"
+          fi
+
+      - name: Install dependencies
+        if: steps.compare.outputs.needs_update == 'true'
+        run: npm install
+
+      - name: Generate SDK
+        if: steps.compare.outputs.needs_update == 'true'
+        run: |
+          # Generate SDK using OpenAPI Generator
+          npx @openapitools/openapi-generator-cli generate \
+            -i https://api.linkbreakers.com/internal/openapi/api/v1/api.swagger.json \
+            -g typescript-fetch \
+            -o src/generated \
+            --additional-properties=npmName=@linkbreakers/sdk,supportsES6=true,withInterfaces=true
+
+          echo "✅ SDK generated successfully"
+
+      - name: Update version files
+        if: steps.compare.outputs.needs_update == 'true'
+        run: |
+          NEW_VERSION="${{ steps.fetch-version.outputs.new_version }}"
+
+          # Update OPENAPI_VERSION file
+          echo "$NEW_VERSION" > OPENAPI_VERSION
+
+          # Update package.json version
+          npm version "$NEW_VERSION" --no-git-tag-version
+
+          echo "✅ Version files updated to $NEW_VERSION"
+
+      - name: Build SDK
+        if: steps.compare.outputs.needs_update == 'true'
+        run: npm run build
+
+      - name: Configure Git
+        if: steps.compare.outputs.needs_update == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit changes
+        if: steps.compare.outputs.needs_update == 'true'
+        run: |
+          NEW_VERSION="${{ steps.fetch-version.outputs.new_version }}"
+
+          git add .
+          git commit -m "chore: update SDK to API version $NEW_VERSION"
+
+          echo "✅ Changes committed"
+
+      - name: Create and push tag
+        if: steps.compare.outputs.needs_update == 'true'
+        run: |
+          NEW_VERSION="${{ steps.fetch-version.outputs.new_version }}"
+
+          git tag "v$NEW_VERSION"
+          git push origin main
+          git push origin "v$NEW_VERSION"
+
+          echo "✅ Tag v$NEW_VERSION created and pushed"
+
+      - name: Publish to npm
+        if: steps.compare.outputs.needs_update == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm publish --access public
+          echo "✅ Published @linkbreakers/sdk@${{ steps.fetch-version.outputs.new_version }} to npm"
+
+      - name: Summary
+        if: steps.compare.outputs.needs_update == 'true'
+        run: |
+          echo "🎉 SDK successfully updated and published!"
+          echo "Version: ${{ steps.fetch-version.outputs.new_version }}"
+          echo "Package: https://www.npmjs.com/package/@linkbreakers/sdk"
