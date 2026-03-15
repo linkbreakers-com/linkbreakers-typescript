@@ -14,23 +14,59 @@ npm install @linkbreakers/sdk
 ## Usage
 
 ```typescript
-import { Configuration, LinksApi } from '@linkbreakers/sdk';
+import { createLinkebreakersClient } from '@linkbreakers/sdk';
 
-// Configure API client
-const config = new Configuration({
-  apiKey: 'your_api_key_here',
-  basePath: 'https://api.linkbreakers.com',
+// Create API client
+const client = createLinkebreakersClient({
+  baseUrl: 'https://api.linkbreakers.com',
+  headers: {
+    'Authorization': 'Bearer your_api_key_here',
+  },
 });
-
-const linksApi = new LinksApi(config);
 
 // Create a shortened link
-const link = await linksApi.createLink({
-  destination: 'https://example.com',
-  name: 'My Link',
+const { data, error } = await client.POST('/api/v1/links', {
+  body: {
+    destination: 'https://example.com',
+    name: 'My Link',
+  },
 });
 
-console.log('Short link:', link.shortlink);
+if (error) {
+  console.error('Error:', error);
+} else {
+  console.log('Short link:', data?.shortlink);
+}
+```
+
+### Type-Safe API Calls
+
+The SDK provides full TypeScript types for all endpoints:
+
+```typescript
+// TypeScript will autocomplete endpoints and request/response types
+const { data, error } = await client.GET('/api/v1/links/{id}', {
+  params: {
+    path: { id: 'link-id' },
+  },
+});
+
+// Update a link
+const { data: updated } = await client.PATCH('/api/v1/links/{id}', {
+  params: {
+    path: { id: 'link-id' },
+  },
+  body: {
+    name: 'Updated Name',
+  },
+});
+
+// Delete a link
+await client.DELETE('/api/v1/links/{id}', {
+  params: {
+    path: { id: 'link-id' },
+  },
+});
 ```
 
 ## Features
