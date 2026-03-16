@@ -24,29 +24,29 @@ import {
 /**
  * 
  * @export
- * @interface GetCustomDomainResponse
+ * @interface UpdateCustomDomainResponse
  */
-export interface GetCustomDomainResponse {
+export interface UpdateCustomDomainResponse {
     /**
      * 
      * @type {CustomDomain}
-     * @memberof GetCustomDomainResponse
+     * @memberof UpdateCustomDomainResponse
      */
     customDomain?: CustomDomain;
 }
 
 /**
- * Check if a given object implements the GetCustomDomainResponse interface.
+ * Check if a given object implements the UpdateCustomDomainResponse interface.
  */
-export function instanceOfGetCustomDomainResponse(value: object): value is GetCustomDomainResponse {
+export function instanceOfUpdateCustomDomainResponse(value: object): value is UpdateCustomDomainResponse {
     return true;
 }
 
-export function GetCustomDomainResponseFromJSON(json: any): GetCustomDomainResponse {
-    return GetCustomDomainResponseFromJSONTyped(json, false);
+export function UpdateCustomDomainResponseFromJSON(json: any): UpdateCustomDomainResponse {
+    return UpdateCustomDomainResponseFromJSONTyped(json, false);
 }
 
-export function GetCustomDomainResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): GetCustomDomainResponse {
+export function UpdateCustomDomainResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): UpdateCustomDomainResponse {
     if (json == null) {
         return json;
     }
@@ -56,11 +56,11 @@ export function GetCustomDomainResponseFromJSONTyped(json: any, ignoreDiscrimina
     };
 }
 
-export function GetCustomDomainResponseToJSON(json: any): GetCustomDomainResponse {
-    return GetCustomDomainResponseToJSONTyped(json, false);
+export function UpdateCustomDomainResponseToJSON(json: any): UpdateCustomDomainResponse {
+    return UpdateCustomDomainResponseToJSONTyped(json, false);
 }
 
-export function GetCustomDomainResponseToJSONTyped(value?: GetCustomDomainResponse | null, ignoreDiscriminator: boolean = false): any {
+export function UpdateCustomDomainResponseToJSONTyped(value?: UpdateCustomDomainResponse | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
