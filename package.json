@@ -24,7 +24,7 @@
   "bugs": {
     "url": "https://github.com/linkbreakers-com/linkbreakers-typescript/issues"
   },
-  "homepage": "https://github.com/linkbreakers-com/linkbreakers-typescript#readme",
+  "homepage": "https://linkbreakers.com",
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.7.0",
     "typescript": "^5.3.3"
