@@ -18,7 +18,7 @@ import { Configuration, LinksApi } from 'linkbreakers';
 
 // Configure API client
 const config = new Configuration({
-  apiKey: 'your_api_key_here',
+  accessToken: 'your_api_key_here',  // Use accessToken, not apiKey
   basePath: 'https://api.linkbreakers.com',
 });
 
@@ -32,6 +32,26 @@ const link = await linksApi.createLink({
 
 console.log('Short link:', link.shortlink);
 ```
+
+### Authentication
+
+**Important:** The Linkbreakers API uses Bearer token authentication. When configuring the SDK, you must use the `accessToken` parameter (NOT `apiKey`):
+
+```typescript
+// ✅ CORRECT - Sends "Authorization: Bearer {token}" header
+const config = new Configuration({
+  accessToken: 'your-workspace-token',
+  basePath: 'https://api.linkbreakers.com',
+});
+
+// ❌ WRONG - Does not send authentication headers
+const config = new Configuration({
+  apiKey: 'your-workspace-token',  // This won't work!
+  basePath: 'https://api.linkbreakers.com',
+});
+```
+
+Get your workspace API token from the [Linkbreakers dashboard](https://app.linkbreakers.com).
 
 ### Identifying Visitors
 
