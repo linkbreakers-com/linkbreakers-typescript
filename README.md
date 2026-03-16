@@ -144,6 +144,17 @@ const links = await linksApi.listLinks({
 - ✅ Auto-generated from OpenAPI specification
 - ✅ Automatically updated when API changes
 
+## Examples
+
+For complete, runnable code examples, see the [examples/](./examples) directory:
+
+- **[identify-visitor.ts](./examples/identify-visitor.ts)** - Identify visitors using LBID (most important!)
+- **[update-visitor.ts](./examples/update-visitor.ts)** - Update visitors by UUID
+- **[create-link.ts](./examples/create-link.ts)** - Create shortened links with various options
+- **[list-visitors.ts](./examples/list-visitors.ts)** - Query and filter visitors
+
+Each example is complete, well-documented, and ready to run. See [examples/README.md](./examples/README.md) for details.
+
 ## Documentation
 
 For complete API documentation, visit [https://docs.linkbreakers.com](https://docs.linkbreakers.com)
