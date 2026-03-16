@@ -33,6 +33,83 @@ const link = await linksApi.createLink({
 console.log('Short link:', link.shortlink);
 ```
 
+### Identifying Visitors
+
+Use the `VisitorsApi` to identify and update visitor profiles. The `identify` method finds or creates a visitor using their LBID (from tracking) and merges attributes:
+
+```typescript
+import { Configuration, VisitorsApi } from 'linkbreakers';
+
+const config = new Configuration({
+  accessToken: 'your_api_key_here',
+  basePath: 'https://api.linkbreakers.com',
+});
+
+const visitorsApi = new VisitorsApi(config);
+
+// Identify a visitor using their LBID (from tracking cookie/parameter)
+const response = await visitorsApi.visitorsServiceIdentify({
+  identifyRequest: {
+    lbid: 'visitor-lbid-from-tracking',  // Base64 encoded event ID from click/scan
+    visitor: {
+      data: {
+        // System fields (prefixed with "$")
+        '$email': 'user@example.com',
+        '$phone': '+1234567890',
+        '$firstName': 'John',
+        '$lastName': 'Doe',
+
+        // Custom attributes (no "$" prefix)
+        'company': 'Acme Corp',
+        'plan': 'premium',
+        'signupDate': '2024-01-01'
+      }
+    },
+    setOnce: false  // If true, only sets empty fields (won't overwrite existing)
+  }
+});
+
+console.log('Created new profile:', response.created);
+console.log('Visitor:', response.visitor);
+```
+
+**Update an existing visitor by UUID:**
+
+```typescript
+// When you have the visitor's UUID (from your database)
+const visitor = await visitorsApi.visitorsServiceUpdate({
+  id: 'visitor-uuid',
+  visitorsServiceUpdateBody: {
+    visitor: {
+      data: {
+        '$email': 'updated@example.com',
+        'plan': 'enterprise'
+      }
+    }
+  }
+});
+```
+
+**Get visitor details:**
+
+```typescript
+const visitor = await visitorsApi.visitorsServiceGet({
+  id: 'visitor-uuid',
+  include: ['devices', 'events', 'links']  // Optional: include related data
+});
+```
+
+**List visitors:**
+
+```typescript
+const visitors = await visitorsApi.visitorsServiceList({
+  pageSize: 50,
+  email: 'user@example.com',  // Optional filters
+  linkId: 'link-uuid',
+  search: 'Acme Corp'
+});
+```
+
 ### Full API Support
 
 The SDK provides type-safe methods for all API operations:
