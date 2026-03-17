@@ -214,3 +214,4 @@ export * from './Workspace';
 export * from './WorkspaceInsight';
 export * from './WorkspaceMetric';
 export * from './WorkspaceToken';
+export * from './WorkspaceTokenKeyType';
