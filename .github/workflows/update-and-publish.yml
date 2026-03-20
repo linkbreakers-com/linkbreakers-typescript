@@ -83,6 +83,11 @@ jobs:
       - name: Generate SDK using OpenAPI Generator
         if: steps.compare.outputs.needs_update == 'true'
         run: |
+          # Backup custom files that we want to preserve
+          mkdir -p .backup
+          cp src/safe-config.ts .backup/ 2>/dev/null || true
+          cp src/index.ts .backup/ 2>/dev/null || true
+
           # Remove old generated code
           rm -rf src
 
@@ -104,8 +109,12 @@ jobs:
             cp -r generated-temp/models src/ 2>/dev/null || true
           fi
 
+          # Restore custom files (overwrite the generated ones)
+          cp .backup/safe-config.ts src/ 2>/dev/null || true
+          cp .backup/index.ts src/ 2>/dev/null || true
+
           # Clean up
-          rm -rf generated-temp
+          rm -rf generated-temp .backup
           rm openapi-3.2.json openapi-3.1.json
 
           echo "✅ SDK generated successfully"

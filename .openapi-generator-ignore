@@ -1,0 +1,17 @@
+# Keep our custom configuration
+src/safe-config.ts
+
+# Keep our custom index that exports the safe config
+src/index.ts
+
+# Keep package configuration
+package.json
+tsconfig.json
+.gitignore
+README.md
+
+# Keep GitHub workflows
+.github/
+
+# Keep version tracking
+OPENAPI_VERSION

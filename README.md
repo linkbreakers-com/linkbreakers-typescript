@@ -35,7 +35,7 @@ console.log('Short link:', link.shortlink);
 
 ### Authentication
 
-**Important:** The Linkbreakers API uses Bearer token authentication. When configuring the SDK, you must use the `accessToken` parameter (NOT `apiKey`):
+**Important:** The Linkbreakers API uses Bearer token authentication. The SDK's `Configuration` class is designed to only accept the `accessToken` parameter:
 
 ```typescript
 // ✅ CORRECT - Sends "Authorization: Bearer {token}" header
@@ -44,12 +44,14 @@ const config = new Configuration({
   basePath: 'https://api.linkbreakers.com',
 });
 
-// ❌ WRONG - Does not send authentication headers
+// ❌ TypeScript ERROR - apiKey is not a valid parameter
 const config = new Configuration({
-  apiKey: 'your-workspace-token',  // This won't work!
+  apiKey: 'your-workspace-token',  // TypeScript will show an error here!
   basePath: 'https://api.linkbreakers.com',
 });
 ```
+
+The SDK prevents you from accidentally using `apiKey` - TypeScript will show a compile error if you try. This ensures you always use the correct authentication method.
 
 Get your workspace API token from the [Linkbreakers dashboard](https://app.linkbreakers.com).
 
