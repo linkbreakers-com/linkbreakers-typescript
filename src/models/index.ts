@@ -85,6 +85,7 @@ export * from './GetWorkspaceTokenResponse';
 export * from './GooglerpcStatus';
 export * from './IdentifyRequest';
 export * from './IdentifyResponse';
+export * from './IdentifyVisitorTraceData';
 export * from './ImportQrcodeTemplateRequest';
 export * from './ImportQrcodeTemplateResponse';
 export * from './InviteMemberRequest';
