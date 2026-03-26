@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './CustomDomainsApi';
+export * from './DirectoriesApi';
 export * from './EventsApi';
 export * from './IntegrationsServiceApi';
 export * from './LinkSettingsApi';
