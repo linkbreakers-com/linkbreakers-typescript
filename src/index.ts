@@ -12,7 +12,6 @@ export {
   BASE_PATH,
   COLLECTION_FORMATS,
   FetchAPI,
-  FetchArgs,
   BaseAPI,
   RequiredError,
   RequestContext,
