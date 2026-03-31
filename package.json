@@ -1,6 +1,6 @@
 {
   "name": "linkbreakers",
-  "version": "1.44.2",
+  "version": "1.45.0",
   "description": "Official TypeScript/JavaScript SDK for the Linkbreakers API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
