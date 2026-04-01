@@ -125,6 +125,7 @@ export * from './LeadScoreBreakdown';
 export * from './Link';
 export * from './LinkSetting';
 export * from './LinkSortField';
+export * from './LinkView';
 export * from './LinksServiceUpdateBody';
 export * from './ListCustomDomainsResponse';
 export * from './ListDirectoriesResponse';
