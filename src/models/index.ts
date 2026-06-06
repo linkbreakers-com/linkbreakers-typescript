@@ -224,6 +224,7 @@ export * from './UpdateWorkspaceOriginPurposeRequest';
 export * from './UpdateWorkspaceRequest';
 export * from './VCardData';
 export * from './VCardPayload';
+export * from './VCardSocialLink';
 export * from './ValidationInstructionsCustomDomainResponse';
 export * from './ValidationInstructionsCustomDomainResponseValidation';
 export * from './ValidationInstructionsCustomDomainResponseValidationType';
