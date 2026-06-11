@@ -11,6 +11,7 @@ jobs:
     permissions:
       contents: write
       packages: write
+      id-token: write
 
     steps:
       - name: Checkout repository
@@ -168,11 +169,9 @@ jobs:
 
       - name: Publish to npm
         if: steps.compare.outputs.needs_update == 'true'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          npm publish --access public
-          echo "✅ Published @linkbreakers/sdk@${{ steps.fetch-version.outputs.new_version }} to npm"
+          npm publish --provenance --access public
+          echo "✅ Published linkbreakers@${{ steps.fetch-version.outputs.new_version }} to npm"
 
       - name: Summary
         if: steps.compare.outputs.needs_update == 'true'
