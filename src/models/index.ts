@@ -81,6 +81,7 @@ export * from './DeviceTypeConditionPayload';
 export * from './DeviceTypeConditionTraceData';
 export * from './DeviceTypeConditionTraceOption';
 export * from './DeviceTypeConditionValue';
+export * from './DigestFrequency';
 export * from './DirectoriesServiceUpdateBody';
 export * from './Directory';
 export * from './DotsOptions';
