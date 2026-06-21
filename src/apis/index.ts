@@ -3,6 +3,7 @@
 export * from './CustomDomainsApi';
 export * from './DirectoriesApi';
 export * from './EventsApi';
+export * from './GoogleFormsIntegrationsApi';
 export * from './IntegrationsServiceApi';
 export * from './LinkSettingsApi';
 export * from './LinksApi';
