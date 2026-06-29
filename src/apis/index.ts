@@ -1,5 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
+export * from './AIAssistantApi';
+export * from './AnalyticsDashboardApi';
+export * from './AnalyticsDataApi';
 export * from './CustomDomainsApi';
 export * from './DirectoriesApi';
 export * from './EventsApi';
