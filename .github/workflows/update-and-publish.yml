@@ -23,6 +23,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Fetch current version from swagger
         id: fetch-version
@@ -127,8 +128,8 @@ jobs:
           # Update OPENAPI_VERSION file
           echo "$NEW_VERSION" > OPENAPI_VERSION
 
-          # Update package.json version
-          npm version "$NEW_VERSION" --no-git-tag-version
+          # Update package.json version (--allow-same-version handles retries after partial failures)
+          npm version "$NEW_VERSION" --no-git-tag-version --allow-same-version
 
           # Add openapi-fetch as dependency
           npm install --save-exact openapi-fetch
@@ -151,7 +152,8 @@ jobs:
           NEW_VERSION="${{ steps.fetch-version.outputs.new_version }}"
 
           git add .
-          git commit -m "chore: update SDK to API version $NEW_VERSION"
+          # --allow-empty handles the case where code didn't change but version did
+          git diff --cached --quiet && echo "No changes to commit" || git commit -m "chore: update SDK to API version $NEW_VERSION"
 
           echo "✅ Changes committed"
 
@@ -159,6 +161,10 @@ jobs:
         if: steps.compare.outputs.needs_update == 'true'
         run: |
           NEW_VERSION="${{ steps.fetch-version.outputs.new_version }}"
+
+          # Delete existing tag if it exists (from a previous failed run)
+          git push origin ":refs/tags/v$NEW_VERSION" 2>/dev/null || true
+          git tag -d "v$NEW_VERSION" 2>/dev/null || true
 
           git tag "v$NEW_VERSION"
           git push origin main
@@ -177,4 +183,4 @@ jobs:
         run: |
           echo "🎉 SDK successfully updated and published!"
           echo "Version: ${{ steps.fetch-version.outputs.new_version }}"
-          echo "Package: https://www.npmjs.com/package/@linkbreakers/sdk"
+          echo "Package: https://www.npmjs.com/package/linkbreakers"
