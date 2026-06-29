@@ -33,26 +33,24 @@ jobs:
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "Swagger version: $NEW_VERSION"
 
-      - name: Read current OPENAPI_VERSION
+      - name: Check published npm version
         id: current-version
         run: |
-          if [ -f OPENAPI_VERSION ]; then
-            CURRENT_VERSION=$(cat OPENAPI_VERSION)
-          else
-            CURRENT_VERSION="0.0.0"
-          fi
-          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          echo "Current version: $CURRENT_VERSION"
+          # Check what's actually on npm — this is the source of truth.
+          # If publish failed previously, this correctly detects the gap.
+          PUBLISHED_VERSION=$(npm view linkbreakers version 2>/dev/null || echo "0.0.0")
+          echo "published_version=$PUBLISHED_VERSION" >> $GITHUB_OUTPUT
+          echo "Published npm version: $PUBLISHED_VERSION"
 
       - name: Compare versions
         id: compare
         run: |
-          if [ "${{ steps.fetch-version.outputs.new_version }}" == "${{ steps.current-version.outputs.current_version }}" ]; then
+          if [ "${{ steps.fetch-version.outputs.new_version }}" == "${{ steps.current-version.outputs.published_version }}" ]; then
             echo "needs_update=false" >> $GITHUB_OUTPUT
             echo "✅ Versions match. No update needed."
           else
             echo "needs_update=true" >> $GITHUB_OUTPUT
-            echo "🔄 Version changed: ${{ steps.current-version.outputs.current_version }} → ${{ steps.fetch-version.outputs.new_version }}"
+            echo "🔄 Version changed: ${{ steps.current-version.outputs.published_version }} (npm) → ${{ steps.fetch-version.outputs.new_version }} (swagger)"
           fi
 
       - name: Install dependencies
