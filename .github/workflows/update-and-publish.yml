@@ -22,7 +22,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Fetch current version from swagger
@@ -172,8 +172,6 @@ jobs:
 
       - name: Publish to npm
         if: steps.compare.outputs.needs_update == 'true'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm publish --provenance --access public
           echo "✅ Published linkbreakers@${{ steps.fetch-version.outputs.new_version }} to npm"
