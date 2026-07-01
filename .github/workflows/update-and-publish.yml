@@ -172,6 +172,8 @@ jobs:
 
       - name: Publish to npm
         if: steps.compare.outputs.needs_update == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm publish --provenance --access public
           echo "✅ Published linkbreakers@${{ steps.fetch-version.outputs.new_version }} to npm"
