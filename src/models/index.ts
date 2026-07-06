@@ -9,6 +9,8 @@ export * from './Action';
 export * from './AddWorkflowStepRelationshipResponse';
 export * from './AnalyticsDashboard';
 export * from './ApiTag';
+export * from './ApplyQrcodeTemplateRequest';
+export * from './ApplyQrcodeTemplateResponse';
 export * from './AutoLayoutWorkflowResponse';
 export * from './BackgroundOptions';
 export * from './BreakdownDataPoint';

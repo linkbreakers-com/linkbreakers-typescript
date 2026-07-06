@@ -22,31 +22,31 @@ import {
 } from './QrcodeDesign';
 
 /**
- * GetQrcodeDesignResponse returns the design definition hydrated with computed fields.
+ * ApplyQrcodeTemplateResponse returns the updated QR code design after applying the template.
  * @export
- * @interface GetQrcodeDesignResponse
+ * @interface ApplyQrcodeTemplateResponse
  */
-export interface GetQrcodeDesignResponse {
+export interface ApplyQrcodeTemplateResponse {
     /**
      * 
      * @type {QrcodeDesign}
-     * @memberof GetQrcodeDesignResponse
+     * @memberof ApplyQrcodeTemplateResponse
      */
     qrcodeDesign?: QrcodeDesign;
 }
 
 /**
- * Check if a given object implements the GetQrcodeDesignResponse interface.
+ * Check if a given object implements the ApplyQrcodeTemplateResponse interface.
  */
-export function instanceOfGetQrcodeDesignResponse(value: object): value is GetQrcodeDesignResponse {
+export function instanceOfApplyQrcodeTemplateResponse(value: object): value is ApplyQrcodeTemplateResponse {
     return true;
 }
 
-export function GetQrcodeDesignResponseFromJSON(json: any): GetQrcodeDesignResponse {
-    return GetQrcodeDesignResponseFromJSONTyped(json, false);
+export function ApplyQrcodeTemplateResponseFromJSON(json: any): ApplyQrcodeTemplateResponse {
+    return ApplyQrcodeTemplateResponseFromJSONTyped(json, false);
 }
 
-export function GetQrcodeDesignResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): GetQrcodeDesignResponse {
+export function ApplyQrcodeTemplateResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): ApplyQrcodeTemplateResponse {
     if (json == null) {
         return json;
     }
@@ -56,11 +56,11 @@ export function GetQrcodeDesignResponseFromJSONTyped(json: any, ignoreDiscrimina
     };
 }
 
-export function GetQrcodeDesignResponseToJSON(json: any): GetQrcodeDesignResponse {
-    return GetQrcodeDesignResponseToJSONTyped(json, false);
+export function ApplyQrcodeTemplateResponseToJSON(json: any): ApplyQrcodeTemplateResponse {
+    return ApplyQrcodeTemplateResponseToJSONTyped(json, false);
 }
 
-export function GetQrcodeDesignResponseToJSONTyped(value?: GetQrcodeDesignResponse | null, ignoreDiscriminator: boolean = false): any {
+export function ApplyQrcodeTemplateResponseToJSONTyped(value?: ApplyQrcodeTemplateResponse | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
