@@ -24,29 +24,29 @@ import {
 /**
  * 
  * @export
- * @interface UpdateLinkResponse
+ * @interface CreateThankYouLinkResponse
  */
-export interface UpdateLinkResponse {
+export interface CreateThankYouLinkResponse {
     /**
      * 
      * @type {Link}
-     * @memberof UpdateLinkResponse
+     * @memberof CreateThankYouLinkResponse
      */
     link?: Link;
 }
 
 /**
- * Check if a given object implements the UpdateLinkResponse interface.
+ * Check if a given object implements the CreateThankYouLinkResponse interface.
  */
-export function instanceOfUpdateLinkResponse(value: object): value is UpdateLinkResponse {
+export function instanceOfCreateThankYouLinkResponse(value: object): value is CreateThankYouLinkResponse {
     return true;
 }
 
-export function UpdateLinkResponseFromJSON(json: any): UpdateLinkResponse {
-    return UpdateLinkResponseFromJSONTyped(json, false);
+export function CreateThankYouLinkResponseFromJSON(json: any): CreateThankYouLinkResponse {
+    return CreateThankYouLinkResponseFromJSONTyped(json, false);
 }
 
-export function UpdateLinkResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): UpdateLinkResponse {
+export function CreateThankYouLinkResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateThankYouLinkResponse {
     if (json == null) {
         return json;
     }
@@ -56,11 +56,11 @@ export function UpdateLinkResponseFromJSONTyped(json: any, ignoreDiscriminator: 
     };
 }
 
-export function UpdateLinkResponseToJSON(json: any): UpdateLinkResponse {
-    return UpdateLinkResponseToJSONTyped(json, false);
+export function CreateThankYouLinkResponseToJSON(json: any): CreateThankYouLinkResponse {
+    return CreateThankYouLinkResponseToJSONTyped(json, false);
 }
 
-export function UpdateLinkResponseToJSONTyped(value?: UpdateLinkResponse | null, ignoreDiscriminator: boolean = false): any {
+export function CreateThankYouLinkResponseToJSONTyped(value?: CreateThankYouLinkResponse | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }

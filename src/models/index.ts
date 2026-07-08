@@ -51,6 +51,8 @@ export * from './CreateMediaRequest';
 export * from './CreateMediaResponse';
 export * from './CreateQrcodeTemplateRequest';
 export * from './CreateQrcodeTemplateResponse';
+export * from './CreateThankYouLinkRequest';
+export * from './CreateThankYouLinkResponse';
 export * from './CreateWebhookRequest';
 export * from './CreateWebhookResponse';
 export * from './CreateWorkflowStepResponse';
