@@ -135,6 +135,12 @@ export interface Workspace {
      * @type {Date}
      * @memberof Workspace
      */
+    trialEndsAt?: Date;
+    /**
+     * 
+     * @type {Date}
+     * @memberof Workspace
+     */
     updatedAt?: Date;
     /**
      * 
@@ -210,6 +216,7 @@ export function WorkspaceFromJSONTyped(json: any, ignoreDiscriminator: boolean):
         'subscriptionType': json['subscriptionType'] == null ? undefined : json['subscriptionType'],
         'tags': json['tags'] == null ? undefined : json['tags'],
         'timezone': json['timezone'] == null ? undefined : json['timezone'],
+        'trialEndsAt': json['trialEndsAt'] == null ? undefined : (new Date(json['trialEndsAt'])),
         'updatedAt': json['updatedAt'] == null ? undefined : (new Date(json['updatedAt'])),
         'verifiedAt': json['verifiedAt'] == null ? undefined : (new Date(json['verifiedAt'])),
         'website': json['website'] == null ? undefined : json['website'],
@@ -244,6 +251,7 @@ export function WorkspaceToJSONTyped(value?: Workspace | null, ignoreDiscriminat
         'subscriptionType': value['subscriptionType'],
         'tags': value['tags'],
         'timezone': value['timezone'],
+        'trialEndsAt': value['trialEndsAt'] == null ? value['trialEndsAt'] : value['trialEndsAt'].toISOString(),
         'updatedAt': value['updatedAt'] == null ? value['updatedAt'] : value['updatedAt'].toISOString(),
         'verifiedAt': value['verifiedAt'] == null ? value['verifiedAt'] : value['verifiedAt'].toISOString(),
         'website': value['website'],
