@@ -260,7 +260,6 @@ export * from './SpecificDateConditionPayload';
 export * from './SpecificDateConditionTraceData';
 export * from './SpecificDateConditionTraceOption';
 export * from './SpecificDateOption';
-export * from './StepThemeOverride';
 export * from './SubscriptionType';
 export * from './SyncGoogleFormsResponse';
 export * from './TestSlackIntegrationResponse';
