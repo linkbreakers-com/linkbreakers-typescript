@@ -2,9 +2,12 @@
 /* eslint-disable */
 export * from './AIContextType';
 export * from './AIDisplayMessage';
+export * from './AIDisplayMessageAttachment';
 export * from './AIGetConversationResponse';
 export * from './AISendMessageRequest';
 export * from './AISendMessageResponse';
+export * from './AIUploadFileRequest';
+export * from './AIUploadFileResponse';
 export * from './Action';
 export * from './AddWorkflowStepRelationshipResponse';
 export * from './AnalyticsDashboard';
