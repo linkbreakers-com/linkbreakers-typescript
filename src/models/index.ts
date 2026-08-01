@@ -318,6 +318,7 @@ export * from './VisitorDataConditionTraceOption';
 export * from './VisitorEvent';
 export * from './VisitorInput';
 export * from './VisitorLink';
+export * from './VisitorSortField';
 export * from './VisitorTrendDataPoint';
 export * from './VisitorsServiceUpdateBody';
 export * from './Webhook';
