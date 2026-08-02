@@ -347,6 +347,7 @@ export * from './WidgetPosition';
 export * from './WidgetSize';
 export * from './WidgetTab';
 export * from './WidgetTabMode';
+export * from './WidgetTabView';
 export * from './WidgetVisualization';
 export * from './WorkflowIssue';
 export * from './WorkflowStep';
