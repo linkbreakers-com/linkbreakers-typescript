@@ -162,7 +162,7 @@ export * from './GetGroupedTimeSeriesRequest';
 export * from './GetGroupedTimeSeriesResponse';
 export * from './GetHourOfDayDistributionRequest';
 export * from './GetHourOfDayDistributionResponse';
-export * from './GetLeadScoreExplanationResponse';
+export * from './GetLeadScoreResponse';
 export * from './GetLinkResponse';
 export * from './GetLinkSettingResponse';
 export * from './GetMediaResponse';
