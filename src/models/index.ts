@@ -5,6 +5,8 @@ export * from './AgentContextType';
 export * from './AgentDisplayMessage';
 export * from './AgentDisplayMessageAttachment';
 export * from './AgentGetConversationResponse';
+export * from './AgentMarkConversationReadRequest';
+export * from './AgentMarkConversationReadResponse';
 export * from './AgentSendMessageRequest';
 export * from './AgentSendMessageResponse';
 export * from './AgentUploadFileRequest';
