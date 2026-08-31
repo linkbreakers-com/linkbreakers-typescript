@@ -261,6 +261,7 @@ export * from './PublishQrcodeTemplateResponse';
 export * from './QrcodeDesign';
 export * from './QrcodeDesignServiceUpdateBody';
 export * from './QrcodeTemplate';
+export * from './QrcodeTemplateScope';
 export * from './QrcodeTemplatesServiceUpdateQrcodeTemplateBody';
 export * from './RedirectTraceData';
 export * from './RequestWorkspaceEnrollmentRequest';
