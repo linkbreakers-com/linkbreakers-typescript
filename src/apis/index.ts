@@ -12,6 +12,7 @@ export * from './LinkSettingsApi';
 export * from './LinksApi';
 export * from './MediaApi';
 export * from './MembersApi';
+export * from './PageThemeTemplatesApi';
 export * from './PageThemesApi';
 export * from './QRCodeDesignsApi';
 export * from './QRCodeTemplatesApi';
