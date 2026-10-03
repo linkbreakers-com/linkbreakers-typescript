@@ -204,6 +204,7 @@ export * from './ImportPageThemeTemplateResponse';
 export * from './ImportQrcodeTemplateRequest';
 export * from './ImportQrcodeTemplateResponse';
 export * from './InviteMemberRequest';
+export * from './JourneyProgress';
 export * from './LeadScore';
 export * from './LeadScoreBreakdown';
 export * from './Link';
