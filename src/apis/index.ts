@@ -17,7 +17,6 @@ export * from './PageThemesApi';
 export * from './QRCodeDesignsApi';
 export * from './QRCodeTemplatesApi';
 export * from './SlackIntegrationsApi';
-export * from './SupportApi';
 export * from './TagsApi';
 export * from './TimeSeriesApi';
 export * from './VisitorsApi';
