@@ -36,6 +36,8 @@ export * from './CompleteSlackOAuthResponse';
 export * from './ConnectWorkflowStepResponse';
 export * from './ContactCardTraceCard';
 export * from './ContactCardTraceData';
+export * from './ContactSupportRequest';
+export * from './ContactSupportResponse';
 export * from './ContainerConfig';
 export * from './CornersDotOptions';
 export * from './CornersDotType';
