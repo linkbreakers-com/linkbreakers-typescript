@@ -4,4 +4,3 @@ dist/
 .DS_Store
 src/generated/
 .docs-check/
-packages/*/vendor/

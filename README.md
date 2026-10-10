@@ -192,15 +192,6 @@ This SDK is automatically generated from the Linkbreakers OpenAPI specification.
 
 **Current API Version:** See [OPENAPI_VERSION](./OPENAPI_VERSION)
 
-## Other npm packages
-
-The same release job publishes these packages at the same version:
-
-| Package | Source | Purpose |
-| --- | --- | --- |
-| [`linkbreakers-cli`](https://www.npmjs.com/package/linkbreakers-cli) | [packages/linkbreakers-cli](./packages/linkbreakers-cli) | Installs the [`linkbreakers` CLI](https://github.com/linkbreakers-com/linkbreakers-cli) binary from its GitHub release, checksum verified |
-| [`linkbreakers-mcp`](https://www.npmjs.com/package/linkbreakers-mcp) | [packages/linkbreakers-mcp](./packages/linkbreakers-mcp) | Local stdio bridge to the hosted MCP server at `https://mcp.linkbreakers.com` |
-
 ## Support
 
 - **Issues:** [GitHub Issues](https://github.com/linkbreakers-com/linkbreakers-typescript/issues)
