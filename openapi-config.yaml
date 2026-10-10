@@ -1,0 +1,9 @@
+additionalProperties:
+  npmName: linkbreakers
+  supportsES6: true
+  withInterfaces: true
+files:
+  safe-config.mustache:
+    folder: src
+    destinationFilename: safe-config.ts
+    templateType: SupportingFiles

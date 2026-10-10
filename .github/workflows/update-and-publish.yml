@@ -3,14 +3,14 @@ name: Update and Publish SDK
 on:
   repository_dispatch:
     types: [update-sdk]
-  workflow_dispatch:  # Allow manual trigger
+  workflow_dispatch:
 
 jobs:
   update-and-publish:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      packages: write
+      issues: write
       id-token: write
 
     steps:
@@ -28,167 +28,112 @@ jobs:
       - name: Upgrade npm for OIDC trusted publishing
         run: npm install -g npm@latest
 
-      - name: Fetch current version from swagger
-        id: fetch-version
-        run: |
-          SWAGGER_URL="https://api.linkbreakers.com/internal/openapi/api/v1/api.swagger.json"
-          NEW_VERSION=$(curl -s "$SWAGGER_URL" | jq -r '.info.version')
-          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "Swagger version: $NEW_VERSION"
-
-      - name: Check published npm version
-        id: current-version
-        run: |
-          # Check what's actually on npm — this is the source of truth.
-          # If publish failed previously, this correctly detects the gap.
-          PUBLISHED_VERSION=$(npm view linkbreakers version 2>/dev/null || echo "0.0.0")
-          echo "published_version=$PUBLISHED_VERSION" >> $GITHUB_OUTPUT
-          echo "Published npm version: $PUBLISHED_VERSION"
-
-      - name: Compare versions
+      - name: Check whether npm already has the API version
         id: compare
         run: |
-          if [ "${{ steps.fetch-version.outputs.new_version }}" == "${{ steps.current-version.outputs.published_version }}" ]; then
+          NEW_VERSION=$(curl -fsS https://api.linkbreakers.com/internal/openapi/api/v1/api.swagger.json | jq -r '.info.version')
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          if [ -n "$(npm view "linkbreakers@$NEW_VERSION" version 2>/dev/null)" ]; then
             echo "needs_update=false" >> $GITHUB_OUTPUT
-            echo "✅ Versions match. No update needed."
+            echo "npm already has $NEW_VERSION"
           else
             echo "needs_update=true" >> $GITHUB_OUTPUT
-            echo "🔄 Version changed: ${{ steps.current-version.outputs.published_version }} (npm) → ${{ steps.fetch-version.outputs.new_version }} (swagger)"
+            echo "npm does not have $NEW_VERSION yet"
           fi
 
-      - name: Install dependencies
+      - name: Generate SDK
         if: steps.compare.outputs.needs_update == 'true'
-        run: npm install
-
-      - name: Download and convert OpenAPI spec to 3.1
-        if: steps.compare.outputs.needs_update == 'true'
+        env:
+          NEW_VERSION: ${{ steps.compare.outputs.new_version }}
         run: |
-          # Download OpenAPI 3.2.0 spec
-          curl -o openapi-3.2.json https://api.linkbreakers.com/internal/openapi/api/v1/api.swagger.json
+          npm install -g @openapitools/openapi-generator-cli
+          curl -fsS https://api.linkbreakers.com/internal/openapi/api/v1/api.swagger.json \
+            | jq '.openapi = "3.1.0" | del(.jsonSchemaDialect)' > openapi-3.1.json
 
-          # Convert OpenAPI 3.2 to 3.1 (remove 3.2-specific fields)
-          node -e "
-            const fs = require('fs');
-            const spec = JSON.parse(fs.readFileSync('openapi-3.2.json', 'utf8'));
-
-            // Change version to 3.1.0
-            spec.openapi = '3.1.0';
-
-            // Remove 3.2-specific fields
-            delete spec.jsonSchemaDialect;
-
-            fs.writeFileSync('openapi-3.1.json', JSON.stringify(spec, null, 2));
-          "
-
-          echo "✅ OpenAPI spec converted from 3.2 to 3.1"
-
-      - name: Generate SDK using OpenAPI Generator
-        if: steps.compare.outputs.needs_update == 'true'
-        run: |
-          # Backup custom files that we want to preserve
-          mkdir -p .backup
-          cp src/safe-config.ts .backup/ 2>/dev/null || true
-          cp src/index.ts .backup/ 2>/dev/null || true
-
-          # Remove old generated code
           rm -rf src
-
-          # Generate SDK using OpenAPI Generator with typescript-fetch (creates proper SDK classes)
-          npx @openapitools/openapi-generator-cli generate \
+          openapi-generator-cli generate \
             -i openapi-3.1.json \
             -g typescript-fetch \
-            -o generated-temp \
+            -o . \
+            -c openapi-config.yaml \
+            -t templates \
             --skip-validate-spec \
             --git-host github.com \
             --git-user-id linkbreakers-com \
             --git-repo-id linkbreakers-typescript \
-            --additional-properties=npmName=linkbreakers,supportsES6=true,withInterfaces=true
+            --global-property apiDocs=false,modelDocs=false \
+            --additional-properties=npmVersion=$NEW_VERSION
 
-          # Move only the source files to src/ (keep our package.json, tsconfig.json, etc.)
-          mkdir -p src
-          if [ -d "generated-temp/src" ]; then
-            cp -r generated-temp/src/* src/
-          else
-            cp -r generated-temp/*.ts src/ 2>/dev/null || true
-            cp -r generated-temp/apis src/ 2>/dev/null || true
-            cp -r generated-temp/models src/ 2>/dev/null || true
-          fi
-
-          # Restore custom files (overwrite the generated ones)
-          cp .backup/safe-config.ts src/ 2>/dev/null || true
-          cp .backup/index.ts src/ 2>/dev/null || true
-
-          # Clean up
-          rm -rf generated-temp .backup
-          rm openapi-3.2.json openapi-3.1.json
-
-          echo "✅ SDK generated successfully"
-
-      - name: Update version files
-        if: steps.compare.outputs.needs_update == 'true'
-        run: |
-          NEW_VERSION="${{ steps.fetch-version.outputs.new_version }}"
-
-          # Update OPENAPI_VERSION file
           echo "$NEW_VERSION" > OPENAPI_VERSION
+          rm openapi-3.1.json
 
-          # Update package.json version (--allow-same-version handles retries after partial failures)
-          npm version "$NEW_VERSION" --no-git-tag-version --allow-same-version
-
-          # Add openapi-fetch as dependency
-          npm install --save-exact openapi-fetch
-
-          echo "✅ Version files updated to $NEW_VERSION"
-
-      - name: Build SDK
-        if: steps.compare.outputs.needs_update == 'true'
-        run: npm run build
-
-      - name: Check README and examples against the generated SDK
-        if: steps.compare.outputs.needs_update == 'true'
-        run: npm run check:docs
-
-      - name: Configure Git
+      - name: Build
         if: steps.compare.outputs.needs_update == 'true'
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          npm install --no-audit --no-fund
+          npm run build
 
-      - name: Commit changes
+      - name: Smoke check the packed package
         if: steps.compare.outputs.needs_update == 'true'
         run: |
-          NEW_VERSION="${{ steps.fetch-version.outputs.new_version }}"
-
-          git add .
-          # --allow-empty handles the case where code didn't change but version did
-          git diff --cached --quiet && echo "No changes to commit" || git commit -m "chore: update SDK to API version $NEW_VERSION"
-
-          echo "✅ Changes committed"
-
-      - name: Create and push tag
-        if: steps.compare.outputs.needs_update == 'true'
-        run: |
-          NEW_VERSION="${{ steps.fetch-version.outputs.new_version }}"
-
-          # Delete existing tag if it exists (from a previous failed run)
-          git push origin ":refs/tags/v$NEW_VERSION" 2>/dev/null || true
-          git tag -d "v$NEW_VERSION" 2>/dev/null || true
-
-          git tag "v$NEW_VERSION"
-          git push origin main
-          git push origin "v$NEW_VERSION"
-
-          echo "✅ Tag v$NEW_VERSION created and pushed"
+          npm run check:docs
+          SMOKE=$(mktemp -d)
+          npm pack --silent --pack-destination "$SMOKE"
+          cd "$SMOKE"
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund ./linkbreakers-*.tgz
+          node -e "
+          const lb = require('linkbreakers');
+          const api = new lb.LinksApi(new lb.Configuration({ accessToken: 'smoke' }));
+          if (typeof api.linksServiceList !== 'function') throw new Error('LinksApi is missing linksServiceList');
+          "
 
       - name: Publish to npm
         if: steps.compare.outputs.needs_update == 'true'
-        run: |
-          npm publish --provenance --access public
-          echo "✅ Published linkbreakers@${{ steps.fetch-version.outputs.new_version }} to npm"
+        run: npm publish --provenance --access public
 
-      - name: Summary
+      - name: Commit, tag and push
         if: steps.compare.outputs.needs_update == 'true'
+        env:
+          NEW_VERSION: ${{ steps.compare.outputs.new_version }}
         run: |
-          echo "🎉 SDK successfully updated and published!"
-          echo "Version: ${{ steps.fetch-version.outputs.new_version }}"
-          echo "Package: https://www.npmjs.com/package/linkbreakers"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update SDK to API version $NEW_VERSION"
+          fi
+          git push origin main
+          if ! git ls-remote --exit-code --tags origin "refs/tags/v$NEW_VERSION" >/dev/null; then
+            git tag "v$NEW_VERSION"
+            git push origin "v$NEW_VERSION"
+          fi
+
+      - name: Close release failure issues
+        if: success() && steps.compare.outputs.needs_update == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_VERSION: ${{ steps.compare.outputs.new_version }}
+        run: |
+          for number in $(gh issue list --repo "$GITHUB_REPOSITORY" --state open --label release-failure --json number --jq '.[].number'); do
+            gh issue close "$number" --repo "$GITHUB_REPOSITORY" --comment "Published $NEW_VERSION."
+          done
+
+      - name: Report failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_VERSION: ${{ steps.compare.outputs.new_version || 'unknown' }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          MESSAGE="Publishing linkbreakers $NEW_VERSION to npm failed. Run: $RUN_URL"
+          echo "::error title=Release failed::$MESSAGE"
+          gh label create release-failure --repo "$GITHUB_REPOSITORY" --color B60205 \
+            --description "The update and publish workflow failed" --force
+          EXISTING=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --label release-failure --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --repo "$GITHUB_REPOSITORY" --body "$MESSAGE"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --label release-failure \
+              --title "SDK release failing" --body "$MESSAGE"
+          fi

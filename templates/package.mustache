@@ -1,0 +1,38 @@
+{
+  "name": "{{npmName}}",
+  "version": "{{npmVersion}}",
+  "description": "Official TypeScript/JavaScript SDK for the Linkbreakers API",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "check:docs": "node scripts/check-docs.mjs",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}.git"
+  },
+  "keywords": [
+    "linkbreakers",
+    "url-shortener",
+    "qr-code",
+    "link-management",
+    "api"
+  ],
+  "author": "Linkbreakers",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/issues"
+  },
+  "homepage": "https://linkbreakers.com",
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "^5.3.3"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ]
+}
