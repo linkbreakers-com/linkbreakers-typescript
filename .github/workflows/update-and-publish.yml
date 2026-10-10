@@ -192,3 +192,23 @@ jobs:
           echo "🎉 SDK successfully updated and published!"
           echo "Version: ${{ steps.fetch-version.outputs.new_version }}"
           echo "Package: https://www.npmjs.com/package/linkbreakers"
+
+      # Runs on every dispatch, not only when the SDK changed: each package is compared
+      # with its own npm version, so a package that missed a release catches up here.
+      - name: Publish linkbreakers-cli and linkbreakers-mcp to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          VERSION: ${{ steps.fetch-version.outputs.new_version }}
+        run: |
+          if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
+            echo "::error::Could not read the API version from swagger."
+            exit 1
+          fi
+          for pkg in linkbreakers-cli linkbreakers-mcp; do
+            if [ "$(npm view "$pkg" version 2>/dev/null)" = "$VERSION" ]; then
+              echo "$pkg@$VERSION is already on npm."
+              continue
+            fi
+            (cd "packages/$pkg" && npm version "$VERSION" --no-git-tag-version --allow-same-version && npm publish --provenance --access public)
+            echo "Published $pkg@$VERSION to npm"
+          done
