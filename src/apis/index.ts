@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './APIScopesApi';
+export * from './AllowancesApi';
 export * from './AnalyticsDashboardApi';
 export * from './AnalyticsDataApi';
 export * from './AssistantApi';
