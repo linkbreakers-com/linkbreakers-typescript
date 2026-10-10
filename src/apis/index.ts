@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './APIScopesApi';
+export * from './AgentIdentityApi';
 export * from './AllowancesApi';
 export * from './AnalyticsDashboardApi';
 export * from './AnalyticsDataApi';
@@ -10,6 +11,7 @@ export * from './DirectoriesApi';
 export * from './EventsApi';
 export * from './GoogleFormsIntegrationsApi';
 export * from './IntegrationsServiceApi';
+export * from './JobsApi';
 export * from './LinkSettingsApi';
 export * from './LinksApi';
 export * from './MediaApi';
@@ -19,6 +21,7 @@ export * from './PageThemesApi';
 export * from './PricingApi';
 export * from './QRCodeDesignsApi';
 export * from './QRCodeTemplatesApi';
+export * from './SandboxesApi';
 export * from './SlackIntegrationsApi';
 export * from './TagsApi';
 export * from './TimeSeriesApi';
