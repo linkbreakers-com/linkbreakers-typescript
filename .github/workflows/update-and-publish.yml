@@ -12,6 +12,7 @@ jobs:
       contents: write
       packages: write
       id-token: write
+      issues: write
 
     steps:
       - name: Checkout repository
@@ -196,8 +197,9 @@ jobs:
       # Runs on every dispatch, not only when the SDK changed: each package is compared
       # with its own npm version, so a package that missed a release catches up here.
       - name: Publish linkbreakers-cli and linkbreakers-mcp to npm
+        id: extra-npm
+        continue-on-error: true
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           VERSION: ${{ steps.fetch-version.outputs.new_version }}
         run: |
           if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
@@ -209,6 +211,23 @@ jobs:
               echo "$pkg@$VERSION is already on npm."
               continue
             fi
-            (cd "packages/$pkg" && npm version "$VERSION" --no-git-tag-version --allow-same-version && npm publish --provenance --access public)
+            (cd "packages/$pkg" && npm version "$VERSION" --no-git-tag-version --allow-same-version && npm publish --access public --provenance)
             echo "Published $pkg@$VERSION to npm"
           done
+
+      - name: Report npm package failure
+        if: steps.extra-npm.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MESSAGE: "Publishing linkbreakers-cli or linkbreakers-mcp to npm failed for API v${{ steps.fetch-version.outputs.new_version }}. The linkbreakers SDK release is not affected. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        run: |
+          echo "::error title=npm packages not published::${MESSAGE}"
+          gh label create release-failure --repo "$GITHUB_REPOSITORY" --color B60205 \
+            --description "The update and release workflow failed" --force
+          EXISTING=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --label release-failure --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --repo "$GITHUB_REPOSITORY" --body "$MESSAGE"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --label release-failure \
+              --title "npm packages linkbreakers-cli and linkbreakers-mcp failing to publish" --body "$MESSAGE"
+          fi
