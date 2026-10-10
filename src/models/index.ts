@@ -376,6 +376,7 @@ export * from './TimeSeriesPoint';
 export * from './TimeSeriesSeries';
 export * from './TopLinkDataPoint';
 export * from './TriggeredBy';
+export * from './TypeDate';
 export * from './UpdateCustomDomainResponse';
 export * from './UpdateDashboardResponse';
 export * from './UpdateDeviceResponse';
