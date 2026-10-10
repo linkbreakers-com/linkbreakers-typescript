@@ -25,12 +25,14 @@ const config = new Configuration({
 const linksApi = new LinksApi(config);
 
 // Create a shortened link
-const link = await linksApi.createLink({
-  destination: 'https://example.com',
-  name: 'My Link',
+const response = await linksApi.linksServiceCreate({
+  createLinkRequest: {
+    destination: 'https://example.com',
+    name: 'My Link',
+  },
 });
 
-console.log('Short link:', link.shortlink);
+console.log('Short link:', response.link?.shortlink);
 ```
 
 ### Authentication
@@ -38,6 +40,8 @@ console.log('Short link:', link.shortlink);
 **Important:** The Linkbreakers API uses Bearer token authentication. The SDK's `Configuration` class is designed to only accept the `accessToken` parameter:
 
 ```typescript
+import { Configuration } from 'linkbreakers';
+
 // ✅ CORRECT - Sends "Authorization: Bearer {token}" header
 const config = new Configuration({
   accessToken: 'your-workspace-token',
@@ -45,7 +49,8 @@ const config = new Configuration({
 });
 
 // ❌ TypeScript ERROR - apiKey is not a valid parameter
-const config = new Configuration({
+const wrongConfig = new Configuration({
+  // @ts-expect-error apiKey is not accepted, use accessToken
   apiKey: 'your-workspace-token',  // TypeScript will show an error here!
   basePath: 'https://api.linkbreakers.com',
 });
@@ -134,25 +139,25 @@ const visitors = await visitorsApi.visitorsServiceList({
 
 ### Full API Support
 
-The SDK provides type-safe methods for all API operations:
+The SDK provides type-safe methods for all API operations. Method names follow the API's operation IDs (`linksServiceCreate`, `linksServiceList`, `visitorsServiceIdentify`, ...), and each takes a single object holding the path and query parameters plus the request body under its type name (`createLinkRequest`, `linksServiceUpdateBody`, ...):
 
 ```typescript
 // Get a link by ID
-const link = await linksApi.getLink({ id: 'link-id' });
+const { link } = await linksApi.linksServiceGet({ id: 'link-id' });
 
 // Update a link
-const updated = await linksApi.updateLink({
+const updated = await linksApi.linksServiceUpdate({
   id: 'link-id',
-  updateLinkRequest: {
+  linksServiceUpdateBody: {
     name: 'Updated Name',
   },
 });
 
 // Delete a link
-await linksApi.deleteLink({ id: 'link-id' });
+await linksApi.linksServiceDelete({ id: 'link-id' });
 
 // List links with filtering
-const links = await linksApi.listLinks({
+const { links, nextPageToken } = await linksApi.linksServiceList({
   pageSize: 50,
   search: 'my-search',
   tags: ['tag1', 'tag2'],

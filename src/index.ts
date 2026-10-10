@@ -14,6 +14,8 @@ export {
   FetchAPI,
   BaseAPI,
   RequiredError,
+  ResponseError,
+  FetchError,
   RequestContext,
   ResponseContext,
   Middleware,

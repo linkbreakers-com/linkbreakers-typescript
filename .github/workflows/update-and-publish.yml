@@ -141,6 +141,10 @@ jobs:
         if: steps.compare.outputs.needs_update == 'true'
         run: npm run build
 
+      - name: Check README and examples against the generated SDK
+        if: steps.compare.outputs.needs_update == 'true'
+        run: npm run check:docs
+
       - name: Configure Git
         if: steps.compare.outputs.needs_update == 'true'
         run: |
