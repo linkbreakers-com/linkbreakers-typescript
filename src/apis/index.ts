@@ -1,5 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
+export * from './APIScopesApi';
 export * from './AnalyticsDashboardApi';
 export * from './AnalyticsDataApi';
 export * from './AssistantApi';
@@ -14,6 +15,7 @@ export * from './MediaApi';
 export * from './MembersApi';
 export * from './PageThemeTemplatesApi';
 export * from './PageThemesApi';
+export * from './PricingApi';
 export * from './QRCodeDesignsApi';
 export * from './QRCodeTemplatesApi';
 export * from './SlackIntegrationsApi';
