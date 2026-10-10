@@ -286,6 +286,7 @@ export * from './PlanLimit';
 export * from './PlanLimitKey';
 export * from './PlanLimitKind';
 export * from './PlanPrice';
+export * from './PlanTrial';
 export * from './PreferredLinkType';
 export * from './PricingPlan';
 export * from './PricingPlanId';
