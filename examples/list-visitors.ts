@@ -11,7 +11,8 @@
  * - Paginate through large visitor lists
  */
 
-import { Configuration, VisitorsApi } from 'linkbreakers';
+import { writeFileSync } from 'fs';
+import { Configuration, Visitor, VisitorsApi } from 'linkbreakers';
 
 const config = new Configuration({
   accessToken: process.env.LINKBREAKERS_API_KEY || 'your-api-key-here',
@@ -31,10 +32,10 @@ async function listAllVisitors() {
     });
 
     console.log('✓ Retrieved visitors');
-    console.log(`  - Total in this page: ${response.visitors?.length}`);
-    console.log(`  - Next page token: ${response.nextPageToken || 'None (last page)'}`);
+    console.log(`  - Total in this page: ${response.json?.visitors?.length}`);
+    console.log(`  - Next page token: ${response.json?.nextPageToken || 'None (last page)'}`);
 
-    response.visitors?.forEach(visitor => {
+    response.json?.visitors?.forEach(visitor => {
       console.log(`\n  Visitor: ${visitor.email || 'Anonymous'}`);
       console.log(`    - ID: ${visitor.id}`);
       console.log(`    - Name: ${visitor.firstName} ${visitor.lastName}`);
@@ -61,8 +62,9 @@ async function findVisitorByEmail(email: string) {
       pageSize: 1
     });
 
-    if (response.visitors && response.visitors.length > 0) {
-      const visitor = response.visitors[0];
+    const visitors = response.json?.visitors;
+    if (visitors && visitors.length > 0) {
+      const visitor = visitors[0];
       console.log('✓ Found visitor');
       console.log('  - ID:', visitor.id);
       console.log('  - Email:', visitor.email);
@@ -92,15 +94,15 @@ async function searchVisitors(query: string) {
     });
 
     console.log(`✓ Search results for "${query}"`);
-    console.log(`  - Found ${response.visitors?.length} visitors`);
+    console.log(`  - Found ${response.json?.visitors?.length} visitors`);
 
-    response.visitors?.forEach(visitor => {
+    response.json?.visitors?.forEach(visitor => {
       console.log(`\n  ${visitor.email || 'Anonymous'}`);
       console.log(`    Name: ${visitor.firstName} ${visitor.lastName}`);
-      console.log(`    Company: ${visitor.attributes?.company || 'N/A'}`);
+      console.log(`    Company: ${visitor.attributes?.find(attribute => attribute.key === 'company')?.value || 'N/A'}`);
     });
 
-    return response.visitors;
+    return response.json?.visitors;
 
   } catch (error) {
     console.error('✗ Search failed:', error);
@@ -122,14 +124,14 @@ async function getVisitorsByLink(linkId: string) {
     });
 
     console.log(`✓ Visitors who clicked link ${linkId}`);
-    console.log(`  - Total visitors: ${response.visitors?.length}`);
+    console.log(`  - Total visitors: ${response.json?.visitors?.length}`);
 
-    response.visitors?.forEach(visitor => {
+    response.json?.visitors?.forEach(visitor => {
       console.log(`\n  ${visitor.email || 'Anonymous'}`);
       console.log(`    Events: ${visitor.events?.length || 0}`);
     });
 
-    return response.visitors;
+    return response.json?.visitors;
 
   } catch (error) {
     console.error('✗ Failed to get visitors by link:', error);
@@ -142,7 +144,7 @@ async function getVisitorsByLink(linkId: string) {
  */
 async function getAllVisitorsPaginated() {
   const visitorsApi = new VisitorsApi(config);
-  const allVisitors: any[] = [];
+  const allVisitors: Visitor[] = [];
   let pageToken: string | undefined = undefined;
   let pageNum = 1;
 
@@ -155,12 +157,13 @@ async function getAllVisitorsPaginated() {
         pageToken: pageToken
       });
 
-      if (response.visitors) {
-        allVisitors.push(...response.visitors);
-        console.log(`  ✓ Retrieved ${response.visitors.length} visitors`);
+      const visitors = response.json?.visitors;
+      if (visitors) {
+        allVisitors.push(...visitors);
+        console.log(`  ✓ Retrieved ${visitors.length} visitors`);
       }
 
-      pageToken = response.nextPageToken;
+      pageToken = response.json?.nextPageToken;
       pageNum++;
 
       // Optional: Add delay to avoid rate limits
@@ -192,15 +195,15 @@ async function exportVisitorsToCSV() {
     });
 
     console.log('✓ Exported visitors to CSV');
-    console.log('  - CSV data length:', response.csv?.length || 0);
+    const csv = response.csv?.csvData ?? '';
+    console.log('  - CSV data length:', csv.length);
 
     // Save to file
-    const fs = require('fs');
     const filename = `visitors-export-${new Date().toISOString().split('T')[0]}.csv`;
-    fs.writeFileSync(filename, response.csv);
+    writeFileSync(filename, csv);
     console.log(`  - Saved to: ${filename}`);
 
-    return response.csv;
+    return csv;
 
   } catch (error) {
     console.error('✗ Failed to export visitors:', error);

@@ -194,14 +194,14 @@ Most list endpoints support pagination:
 let pageToken: string | undefined;
 
 do {
-  const response = await api.list({
+  const response = await visitorsApi.visitorsServiceList({
     pageSize: 200,
     pageToken: pageToken
   });
 
-  // Process results
+  // Process response.json?.visitors
 
-  pageToken = response.nextPageToken;
+  pageToken = response.json?.nextPageToken;
 } while (pageToken);
 ```
 
@@ -210,16 +210,19 @@ do {
 ### Error Handling
 
 ```typescript
+import { ResponseError } from 'linkbreakers';
+
 try {
   const visitor = await visitorsApi.visitorsServiceIdentify({
     identifyRequest: { /* ... */ }
   });
   console.log('Success:', visitor);
 } catch (error) {
-  if (error.response) {
-    console.error('API Error:', error.response.status, error.response.data);
+  if (error instanceof ResponseError) {
+    // The API answered with a non-2xx status; the body is an RFC 9457 problem
+    console.error('API Error:', error.response.status, await error.response.json());
   } else {
-    console.error('Network Error:', error.message);
+    console.error('Network Error:', error);
   }
 }
 ```
@@ -229,8 +232,13 @@ try {
 ```typescript
 import { Configuration } from 'linkbreakers';
 
+const apiKey = process.env.LINKBREAKERS_API_KEY;
+if (!apiKey) {
+  throw new Error('Set LINKBREAKERS_API_KEY');
+}
+
 const config = new Configuration({
-  accessToken: process.env.LINKBREAKERS_API_KEY,
+  accessToken: apiKey,
   basePath: process.env.LINKBREAKERS_API_URL || 'https://api.linkbreakers.com',
 });
 ```
@@ -238,9 +246,14 @@ const config = new Configuration({
 ### Batch Operations
 
 ```typescript
+const visitorIds = ['visitor-uuid-1', 'visitor-uuid-2'];
+
 // Process in parallel with Promise.allSettled
 const results = await Promise.allSettled(
-  items.map(item => api.process(item))
+  visitorIds.map(id => visitorsApi.visitorsServiceUpdate({
+    id,
+    visitorsServiceUpdateBody: { visitor: { data: { plan: 'enterprise' } } }
+  }))
 );
 
 const succeeded = results.filter(r => r.status === 'fulfilled');
@@ -261,3 +274,4 @@ Have a useful example? Submit a PR!
 2. Include clear comments and use cases
 3. Make it runnable with realistic fake data
 4. Add it to this README
+5. Run `npm run check:docs`: it type-checks every example and every TypeScript snippet in the READMEs against the generated SDK, and CI runs it on every pull request and before every release

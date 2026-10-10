@@ -99,6 +99,9 @@ jobs:
             -g typescript-fetch \
             -o generated-temp \
             --skip-validate-spec \
+            --git-host github.com \
+            --git-user-id linkbreakers-com \
+            --git-repo-id linkbreakers-typescript \
             --additional-properties=npmName=linkbreakers,supportsES6=true,withInterfaces=true
 
           # Move only the source files to src/ (keep our package.json, tsconfig.json, etc.)
@@ -140,6 +143,10 @@ jobs:
       - name: Build SDK
         if: steps.compare.outputs.needs_update == 'true'
         run: npm run build
+
+      - name: Check README and examples against the generated SDK
+        if: steps.compare.outputs.needs_update == 'true'
+        run: npm run check:docs
 
       - name: Configure Git
         if: steps.compare.outputs.needs_update == 'true'

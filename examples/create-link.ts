@@ -35,7 +35,6 @@ async function createBasicLink() {
     console.log('✓ Basic link created');
     console.log('  - Short URL:', response.link?.shortlink);
     console.log('  - Link ID:', response.link?.id);
-    console.log('  - Destination:', response.link?.destination);
 
     return response.link;
 
