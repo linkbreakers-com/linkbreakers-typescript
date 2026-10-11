@@ -279,6 +279,7 @@ src/models/ListEventsJsonResponse.ts
 src/models/ListEventsResponse.ts
 src/models/ListLinksResponse.ts
 src/models/ListMediaResponse.ts
+src/models/ListMyWorkspacesResponse.ts
 src/models/ListPageThemeTemplatesResponse.ts
 src/models/ListPageThemesResponse.ts
 src/models/ListPricingPlansResponse.ts
@@ -300,6 +301,7 @@ src/models/MediaSelection.ts
 src/models/MediaType.ts
 src/models/MediaVisibility.ts
 src/models/Member.ts
+src/models/MembersServiceSwitchWorkspaceBody.ts
 src/models/MembersServiceUpdateBody.ts
 src/models/MessagePageNavigationType.ts
 src/models/MessagePagePayload.ts
@@ -310,6 +312,7 @@ src/models/MultiLinkPayload.ts
 src/models/MultiLinkTraceButton.ts
 src/models/MultiLinkTraceData.ts
 src/models/MultiLinkTraceSelectedButton.ts
+src/models/MyWorkspace.ts
 src/models/OutputFileFormat.ts
 src/models/PageTheme.ts
 src/models/PageThemeBadgeShape.ts
@@ -396,6 +399,7 @@ src/models/SpecificDateConditionTraceData.ts
 src/models/SpecificDateConditionTraceOption.ts
 src/models/SpecificDateOption.ts
 src/models/SubscriptionType.ts
+src/models/SwitchWorkspaceResponse.ts
 src/models/SyncGoogleFormsResponse.ts
 src/models/TestSlackIntegrationResponse.ts
 src/models/ThankYouPagePayload.ts
