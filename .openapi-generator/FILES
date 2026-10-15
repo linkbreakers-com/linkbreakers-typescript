@@ -62,6 +62,7 @@ src/models/AttributeValueEntry.ts
 src/models/AttributeWrite.ts
 src/models/AttributeWriteMode.ts
 src/models/AutoLayoutWorkflowResponse.ts
+src/models/BackButton.ts
 src/models/BackgroundOptions.ts
 src/models/BillingInterval.ts
 src/models/BreakdownDataPoint.ts
@@ -74,6 +75,7 @@ src/models/ClaimAgentWorkspaceRequest.ts
 src/models/ClientRedirectPayload.ts
 src/models/CompleteGoogleFormsOAuthRequest.ts
 src/models/CompleteGoogleFormsOAuthResponse.ts
+src/models/CompleteMediaUploadResponse.ts
 src/models/CompleteSlackOAuthRequest.ts
 src/models/CompleteSlackOAuthResponse.ts
 src/models/ConnectWorkflowStepResponse.ts
@@ -99,10 +101,14 @@ src/models/CreateDashboardResponse.ts
 src/models/CreateDirectoryRequest.ts
 src/models/CreateDirectoryResponse.ts
 src/models/CreateEventTraceResponse.ts
+src/models/CreateFileLinkRequest.ts
+src/models/CreateFileLinkResponse.ts
 src/models/CreateLinkRequest.ts
 src/models/CreateLinkResponse.ts
 src/models/CreateMediaRequest.ts
 src/models/CreateMediaResponse.ts
+src/models/CreateMediaUploadRequest.ts
+src/models/CreateMediaUploadResponse.ts
 src/models/CreatePageThemeTemplateRequest.ts
 src/models/CreatePageThemeTemplateResponse.ts
 src/models/CreateQrcodeTemplateRequest.ts
@@ -190,6 +196,8 @@ src/models/EventsServiceCreateEventTraceBody.ts
 src/models/EventsServiceUpdateDeviceBody.ts
 src/models/EventsTimeSeries.ts
 src/models/EventsTimeSeriesData.ts
+src/models/FilePayload.ts
+src/models/FileTraceData.ts
 src/models/FindMatchingPageThemeTemplateResponse.ts
 src/models/FontConfig.ts
 src/models/FormField.ts
@@ -297,8 +305,11 @@ src/models/ListWebhooksResponse.ts
 src/models/ListWorkflowStepsResponse.ts
 src/models/ListWorkspaceTokensResponse.ts
 src/models/Media.ts
+src/models/MediaKind.ts
 src/models/MediaSelection.ts
+src/models/MediaStatus.ts
 src/models/MediaType.ts
+src/models/MediaUsage.ts
 src/models/MediaVisibility.ts
 src/models/Member.ts
 src/models/MembersServiceSwitchWorkspaceBody.ts
