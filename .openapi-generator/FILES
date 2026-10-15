@@ -306,6 +306,8 @@ src/models/ListWorkflowStepsResponse.ts
 src/models/ListWorkspaceTokensResponse.ts
 src/models/Media.ts
 src/models/MediaKind.ts
+src/models/MediaReference.ts
+src/models/MediaReferenceType.ts
 src/models/MediaSelection.ts
 src/models/MediaStatus.ts
 src/models/MediaType.ts
@@ -366,6 +368,7 @@ src/models/QrcodeTemplate.ts
 src/models/QrcodeTemplateScope.ts
 src/models/QrcodeTemplatesServiceUpdateQrcodeTemplateBody.ts
 src/models/RedirectTraceData.ts
+src/models/RedirectTraceDataFallbackReason.ts
 src/models/RequestWorkspaceEnrollmentRequest.ts
 src/models/ResolvePageThemeTemplateImagesRequest.ts
 src/models/ResolvePageThemeTemplateImagesResponse.ts
