@@ -78,6 +78,7 @@ src/models/ClaimAgentWorkspaceRequest.ts
 src/models/ClientRedirectPayload.ts
 src/models/CompleteGoogleFormsOAuthRequest.ts
 src/models/CompleteGoogleFormsOAuthResponse.ts
+src/models/CompleteMediaReplaceResponse.ts
 src/models/CompleteMediaUploadResponse.ts
 src/models/CompleteSlackOAuthRequest.ts
 src/models/CompleteSlackOAuthResponse.ts
@@ -106,6 +107,7 @@ src/models/CreateDirectoryResponse.ts
 src/models/CreateEventTraceResponse.ts
 src/models/CreateLinkRequest.ts
 src/models/CreateLinkResponse.ts
+src/models/CreateMediaReplaceUploadResponse.ts
 src/models/CreateMediaRequest.ts
 src/models/CreateMediaResponse.ts
 src/models/CreateMediaUploadRequest.ts
@@ -312,6 +314,8 @@ src/models/MediaKind.ts
 src/models/MediaReference.ts
 src/models/MediaReferenceType.ts
 src/models/MediaSelection.ts
+src/models/MediaServiceCreateReplaceUploadBody.ts
+src/models/MediaServiceReplaceImportBody.ts
 src/models/MediaStatus.ts
 src/models/MediaTraceData.ts
 src/models/MediaType.ts
@@ -375,6 +379,7 @@ src/models/QrcodeTemplateScope.ts
 src/models/QrcodeTemplatesServiceUpdateQrcodeTemplateBody.ts
 src/models/RedirectTraceData.ts
 src/models/RedirectTraceDataFallbackReason.ts
+src/models/ReplaceMediaImportResponse.ts
 src/models/RequestWorkspaceEnrollmentRequest.ts
 src/models/ResolvePageThemeTemplateImagesRequest.ts
 src/models/ResolvePageThemeTemplateImagesResponse.ts
