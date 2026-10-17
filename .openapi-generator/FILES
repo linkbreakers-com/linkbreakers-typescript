@@ -48,7 +48,10 @@ src/models/ApplyPageThemeTemplateRequest.ts
 src/models/ApplyPageThemeTemplateResponse.ts
 src/models/ApplyQrcodeTemplateRequest.ts
 src/models/ApplyQrcodeTemplateResponse.ts
+src/models/AssistantCompleteAttachmentUploadResponse.ts
 src/models/AssistantContextType.ts
+src/models/AssistantCreateAttachmentUploadRequest.ts
+src/models/AssistantCreateAttachmentUploadResponse.ts
 src/models/AssistantDisplayMessage.ts
 src/models/AssistantDisplayMessageAttachment.ts
 src/models/AssistantGetConversationResponse.ts
@@ -257,6 +260,8 @@ src/models/HourOfDayDataPoint.ts
 src/models/IdentifyRequest.ts
 src/models/IdentifyResponse.ts
 src/models/IdentifyVisitorTraceData.ts
+src/models/ImportMediaRequest.ts
+src/models/ImportMediaResponse.ts
 src/models/ImportPageThemeTemplateRequest.ts
 src/models/ImportPageThemeTemplateResponse.ts
 src/models/ImportQrcodeTemplateRequest.ts
