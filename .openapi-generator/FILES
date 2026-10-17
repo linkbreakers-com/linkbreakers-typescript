@@ -101,14 +101,14 @@ src/models/CreateDashboardResponse.ts
 src/models/CreateDirectoryRequest.ts
 src/models/CreateDirectoryResponse.ts
 src/models/CreateEventTraceResponse.ts
-src/models/CreateFileLinkRequest.ts
-src/models/CreateFileLinkResponse.ts
 src/models/CreateLinkRequest.ts
 src/models/CreateLinkResponse.ts
 src/models/CreateMediaRequest.ts
 src/models/CreateMediaResponse.ts
 src/models/CreateMediaUploadRequest.ts
 src/models/CreateMediaUploadResponse.ts
+src/models/CreateOpenMediaLinkRequest.ts
+src/models/CreateOpenMediaLinkResponse.ts
 src/models/CreatePageThemeTemplateRequest.ts
 src/models/CreatePageThemeTemplateResponse.ts
 src/models/CreateQrcodeTemplateRequest.ts
@@ -196,8 +196,6 @@ src/models/EventsServiceCreateEventTraceBody.ts
 src/models/EventsServiceUpdateDeviceBody.ts
 src/models/EventsTimeSeries.ts
 src/models/EventsTimeSeriesData.ts
-src/models/FilePayload.ts
-src/models/FileTraceData.ts
 src/models/FindMatchingPageThemeTemplateResponse.ts
 src/models/FontConfig.ts
 src/models/FormField.ts
@@ -310,7 +308,9 @@ src/models/MediaReference.ts
 src/models/MediaReferenceType.ts
 src/models/MediaSelection.ts
 src/models/MediaStatus.ts
+src/models/MediaTraceData.ts
 src/models/MediaType.ts
+src/models/MediaUploadOrigin.ts
 src/models/MediaUsage.ts
 src/models/MediaVisibility.ts
 src/models/Member.ts
@@ -326,6 +326,7 @@ src/models/MultiLinkTraceButton.ts
 src/models/MultiLinkTraceData.ts
 src/models/MultiLinkTraceSelectedButton.ts
 src/models/MyWorkspace.ts
+src/models/OpenMediaPayload.ts
 src/models/OutputFileFormat.ts
 src/models/PageTheme.ts
 src/models/PageThemeBadgeShape.ts
