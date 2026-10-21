@@ -347,6 +347,7 @@ export * from './QrcodeTemplatesServiceUpdateQrcodeTemplateBody';
 export * from './RedirectTraceData';
 export * from './RedirectTraceDataFallbackReason';
 export * from './ReplaceMediaImportResponse';
+export * from './RequestEmailVerificationRequest';
 export * from './RequestWorkspaceEnrollmentRequest';
 export * from './ResolvePageThemeTemplateImagesRequest';
 export * from './ResolvePageThemeTemplateImagesResponse';

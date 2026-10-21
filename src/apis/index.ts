@@ -6,6 +6,7 @@ export * from './AllowancesApi';
 export * from './AnalyticsDashboardApi';
 export * from './AnalyticsDataApi';
 export * from './AssistantApi';
+export * from './AuthApi';
 export * from './CustomDomainsApi';
 export * from './DirectoriesApi';
 export * from './EventsApi';

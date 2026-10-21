@@ -6,6 +6,7 @@ src/apis/AllowancesApi.ts
 src/apis/AnalyticsDashboardApi.ts
 src/apis/AnalyticsDataApi.ts
 src/apis/AssistantApi.ts
+src/apis/AuthApi.ts
 src/apis/CustomDomainsApi.ts
 src/apis/DirectoriesApi.ts
 src/apis/EventsApi.ts
@@ -380,6 +381,7 @@ src/models/QrcodeTemplatesServiceUpdateQrcodeTemplateBody.ts
 src/models/RedirectTraceData.ts
 src/models/RedirectTraceDataFallbackReason.ts
 src/models/ReplaceMediaImportResponse.ts
+src/models/RequestEmailVerificationRequest.ts
 src/models/RequestWorkspaceEnrollmentRequest.ts
 src/models/ResolvePageThemeTemplateImagesRequest.ts
 src/models/ResolvePageThemeTemplateImagesResponse.ts
