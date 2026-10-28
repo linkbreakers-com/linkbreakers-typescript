@@ -22,7 +22,6 @@ export * from './PageThemesApi';
 export * from './PricingApi';
 export * from './QRCodeDesignsApi';
 export * from './QRCodeTemplatesApi';
-export * from './SandboxesApi';
 export * from './SlackIntegrationsApi';
 export * from './TagsApi';
 export * from './TimeSeriesApi';

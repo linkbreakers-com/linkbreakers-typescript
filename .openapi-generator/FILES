@@ -22,7 +22,6 @@ src/apis/PageThemesApi.ts
 src/apis/PricingApi.ts
 src/apis/QRCodeDesignsApi.ts
 src/apis/QRCodeTemplatesApi.ts
-src/apis/SandboxesApi.ts
 src/apis/SlackIntegrationsApi.ts
 src/apis/TagsApi.ts
 src/apis/TimeSeriesApi.ts
@@ -113,14 +112,14 @@ src/models/CreateMediaRequest.ts
 src/models/CreateMediaResponse.ts
 src/models/CreateMediaUploadRequest.ts
 src/models/CreateMediaUploadResponse.ts
+src/models/CreateMyWorkspaceRequest.ts
+src/models/CreateMyWorkspaceResponse.ts
 src/models/CreateOpenMediaLinkRequest.ts
 src/models/CreateOpenMediaLinkResponse.ts
 src/models/CreatePageThemeTemplateRequest.ts
 src/models/CreatePageThemeTemplateResponse.ts
 src/models/CreateQrcodeTemplateRequest.ts
 src/models/CreateQrcodeTemplateResponse.ts
-src/models/CreateSandboxRequest.ts
-src/models/CreateSandboxResponse.ts
 src/models/CreateThankYouLinkRequest.ts
 src/models/CreateThankYouLinkResponse.ts
 src/models/CreateWebhookRequest.ts
@@ -299,7 +298,6 @@ src/models/ListPageThemesResponse.ts
 src/models/ListPricingPlansResponse.ts
 src/models/ListQrcodeTemplatesResponse.ts
 src/models/ListResponse.ts
-src/models/ListSandboxesResponse.ts
 src/models/ListSlackChannelsResponse.ts
 src/models/ListTagsResponse.ts
 src/models/ListVisitorAttributeKeysResponse.ts
@@ -310,6 +308,9 @@ src/models/ListVisitorsResponse.ts
 src/models/ListWebhooksResponse.ts
 src/models/ListWorkflowStepsResponse.ts
 src/models/ListWorkspaceTokensResponse.ts
+src/models/LocationRequestOutcome.ts
+src/models/LocationRequestPayload.ts
+src/models/LocationRequestTraceData.ts
 src/models/Media.ts
 src/models/MediaKind.ts
 src/models/MediaReference.ts
@@ -392,7 +393,6 @@ src/models/ResolveQrcodeTemplateImagesResponse.ts
 src/models/ResolveStepCollisionsResponse.ts
 src/models/ResponseFormat.ts
 src/models/Role.ts
-src/models/Sandbox.ts
 src/models/SettingsServiceUpdateLinkSettingBody.ts
 src/models/Shape.ts
 src/models/ShortlinkAvailabilityResponse.ts

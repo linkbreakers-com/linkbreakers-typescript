@@ -2,9 +2,9 @@
 /* eslint-disable */
 /**
  * Linkbreakers API
- * This is a documentation of all the APIs of Linkbreakers  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 600 requests per 60 seconds, per token. - Dashboard session or OAuth token: 500 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.
+ * This is a documentation of all the APIs of Linkbreakers  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.
  *
- * The version of the OpenAPI document: 1.183.3
+ * The version of the OpenAPI document: 1.184.0
  * 
  *
  * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
@@ -15,6 +15,8 @@
 
 import * as runtime from '../runtime';
 import type {
+  CreateMyWorkspaceRequest,
+  CreateMyWorkspaceResponse,
   ErrorResponse,
   InviteMemberRequest,
   ListMyWorkspacesResponse,
@@ -26,6 +28,10 @@ import type {
   UpdateMeRequest,
 } from '../models/index';
 import {
+    CreateMyWorkspaceRequestFromJSON,
+    CreateMyWorkspaceRequestToJSON,
+    CreateMyWorkspaceResponseFromJSON,
+    CreateMyWorkspaceResponseToJSON,
     ErrorResponseFromJSON,
     ErrorResponseToJSON,
     InviteMemberRequestFromJSON,
@@ -49,6 +55,11 @@ import {
 export interface MembersServiceAllowAccessRequest {
     id: string;
     body: object;
+    idempotencyKey?: string;
+}
+
+export interface MembersServiceCreateMyWorkspaceRequest {
+    createMyWorkspaceRequest: CreateMyWorkspaceRequest;
     idempotencyKey?: string;
 }
 
@@ -134,6 +145,32 @@ export interface MembersApiInterface {
      * Allow access for a member
      */
     membersServiceAllowAccess(requestParameters: MembersServiceAllowAccessRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Member>;
+
+    /**
+     * Creates request options for membersServiceCreateMyWorkspace without sending the request
+     * @param {CreateMyWorkspaceRequest} createMyWorkspaceRequest 
+     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @throws {RequiredError}
+     * @memberof MembersApiInterface
+     */
+    membersServiceCreateMyWorkspaceRequestOpts(requestParameters: MembersServiceCreateMyWorkspaceRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * Create another workspace for the signed-in person, such as one per client or brand, and issue an access token for it. The new workspace starts on the Free plan and is billed on its own plan. A person may found a limited number of Free workspaces: past that the call answers FREE_WORKSPACE_LIMIT_REACHED, with the limit in its metadata, until one of them is on a paid plan. Workspaces the person was invited to do not count. Needs a dashboard session or a full-access token of a member with an email; a workspace token or a token limited to scopes is refused.  Requires the `members:write` scope.
+     * @summary Create workspace
+     * @param {CreateMyWorkspaceRequest} createMyWorkspaceRequest 
+     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof MembersApiInterface
+     */
+    membersServiceCreateMyWorkspaceRaw(requestParameters: MembersServiceCreateMyWorkspaceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateMyWorkspaceResponse>>;
+
+    /**
+     * Create another workspace for the signed-in person, such as one per client or brand, and issue an access token for it. The new workspace starts on the Free plan and is billed on its own plan. A person may found a limited number of Free workspaces: past that the call answers FREE_WORKSPACE_LIMIT_REACHED, with the limit in its metadata, until one of them is on a paid plan. Workspaces the person was invited to do not count. Needs a dashboard session or a full-access token of a member with an email; a workspace token or a token limited to scopes is refused.  Requires the `members:write` scope.
+     * Create workspace
+     */
+    membersServiceCreateMyWorkspace(requestParameters: MembersServiceCreateMyWorkspaceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateMyWorkspaceResponse>;
 
     /**
      * Creates request options for membersServiceDelete without sending the request
@@ -497,6 +534,72 @@ export class MembersApi extends runtime.BaseAPI implements MembersApiInterface {
      */
     async membersServiceAllowAccess(requestParameters: MembersServiceAllowAccessRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Member> {
         const response = await this.membersServiceAllowAccessRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for membersServiceCreateMyWorkspace without sending the request
+     */
+    async membersServiceCreateMyWorkspaceRequestOpts(requestParameters: MembersServiceCreateMyWorkspaceRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['createMyWorkspaceRequest'] == null) {
+            throw new runtime.RequiredError(
+                'createMyWorkspaceRequest',
+                'Required parameter "createMyWorkspaceRequest" was null or undefined when calling membersServiceCreateMyWorkspace().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['idempotencyKey'] != null) {
+            headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
+        }
+
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["members:write"]);
+        }
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", ["members:write"]);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/v1/myself/workspaces`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: CreateMyWorkspaceRequestToJSON(requestParameters['createMyWorkspaceRequest']),
+        };
+    }
+
+    /**
+     * Create another workspace for the signed-in person, such as one per client or brand, and issue an access token for it. The new workspace starts on the Free plan and is billed on its own plan. A person may found a limited number of Free workspaces: past that the call answers FREE_WORKSPACE_LIMIT_REACHED, with the limit in its metadata, until one of them is on a paid plan. Workspaces the person was invited to do not count. Needs a dashboard session or a full-access token of a member with an email; a workspace token or a token limited to scopes is refused.  Requires the `members:write` scope.
+     * Create workspace
+     */
+    async membersServiceCreateMyWorkspaceRaw(requestParameters: MembersServiceCreateMyWorkspaceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateMyWorkspaceResponse>> {
+        const requestOptions = await this.membersServiceCreateMyWorkspaceRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => CreateMyWorkspaceResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Create another workspace for the signed-in person, such as one per client or brand, and issue an access token for it. The new workspace starts on the Free plan and is billed on its own plan. A person may found a limited number of Free workspaces: past that the call answers FREE_WORKSPACE_LIMIT_REACHED, with the limit in its metadata, until one of them is on a paid plan. Workspaces the person was invited to do not count. Needs a dashboard session or a full-access token of a member with an email; a workspace token or a token limited to scopes is refused.  Requires the `members:write` scope.
+     * Create workspace
+     */
+    async membersServiceCreateMyWorkspace(requestParameters: MembersServiceCreateMyWorkspaceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateMyWorkspaceResponse> {
+        const response = await this.membersServiceCreateMyWorkspaceRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
