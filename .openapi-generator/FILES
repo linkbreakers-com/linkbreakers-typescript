@@ -10,6 +10,7 @@ src/apis/AuthApi.ts
 src/apis/CustomDomainsApi.ts
 src/apis/DirectoriesApi.ts
 src/apis/EventsApi.ts
+src/apis/GoogleAnalyticsIntegrationsApi.ts
 src/apis/GoogleFormsIntegrationsApi.ts
 src/apis/IntegrationsServiceApi.ts
 src/apis/JobsApi.ts
@@ -22,6 +23,7 @@ src/apis/PageThemesApi.ts
 src/apis/PricingApi.ts
 src/apis/QRCodeDesignsApi.ts
 src/apis/QRCodeTemplatesApi.ts
+src/apis/RetargetingPixelsApi.ts
 src/apis/SlackIntegrationsApi.ts
 src/apis/TagsApi.ts
 src/apis/TimeSeriesApi.ts
@@ -224,6 +226,7 @@ src/models/GetBreakdownRequest.ts
 src/models/GetBreakdownResponse.ts
 src/models/GetCustomDomainResponse.ts
 src/models/GetCustomDomainSetupGuideResponse.ts
+src/models/GetDataCollectionResponse.ts
 src/models/GetDeviceDistributionRequest.ts
 src/models/GetDeviceDistributionResponse.ts
 src/models/GetDirectoryResponse.ts
@@ -231,6 +234,7 @@ src/models/GetEventsTimeSeriesRequest.ts
 src/models/GetEventsTimeSeriesResponse.ts
 src/models/GetGeoBreakdownRequest.ts
 src/models/GetGeoBreakdownResponse.ts
+src/models/GetGoogleAnalyticsIntegrationResponse.ts
 src/models/GetGoogleFormsIntegrationResponse.ts
 src/models/GetGoogleFormsOAuthURLResponse.ts
 src/models/GetGroupedTimeSeriesRequest.ts
@@ -242,6 +246,7 @@ src/models/GetLinkSettingResponse.ts
 src/models/GetMediaResponse.ts
 src/models/GetPageThemeResponse.ts
 src/models/GetQrcodeDesignResponse.ts
+src/models/GetRetargetingPixelsResponse.ts
 src/models/GetSlackIntegrationResponse.ts
 src/models/GetSlackOAuthURLResponse.ts
 src/models/GetStepFunnelRequest.ts
@@ -254,6 +259,7 @@ src/models/GetWebhookResponse.ts
 src/models/GetWidgetSummaryResponse.ts
 src/models/GetWorkflowStepResponse.ts
 src/models/GetWorkspaceTokenResponse.ts
+src/models/GoogleAnalyticsIntegration.ts
 src/models/GoogleFormsIntegration.ts
 src/models/GoogleFormsIntegrationStatus.ts
 src/models/GooglerpcStatus.ts
@@ -274,6 +280,10 @@ src/models/JobError.ts
 src/models/JobStatus.ts
 src/models/JobType.ts
 src/models/JourneyProgress.ts
+src/models/LanguageConditionOutcome.ts
+src/models/LanguageConditionPayload.ts
+src/models/LanguageConditionTraceData.ts
+src/models/LanguageConditionTraceOption.ts
 src/models/Link.ts
 src/models/LinkSetting.ts
 src/models/LinkSortField.ts
@@ -382,6 +392,7 @@ src/models/QrcodeTemplatesServiceUpdateQrcodeTemplateBody.ts
 src/models/RedirectTraceData.ts
 src/models/RedirectTraceDataFallbackReason.ts
 src/models/ReplaceMediaImportResponse.ts
+src/models/ReportStepSearchMissRequest.ts
 src/models/RequestEmailVerificationRequest.ts
 src/models/RequestWorkspaceEnrollmentRequest.ts
 src/models/ResolvePageThemeTemplateImagesRequest.ts
@@ -392,6 +403,7 @@ src/models/ResolveQrcodeTemplateImagesRequest.ts
 src/models/ResolveQrcodeTemplateImagesResponse.ts
 src/models/ResolveStepCollisionsResponse.ts
 src/models/ResponseFormat.ts
+src/models/RetargetingPixels.ts
 src/models/Role.ts
 src/models/SettingsServiceUpdateLinkSettingBody.ts
 src/models/Shape.ts
@@ -428,6 +440,7 @@ src/models/SpecificDateOption.ts
 src/models/SubscriptionType.ts
 src/models/SwitchWorkspaceResponse.ts
 src/models/SyncGoogleFormsResponse.ts
+src/models/TestGoogleAnalyticsIntegrationResponse.ts
 src/models/TestSlackIntegrationResponse.ts
 src/models/ThankYouPagePayload.ts
 src/models/ThemeColor.ts
@@ -443,8 +456,12 @@ src/models/TriggeredBy.ts
 src/models/TypeDate.ts
 src/models/UpdateCustomDomainResponse.ts
 src/models/UpdateDashboardResponse.ts
+src/models/UpdateDataCollectionRequest.ts
+src/models/UpdateDataCollectionResponse.ts
 src/models/UpdateDeviceResponse.ts
 src/models/UpdateDirectoryResponse.ts
+src/models/UpdateGoogleAnalyticsIntegrationRequest.ts
+src/models/UpdateGoogleAnalyticsIntegrationResponse.ts
 src/models/UpdateGoogleFormsIntegrationRequest.ts
 src/models/UpdateGoogleFormsIntegrationResponse.ts
 src/models/UpdateLinkResponse.ts
@@ -455,6 +472,8 @@ src/models/UpdatePageThemeTemplateResponse.ts
 src/models/UpdatePageThemeTemplateStylingResponse.ts
 src/models/UpdateQrcodeDesignResponse.ts
 src/models/UpdateQrcodeTemplateResponse.ts
+src/models/UpdateRetargetingPixelsRequest.ts
+src/models/UpdateRetargetingPixelsResponse.ts
 src/models/UpdateSlackIntegrationRequest.ts
 src/models/UpdateSlackIntegrationResponse.ts
 src/models/UpdateWebhookResponse.ts
