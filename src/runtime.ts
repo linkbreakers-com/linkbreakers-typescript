@@ -15,6 +15,30 @@
 
 export const BASE_PATH = "https://api.linkbreakers.com".replace(/\/+$/, "");
 
+// Linkbreakers: identifies this SDK to the API on every request. Headers set in
+// the configuration or on the request still win.
+export const SDK_VERSION = "1.183.3";
+
+function linkbreakersClientHeaders(): HTTPHeaders {
+    const proc: any = (globalThis as any).process;
+    const nodeVersion: unknown = proc?.versions?.node;
+    if (typeof nodeVersion !== "string") {
+        // A browser owns its User-Agent, and one that lets a page set it would
+        // add a header the API's CORS preflight does not allow.
+        return { "Linkbreakers-Client": `sdk-typescript/${SDK_VERSION} (browser)` };
+    }
+    const platform: unknown = proc.platform;
+    const os = platform === "win32" ? "windows"
+        : platform === "linux" || platform === "darwin" ? platform
+        : "other";
+    return {
+        "Linkbreakers-Client": `sdk-typescript/${SDK_VERSION} (node ${nodeVersion.split(".")[0]}; ${os})`,
+        "User-Agent": `linkbreakers-typescript-sdk/${SDK_VERSION}`,
+    };
+}
+
+export const LINKBREAKERS_CLIENT_HEADERS: HTTPHeaders = linkbreakersClientHeaders();
+
 export interface ConfigurationParameters {
     basePath?: string; // override base path
     fetchApi?: FetchAPI; // override for fetch implementation
@@ -149,7 +173,7 @@ export class BaseAPI {
             url += '?' + this.configuration.queryParamsStringify(context.query);
         }
 
-        const headers = Object.assign({}, this.configuration.headers, context.headers);
+        const headers = Object.assign({}, LINKBREAKERS_CLIENT_HEADERS, this.configuration.headers, context.headers);
         Object.keys(headers).forEach(key => headers[key] === undefined ? delete headers[key] : {});
 
         const initOverrideFn =
