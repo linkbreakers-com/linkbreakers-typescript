@@ -2,6 +2,7 @@
 /* eslint-disable */
 export * from './APIScopesApi';
 export * from './AgentIdentityApi';
+export * from './AgentsApi';
 export * from './AllowancesApi';
 export * from './AnalyticsDashboardApi';
 export * from './AnalyticsDataApi';
