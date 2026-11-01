@@ -24,6 +24,7 @@ export * from './PricingApi';
 export * from './QRCodeDesignsApi';
 export * from './QRCodeTemplatesApi';
 export * from './RetargetingPixelsApi';
+export * from './ReviewRewardsApi';
 export * from './SlackIntegrationsApi';
 export * from './TagsApi';
 export * from './TimeSeriesApi';

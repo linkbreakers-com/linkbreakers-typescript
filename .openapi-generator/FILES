@@ -24,6 +24,7 @@ src/apis/PricingApi.ts
 src/apis/QRCodeDesignsApi.ts
 src/apis/QRCodeTemplatesApi.ts
 src/apis/RetargetingPixelsApi.ts
+src/apis/ReviewRewardsApi.ts
 src/apis/SlackIntegrationsApi.ts
 src/apis/TagsApi.ts
 src/apis/TimeSeriesApi.ts
@@ -204,6 +205,7 @@ src/models/EventsServiceUpdateDeviceBody.ts
 src/models/EventsTimeSeries.ts
 src/models/EventsTimeSeriesData.ts
 src/models/FindMatchingPageThemeTemplateResponse.ts
+src/models/FiringRetargetingPixel.ts
 src/models/FontConfig.ts
 src/models/FormField.ts
 src/models/FormFieldOption.ts
@@ -247,6 +249,7 @@ src/models/GetMediaResponse.ts
 src/models/GetPageThemeResponse.ts
 src/models/GetQrcodeDesignResponse.ts
 src/models/GetRetargetingPixelsResponse.ts
+src/models/GetReviewRewardOfferResponse.ts
 src/models/GetSlackIntegrationResponse.ts
 src/models/GetSlackOAuthURLResponse.ts
 src/models/GetStepFunnelRequest.ts
@@ -255,10 +258,12 @@ src/models/GetTopLinksRequest.ts
 src/models/GetTopLinksResponse.ts
 src/models/GetVisitorTrendsRequest.ts
 src/models/GetVisitorTrendsResponse.ts
+src/models/GetWalletPassSupportResponse.ts
 src/models/GetWebhookResponse.ts
 src/models/GetWidgetSummaryResponse.ts
 src/models/GetWorkflowStepResponse.ts
 src/models/GetWorkspaceTokenResponse.ts
+src/models/GoogleAnalyticsAttributeKeys.ts
 src/models/GoogleAnalyticsIntegration.ts
 src/models/GoogleFormsIntegration.ts
 src/models/GoogleFormsIntegrationStatus.ts
@@ -289,6 +294,7 @@ src/models/LinkSetting.ts
 src/models/LinkSortField.ts
 src/models/LinkView.ts
 src/models/LinksBulkCreateResult.ts
+src/models/LinksServiceRenderQrcodeImagesBody.ts
 src/models/LinksServiceUpdateBody.ts
 src/models/ListAllowancesResponse.ts
 src/models/ListApiScopesResponse.ts
@@ -308,9 +314,11 @@ src/models/ListPageThemesResponse.ts
 src/models/ListPricingPlansResponse.ts
 src/models/ListQrcodeTemplatesResponse.ts
 src/models/ListResponse.ts
+src/models/ListRetargetingPixelsForLinkResponse.ts
 src/models/ListSlackChannelsResponse.ts
 src/models/ListTagsResponse.ts
 src/models/ListVisitorAttributeKeysResponse.ts
+src/models/ListVisitorCountriesResponse.ts
 src/models/ListVisitorsCsvResponse.ts
 src/models/ListVisitorsJsonResponse.ts
 src/models/ListVisitorsRequest.ts
@@ -361,6 +369,7 @@ src/models/PageThemeTemplateImages.ts
 src/models/PageThemeTemplateScope.ts
 src/models/PageThemeTemplatesServiceUpdatePageThemeTemplateBody.ts
 src/models/PageThemeTemplatesServiceUpdatePageThemeTemplateStylingBody.ts
+src/models/PageThemeVisitorExperience.ts
 src/models/PageThemesServiceUpdatePageThemeBody.ts
 src/models/PasswordPayload.ts
 src/models/PasswordTraceData.ts
@@ -386,11 +395,15 @@ src/models/PublishPageThemeTemplateResponse.ts
 src/models/PublishQrcodeTemplateResponse.ts
 src/models/QrcodeDesign.ts
 src/models/QrcodeDesignServiceUpdateBody.ts
+src/models/QrcodeRenderFormat.ts
+src/models/QrcodeRenderItem.ts
 src/models/QrcodeTemplate.ts
 src/models/QrcodeTemplateScope.ts
 src/models/QrcodeTemplatesServiceUpdateQrcodeTemplateBody.ts
 src/models/RedirectTraceData.ts
 src/models/RedirectTraceDataFallbackReason.ts
+src/models/RenderQrcodeImagesResponse.ts
+src/models/RenderedQrcode.ts
 src/models/ReplaceMediaImportResponse.ts
 src/models/ReportStepSearchMissRequest.ts
 src/models/RequestEmailVerificationRequest.ts
@@ -403,7 +416,15 @@ src/models/ResolveQrcodeTemplateImagesRequest.ts
 src/models/ResolveQrcodeTemplateImagesResponse.ts
 src/models/ResolveStepCollisionsResponse.ts
 src/models/ResponseFormat.ts
+src/models/RetargetingPixel.ts
+src/models/RetargetingPixelScope.ts
+src/models/RetargetingPixelScopeType.ts
 src/models/RetargetingPixels.ts
+src/models/ReviewPlatform.ts
+src/models/ReviewPlatformProfile.ts
+src/models/ReviewReward.ts
+src/models/ReviewRewardIneligibleReason.ts
+src/models/ReviewRewardStatus.ts
 src/models/Role.ts
 src/models/SettingsServiceUpdateLinkSettingBody.ts
 src/models/Shape.ts
@@ -437,6 +458,8 @@ src/models/SpecificDateConditionPayload.ts
 src/models/SpecificDateConditionTraceData.ts
 src/models/SpecificDateConditionTraceOption.ts
 src/models/SpecificDateOption.ts
+src/models/SubmitReviewRewardRequest.ts
+src/models/SubmitReviewRewardResponse.ts
 src/models/SubscriptionType.ts
 src/models/SwitchWorkspaceResponse.ts
 src/models/SyncGoogleFormsResponse.ts
@@ -501,6 +524,7 @@ src/models/VisitorAttributeFilter.ts
 src/models/VisitorAttributeFilterOperator.ts
 src/models/VisitorAttributeKey.ts
 src/models/VisitorAttributeType.ts
+src/models/VisitorCountry.ts
 src/models/VisitorDataConditionOption.ts
 src/models/VisitorDataConditionPayload.ts
 src/models/VisitorDataConditionTraceData.ts
