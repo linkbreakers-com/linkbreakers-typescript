@@ -400,6 +400,7 @@ export * from './RedirectTraceDataFallbackReason';
 export * from './RenderQrcodeImagesResponse';
 export * from './RenderedQrcode';
 export * from './ReplaceMediaImportResponse';
+export * from './ReportIntegrationSearchMissRequest';
 export * from './ReportStepSearchMissRequest';
 export * from './RequestEmailVerificationRequest';
 export * from './RequestWorkspaceEnrollmentRequest';

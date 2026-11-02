@@ -437,6 +437,7 @@ src/models/RedirectTraceDataFallbackReason.ts
 src/models/RenderQrcodeImagesResponse.ts
 src/models/RenderedQrcode.ts
 src/models/ReplaceMediaImportResponse.ts
+src/models/ReportIntegrationSearchMissRequest.ts
 src/models/ReportStepSearchMissRequest.ts
 src/models/RequestEmailVerificationRequest.ts
 src/models/RequestWorkspaceEnrollmentRequest.ts
