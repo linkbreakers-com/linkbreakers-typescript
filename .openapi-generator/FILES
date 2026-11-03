@@ -280,6 +280,7 @@ src/models/GetPageThemeResponse.ts
 src/models/GetQrcodeDesignResponse.ts
 src/models/GetRetargetingPixelsResponse.ts
 src/models/GetReviewRewardOfferResponse.ts
+src/models/GetSharedLocationsResponse.ts
 src/models/GetSlackIntegrationResponse.ts
 src/models/GetSlackOAuthURLResponse.ts
 src/models/GetStepFunnelRequest.ts
@@ -309,6 +310,8 @@ src/models/ImportPageThemeTemplateRequest.ts
 src/models/ImportPageThemeTemplateResponse.ts
 src/models/ImportQrcodeTemplateRequest.ts
 src/models/ImportQrcodeTemplateResponse.ts
+src/models/InAppBrowser.ts
+src/models/InAppBrowserDetails.ts
 src/models/InviteMemberRequest.ts
 src/models/Job.ts
 src/models/JobError.ts
@@ -461,6 +464,7 @@ src/models/ReviewRewardStatus.ts
 src/models/Role.ts
 src/models/SettingsServiceUpdateLinkSettingBody.ts
 src/models/Shape.ts
+src/models/SharedLocation.ts
 src/models/ShortlinkAvailabilityResponse.ts
 src/models/ShortlinkRandomResponse.ts
 src/models/SlackChannel.ts
