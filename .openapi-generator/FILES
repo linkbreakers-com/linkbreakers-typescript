@@ -91,6 +91,17 @@ src/models/BackButton.ts
 src/models/BackgroundOptions.ts
 src/models/BillingInterval.ts
 src/models/BreakdownDataPoint.ts
+src/models/BulkEditStatus.ts
+src/models/BulkInsertWorkflowStepOverride.ts
+src/models/BulkInsertWorkflowStepRequest.ts
+src/models/BulkInsertWorkflowStepResponse.ts
+src/models/BulkInsertWorkflowStepResult.ts
+src/models/BulkPageThemeChange.ts
+src/models/BulkPageThemeResult.ts
+src/models/BulkPageThemeValues.ts
+src/models/BulkStepBranch.ts
+src/models/BulkUpdatePageThemesRequest.ts
+src/models/BulkUpdatePageThemesResponse.ts
 src/models/CanvasPosition.ts
 src/models/ChatBotCollectedValue.ts
 src/models/ChatBotMessageAuthor.ts
