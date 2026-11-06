@@ -298,6 +298,8 @@ src/models/GetStepFunnelRequest.ts
 src/models/GetStepFunnelResponse.ts
 src/models/GetTopLinksRequest.ts
 src/models/GetTopLinksResponse.ts
+src/models/GetTrafficSplitResultsRequest.ts
+src/models/GetTrafficSplitResultsResponse.ts
 src/models/GetVisitorTrendsRequest.ts
 src/models/GetVisitorTrendsResponse.ts
 src/models/GetWalletPassSupportResponse.ts
@@ -453,6 +455,7 @@ src/models/RenderedQrcode.ts
 src/models/ReplaceMediaImportResponse.ts
 src/models/ReportIntegrationSearchMissRequest.ts
 src/models/ReportStepSearchMissRequest.ts
+src/models/ReportStepSearchRequest.ts
 src/models/RequestEmailVerificationRequest.ts
 src/models/RequestWorkspaceEnrollmentRequest.ts
 src/models/ResolvePageThemeTemplateImagesRequest.ts
@@ -523,6 +526,10 @@ src/models/TimeOfDayRange.ts
 src/models/TimeSeriesPoint.ts
 src/models/TimeSeriesSeries.ts
 src/models/TopLinkDataPoint.ts
+src/models/TrafficSplitPayload.ts
+src/models/TrafficSplitTraceData.ts
+src/models/TrafficSplitVariant.ts
+src/models/TrafficSplitVariantResult.ts
 src/models/TriggeredBy.ts
 src/models/TypeDate.ts
 src/models/UpdateAgentKnowledgeDocumentResponse.ts
