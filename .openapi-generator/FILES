@@ -11,6 +11,7 @@ src/apis/AuthApi.ts
 src/apis/CustomDomainsApi.ts
 src/apis/DirectoriesApi.ts
 src/apis/EventsApi.ts
+src/apis/FormIntegrationsApi.ts
 src/apis/GoogleAnalyticsIntegrationsApi.ts
 src/apis/GoogleFormsIntegrationsApi.ts
 src/apis/IntegrationsApi.ts
@@ -117,12 +118,14 @@ src/models/ChatUIOption.ts
 src/models/CheckCustomDomainResponse.ts
 src/models/ClaimAgentWorkspaceRequest.ts
 src/models/ClientRedirectPayload.ts
+src/models/CompleteFormToolOAuthResponse.ts
 src/models/CompleteGoogleFormsOAuthRequest.ts
 src/models/CompleteGoogleFormsOAuthResponse.ts
 src/models/CompleteMediaReplaceResponse.ts
 src/models/CompleteMediaUploadResponse.ts
 src/models/CompleteSlackOAuthRequest.ts
 src/models/CompleteSlackOAuthResponse.ts
+src/models/ConnectFormToolResponse.ts
 src/models/ConnectWorkflowStepResponse.ts
 src/models/ContactCardTraceCard.ts
 src/models/ContactCardTraceData.ts
@@ -194,6 +197,7 @@ src/models/DayOfWeekOption.ts
 src/models/DeleteAttributeResponse.ts
 src/models/DeleteVisitorResponse.ts
 src/models/DetectedGoogleForm.ts
+src/models/DetectedToolForm.ts
 src/models/Device.ts
 src/models/DeviceActor.ts
 src/models/DeviceActorConditionOption.ts
@@ -248,10 +252,17 @@ src/models/EventsTimeSeriesData.ts
 src/models/FindMatchingPageThemeTemplateResponse.ts
 src/models/FiringRetargetingPixel.ts
 src/models/FontConfig.ts
+src/models/FormConnection.ts
+src/models/FormConnectionStatus.ts
 src/models/FormField.ts
 src/models/FormFieldOption.ts
 src/models/FormFieldType.ts
+src/models/FormIntegrationsServiceCompleteOAuthBody.ts
+src/models/FormIntegrationsServiceConnectBody.ts
+src/models/FormIntegrationsServiceUpdateBody.ts
 src/models/FormPayload.ts
+src/models/FormReadiness.ts
+src/models/FormTool.ts
 src/models/FormTraceData.ts
 src/models/FormTraceDataField.ts
 src/models/FunnelBranch.ts
@@ -276,6 +287,8 @@ src/models/GetDeviceDistributionResponse.ts
 src/models/GetDirectoryResponse.ts
 src/models/GetEventsTimeSeriesRequest.ts
 src/models/GetEventsTimeSeriesResponse.ts
+src/models/GetFormConnectionResponse.ts
+src/models/GetFormToolOAuthURLResponse.ts
 src/models/GetGeoBreakdownRequest.ts
 src/models/GetGeoBreakdownResponse.ts
 src/models/GetGoogleAnalyticsIntegrationResponse.ts
@@ -312,6 +325,7 @@ src/models/GoogleAnalyticsAttributeKeys.ts
 src/models/GoogleAnalyticsIntegration.ts
 src/models/GoogleFormsIntegration.ts
 src/models/GoogleFormsIntegrationStatus.ts
+src/models/GoogleFormsIntegrationsServiceChooseFormLinkBody.ts
 src/models/GooglerpcStatus.ts
 src/models/GroupByDimension.ts
 src/models/HourOfDayDataPoint.ts
@@ -359,6 +373,8 @@ src/models/ListEventTracesResponse.ts
 src/models/ListEventsCsvResponse.ts
 src/models/ListEventsJsonResponse.ts
 src/models/ListEventsResponse.ts
+src/models/ListFormConnectionsResponse.ts
+src/models/ListFormToolFormsResponse.ts
 src/models/ListLinkIntegrationsResponse.ts
 src/models/ListLinksResponse.ts
 src/models/ListMediaResponse.ts
@@ -546,6 +562,7 @@ src/models/UpdateDataCollectionRequest.ts
 src/models/UpdateDataCollectionResponse.ts
 src/models/UpdateDeviceResponse.ts
 src/models/UpdateDirectoryResponse.ts
+src/models/UpdateFormConnectionResponse.ts
 src/models/UpdateGoogleAnalyticsIntegrationRequest.ts
 src/models/UpdateGoogleAnalyticsIntegrationResponse.ts
 src/models/UpdateGoogleFormsIntegrationRequest.ts

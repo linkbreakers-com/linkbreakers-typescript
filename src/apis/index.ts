@@ -11,6 +11,7 @@ export * from './AuthApi';
 export * from './CustomDomainsApi';
 export * from './DirectoriesApi';
 export * from './EventsApi';
+export * from './FormIntegrationsApi';
 export * from './GoogleAnalyticsIntegrationsApi';
 export * from './GoogleFormsIntegrationsApi';
 export * from './IntegrationsApi';
