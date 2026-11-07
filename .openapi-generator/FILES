@@ -13,6 +13,7 @@ src/apis/DirectoriesApi.ts
 src/apis/EventsApi.ts
 src/apis/GoogleAnalyticsIntegrationsApi.ts
 src/apis/GoogleFormsIntegrationsApi.ts
+src/apis/IntegrationsApi.ts
 src/apis/IntegrationsServiceApi.ts
 src/apis/JobsApi.ts
 src/apis/LinkSettingsApi.ts
@@ -325,6 +326,8 @@ src/models/ImportQrcodeTemplateRequest.ts
 src/models/ImportQrcodeTemplateResponse.ts
 src/models/InAppBrowser.ts
 src/models/InAppBrowserDetails.ts
+src/models/IntegrationDelivery.ts
+src/models/IntegrationVisitorData.ts
 src/models/InviteMemberRequest.ts
 src/models/Job.ts
 src/models/JobError.ts
@@ -336,6 +339,8 @@ src/models/LanguageConditionPayload.ts
 src/models/LanguageConditionTraceData.ts
 src/models/LanguageConditionTraceOption.ts
 src/models/Link.ts
+src/models/LinkIntegration.ts
+src/models/LinkIntegrationKind.ts
 src/models/LinkSetting.ts
 src/models/LinkSortField.ts
 src/models/LinkView.ts
@@ -354,6 +359,7 @@ src/models/ListEventTracesResponse.ts
 src/models/ListEventsCsvResponse.ts
 src/models/ListEventsJsonResponse.ts
 src/models/ListEventsResponse.ts
+src/models/ListLinkIntegrationsResponse.ts
 src/models/ListLinksResponse.ts
 src/models/ListMediaResponse.ts
 src/models/ListMyWorkspacesResponse.ts

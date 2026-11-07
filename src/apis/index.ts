@@ -13,6 +13,7 @@ export * from './DirectoriesApi';
 export * from './EventsApi';
 export * from './GoogleAnalyticsIntegrationsApi';
 export * from './GoogleFormsIntegrationsApi';
+export * from './IntegrationsApi';
 export * from './IntegrationsServiceApi';
 export * from './JobsApi';
 export * from './LinkSettingsApi';
