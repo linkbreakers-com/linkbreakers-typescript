@@ -8,6 +8,7 @@ src/apis/AnalyticsDashboardApi.ts
 src/apis/AnalyticsDataApi.ts
 src/apis/AssistantApi.ts
 src/apis/AuthApi.ts
+src/apis/ContactIntegrationsApi.ts
 src/apis/CustomDomainsApi.ts
 src/apis/DirectoriesApi.ts
 src/apis/EventsApi.ts
@@ -125,10 +126,23 @@ src/models/CompleteMediaReplaceResponse.ts
 src/models/CompleteMediaUploadResponse.ts
 src/models/CompleteSlackOAuthRequest.ts
 src/models/CompleteSlackOAuthResponse.ts
+src/models/ConnectContactToolResponse.ts
 src/models/ConnectFormToolResponse.ts
 src/models/ConnectWorkflowStepResponse.ts
 src/models/ContactCardTraceCard.ts
 src/models/ContactCardTraceData.ts
+src/models/ContactConnection.ts
+src/models/ContactField.ts
+src/models/ContactFieldMapping.ts
+src/models/ContactIntegrationsServiceConnectToolBody.ts
+src/models/ContactIntegrationsServiceUpdateBody.ts
+src/models/ContactList.ts
+src/models/ContactPipeline.ts
+src/models/ContactPipelineStage.ts
+src/models/ContactRecordKind.ts
+src/models/ContactSyncOptions.ts
+src/models/ContactTool.ts
+src/models/ContactToolCapabilities.ts
 src/models/ContainerConfig.ts
 src/models/CornersDotOptions.ts
 src/models/CornersDotType.ts
@@ -279,6 +293,7 @@ src/models/GetAttributeValuesRequest.ts
 src/models/GetAttributeValuesResponse.ts
 src/models/GetBreakdownRequest.ts
 src/models/GetBreakdownResponse.ts
+src/models/GetContactConnectionResponse.ts
 src/models/GetCustomDomainResponse.ts
 src/models/GetCustomDomainSetupGuideResponse.ts
 src/models/GetDataCollectionResponse.ts
@@ -365,6 +380,10 @@ src/models/ListAgentPresetsResponse.ts
 src/models/ListAgentsResponse.ts
 src/models/ListAllowancesResponse.ts
 src/models/ListApiScopesResponse.ts
+src/models/ListContactConnectionsResponse.ts
+src/models/ListContactToolFieldsResponse.ts
+src/models/ListContactToolListsResponse.ts
+src/models/ListContactToolPipelinesResponse.ts
 src/models/ListCustomDomainsResponse.ts
 src/models/ListDashboardsResponse.ts
 src/models/ListDetectedGoogleFormsResponse.ts
@@ -388,6 +407,7 @@ src/models/ListRetargetingPixelsForLinkResponse.ts
 src/models/ListSlackChannelsResponse.ts
 src/models/ListTagsResponse.ts
 src/models/ListVisitorAttributeKeysResponse.ts
+src/models/ListVisitorConsentsResponse.ts
 src/models/ListVisitorCountriesResponse.ts
 src/models/ListVisitorsCsvResponse.ts
 src/models/ListVisitorsJsonResponse.ts
@@ -536,6 +556,7 @@ src/models/SubmitReviewRewardResponse.ts
 src/models/SubscriptionType.ts
 src/models/SwitchWorkspaceResponse.ts
 src/models/SyncGoogleFormsResponse.ts
+src/models/TestContactConnectionResponse.ts
 src/models/TestGoogleAnalyticsIntegrationResponse.ts
 src/models/TestSlackIntegrationResponse.ts
 src/models/ThankYouPagePayload.ts
@@ -556,6 +577,7 @@ src/models/TriggeredBy.ts
 src/models/TypeDate.ts
 src/models/UpdateAgentKnowledgeDocumentResponse.ts
 src/models/UpdateAgentResponse.ts
+src/models/UpdateContactConnectionResponse.ts
 src/models/UpdateCustomDomainResponse.ts
 src/models/UpdateDashboardResponse.ts
 src/models/UpdateDataCollectionRequest.ts
@@ -604,6 +626,7 @@ src/models/VisitorAttributeFilter.ts
 src/models/VisitorAttributeFilterOperator.ts
 src/models/VisitorAttributeKey.ts
 src/models/VisitorAttributeType.ts
+src/models/VisitorConsent.ts
 src/models/VisitorCountry.ts
 src/models/VisitorDataConditionOption.ts
 src/models/VisitorDataConditionPayload.ts

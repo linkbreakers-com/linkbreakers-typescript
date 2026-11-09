@@ -8,6 +8,7 @@ export * from './AnalyticsDashboardApi';
 export * from './AnalyticsDataApi';
 export * from './AssistantApi';
 export * from './AuthApi';
+export * from './ContactIntegrationsApi';
 export * from './CustomDomainsApi';
 export * from './DirectoriesApi';
 export * from './EventsApi';
