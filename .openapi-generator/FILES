@@ -119,6 +119,7 @@ src/models/ChatUIOption.ts
 src/models/CheckCustomDomainResponse.ts
 src/models/ClaimAgentWorkspaceRequest.ts
 src/models/ClientRedirectPayload.ts
+src/models/CompleteContactToolOAuthResponse.ts
 src/models/CompleteFormToolOAuthResponse.ts
 src/models/CompleteGoogleFormsOAuthRequest.ts
 src/models/CompleteGoogleFormsOAuthResponse.ts
@@ -134,15 +135,19 @@ src/models/ContactCardTraceData.ts
 src/models/ContactConnection.ts
 src/models/ContactField.ts
 src/models/ContactFieldMapping.ts
+src/models/ContactIntegrationsServiceCompleteOAuthBody.ts
 src/models/ContactIntegrationsServiceConnectToolBody.ts
+src/models/ContactIntegrationsServiceStartOAuthBody.ts
 src/models/ContactIntegrationsServiceUpdateBody.ts
 src/models/ContactList.ts
+src/models/ContactOAuthEnvironment.ts
 src/models/ContactPipeline.ts
 src/models/ContactPipelineStage.ts
 src/models/ContactRecordKind.ts
 src/models/ContactSyncOptions.ts
 src/models/ContactTool.ts
 src/models/ContactToolCapabilities.ts
+src/models/ContactToolInfo.ts
 src/models/ContainerConfig.ts
 src/models/CornersDotOptions.ts
 src/models/CornersDotType.ts
@@ -294,6 +299,7 @@ src/models/GetAttributeValuesResponse.ts
 src/models/GetBreakdownRequest.ts
 src/models/GetBreakdownResponse.ts
 src/models/GetContactConnectionResponse.ts
+src/models/GetContactToolResponse.ts
 src/models/GetCustomDomainResponse.ts
 src/models/GetCustomDomainSetupGuideResponse.ts
 src/models/GetDataCollectionResponse.ts
@@ -551,6 +557,7 @@ src/models/SpecificDateConditionPayload.ts
 src/models/SpecificDateConditionTraceData.ts
 src/models/SpecificDateConditionTraceOption.ts
 src/models/SpecificDateOption.ts
+src/models/StartContactToolOAuthResponse.ts
 src/models/SubmitReviewRewardRequest.ts
 src/models/SubmitReviewRewardResponse.ts
 src/models/SubscriptionType.ts
