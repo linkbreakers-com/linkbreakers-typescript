@@ -2,9 +2,9 @@
 /* eslint-disable */
 /**
  * Linkbreakers API
- * This is a documentation of all the APIs of Linkbreakers  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
+ * The Linkbreakers REST API: links, QR codes, workflows, visitors and analytics, as JSON over HTTPS. Send a workspace API token as `Authorization: Bearer <token>`.  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  A renamed operation keeps answering its former path until that path\'s sunset. Responses on a former path carry the same `Deprecation`, `Sunset` and `Link` header fields; this document lists only the current path, and the policy lists the former ones.  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
  *
- * The version of the OpenAPI document: 1.198.0
+ * The version of the OpenAPI document: 1.198.1
  * 
  *
  * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
@@ -15,7 +15,6 @@
 
 import * as runtime from '../runtime';
 import type {
-  CheckCustomDomainResponse,
   CreateCustomDomainRequest,
   CreateCustomDomainResponse,
   CustomDomainsServiceUpdateBody,
@@ -24,11 +23,9 @@ import type {
   GetCustomDomainSetupGuideResponse,
   ListCustomDomainsResponse,
   UpdateCustomDomainResponse,
-  ValidationInstructionsCustomDomainResponse,
+  VerifyCustomDomainResponse,
 } from '../models/index';
 import {
-    CheckCustomDomainResponseFromJSON,
-    CheckCustomDomainResponseToJSON,
     CreateCustomDomainRequestFromJSON,
     CreateCustomDomainRequestToJSON,
     CreateCustomDomainResponseFromJSON,
@@ -45,14 +42,9 @@ import {
     ListCustomDomainsResponseToJSON,
     UpdateCustomDomainResponseFromJSON,
     UpdateCustomDomainResponseToJSON,
-    ValidationInstructionsCustomDomainResponseFromJSON,
-    ValidationInstructionsCustomDomainResponseToJSON,
+    VerifyCustomDomainResponseFromJSON,
+    VerifyCustomDomainResponseToJSON,
 } from '../models/index';
-
-export interface CustomDomainsServiceCheckRequest {
-    id: string;
-    idempotencyKey?: string;
-}
 
 export interface CustomDomainsServiceCreateRequest {
     createCustomDomainRequest: CreateCustomDomainRequest;
@@ -84,8 +76,9 @@ export interface CustomDomainsServiceUpdateRequest {
     idempotencyKey?: string;
 }
 
-export interface CustomDomainsServiceValidationInstructionsRequest {
+export interface CustomDomainsServiceVerifyRequest {
     id: string;
+    idempotencyKey?: string;
 }
 
 /**
@@ -96,35 +89,9 @@ export interface CustomDomainsServiceValidationInstructionsRequest {
  */
 export interface CustomDomainsApiInterface {
     /**
-     * Creates request options for customDomainsServiceCheck without sending the request
-     * @param {string} id The ID of the custom domain to retrieve (UUID)
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @throws {RequiredError}
-     * @memberof CustomDomainsApiInterface
-     */
-    customDomainsServiceCheckRequestOpts(requestParameters: CustomDomainsServiceCheckRequest): Promise<runtime.RequestOpts>;
-
-    /**
-     * Check a custom domain by looking up its DNS records and TLS status. This is automatically done when the domain is created. It will update the domain status.  Requires the `domains:write` scope.
-     * @summary Check a custom domain
-     * @param {string} id The ID of the custom domain to retrieve (UUID)
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CustomDomainsApiInterface
-     */
-    customDomainsServiceCheckRaw(requestParameters: CustomDomainsServiceCheckRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CheckCustomDomainResponse>>;
-
-    /**
-     * Check a custom domain by looking up its DNS records and TLS status. This is automatically done when the domain is created. It will update the domain status.  Requires the `domains:write` scope.
-     * Check a custom domain
-     */
-    customDomainsServiceCheck(requestParameters: CustomDomainsServiceCheckRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CheckCustomDomainResponse>;
-
-    /**
      * Creates request options for customDomainsServiceCreate without sending the request
      * @param {CreateCustomDomainRequest} createCustomDomainRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof CustomDomainsApiInterface
      */
@@ -134,7 +101,7 @@ export interface CustomDomainsApiInterface {
      * This endpoint allows users to register a new custom domain that can be used with their Linkbreakers workspace.  Requires the `domains:write` scope.
      * @summary Create a custom domain
      * @param {CreateCustomDomainRequest} createCustomDomainRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CustomDomainsApiInterface
@@ -156,7 +123,7 @@ export interface CustomDomainsApiInterface {
     customDomainsServiceDeleteRequestOpts(requestParameters: CustomDomainsServiceDeleteRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * Removes a custom domain from the workspace, and deletes every link on it with their analytics (see link_count on the domain). This operation cannot be undone.  Requires the `domains:write` scope.
+     * Removes a custom domain from the workspace, and deletes every link on it with their analytics (see linkCount on the domain). This operation cannot be undone.  Requires the `domains:write` scope.
      * @summary Delete a custom domain
      * @param {string} id The ID of the custom domain to delete (UUID)
      * @param {*} [options] Override http request option.
@@ -166,7 +133,7 @@ export interface CustomDomainsApiInterface {
     customDomainsServiceDeleteRaw(requestParameters: CustomDomainsServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>>;
 
     /**
-     * Removes a custom domain from the workspace, and deletes every link on it with their analytics (see link_count on the domain). This operation cannot be undone.  Requires the `domains:write` scope.
+     * Removes a custom domain from the workspace, and deletes every link on it with their analytics (see linkCount on the domain). This operation cannot be undone.  Requires the `domains:write` scope.
      * Delete a custom domain
      */
     customDomainsServiceDelete(requestParameters: CustomDomainsServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object>;
@@ -221,9 +188,9 @@ export interface CustomDomainsApiInterface {
 
     /**
      * Creates request options for customDomainsServiceList without sending the request
-     * @param {string} [status] Filter by the status of the custom domains to list. Optional.   - STATUS_UNSPECIFIED: The status is not specified  - STATUS_INACTIVE: The domain is inactive. It was created but not checked yet.  - STATUS_DOMAIN_PENDING: The domain is pending. Last time it was checked, it was not pointing to the correct Linkbreakers subdomain.  - STATUS_VERIFICATION_PENDING: The domain is pending verification. Please verify through TXT record.  - STATUS_CERTIFICATE_PENDING: The domain is pending certificate. The SSL certificate is not yet ready.  - STATUS_ACTIVE: The domain is fully active  - STATUS_RENEWAL_PENDING: The domain is still serving traffic on a valid certificate, but the renewal of that certificate cannot be validated. It stops working at certificate_expires_at.  - STATUS_EXPIRED: The certificate expired or was withdrawn. The domain no longer serves HTTPS.
+     * @param {string} [status] Filter by the status of the custom domains to list. Optional.   - STATUS_UNSPECIFIED: The status is not specified  - STATUS_INACTIVE: The domain is inactive. It was created but not checked yet.  - STATUS_DOMAIN_PENDING: The domain is pending. Last time it was checked, it was not pointing to the correct Linkbreakers subdomain.  - STATUS_VERIFICATION_PENDING: The domain is pending verification. Please verify through TXT record.  - STATUS_CERTIFICATE_PENDING: The domain is pending certificate. The SSL certificate is not yet ready.  - STATUS_ACTIVE: The domain is fully active  - STATUS_RENEWAL_PENDING: The domain is still serving traffic on a valid certificate, but the renewal of that certificate cannot be validated. It stops working at certificateExpiresAt.  - STATUS_EXPIRED: The certificate expired or was withdrawn. The domain no longer serves HTTPS.
      * @param {number} [pageSize] Maximum number of custom domains to return. Defaults to 100, capped at 1000.
-     * @param {string} [pageToken] Cursor from a previous response\&#39;s next_page_token. Empty starts at the first page. Pages are ordered by (created_at, id), which never change, so a record cannot move between pages while a client is walking them.
+     * @param {string} [pageToken] Cursor from a previous response\&#39;s nextPageToken. Empty starts at the first page. Pages are ordered by (createdAt, id), which never change, so a record cannot move between pages while a client is walking them.
      * @param {string} [cursor] Opaque cursor from the previous page\&#39;s nextPageToken. Same as pageToken; when both are sent, pageToken wins.
      * @throws {RequiredError}
      * @memberof CustomDomainsApiInterface
@@ -233,9 +200,9 @@ export interface CustomDomainsApiInterface {
     /**
      * Retrieves the custom domains for your workspace  Requires the `domains:read` scope.
      * @summary List custom domains
-     * @param {string} [status] Filter by the status of the custom domains to list. Optional.   - STATUS_UNSPECIFIED: The status is not specified  - STATUS_INACTIVE: The domain is inactive. It was created but not checked yet.  - STATUS_DOMAIN_PENDING: The domain is pending. Last time it was checked, it was not pointing to the correct Linkbreakers subdomain.  - STATUS_VERIFICATION_PENDING: The domain is pending verification. Please verify through TXT record.  - STATUS_CERTIFICATE_PENDING: The domain is pending certificate. The SSL certificate is not yet ready.  - STATUS_ACTIVE: The domain is fully active  - STATUS_RENEWAL_PENDING: The domain is still serving traffic on a valid certificate, but the renewal of that certificate cannot be validated. It stops working at certificate_expires_at.  - STATUS_EXPIRED: The certificate expired or was withdrawn. The domain no longer serves HTTPS.
+     * @param {string} [status] Filter by the status of the custom domains to list. Optional.   - STATUS_UNSPECIFIED: The status is not specified  - STATUS_INACTIVE: The domain is inactive. It was created but not checked yet.  - STATUS_DOMAIN_PENDING: The domain is pending. Last time it was checked, it was not pointing to the correct Linkbreakers subdomain.  - STATUS_VERIFICATION_PENDING: The domain is pending verification. Please verify through TXT record.  - STATUS_CERTIFICATE_PENDING: The domain is pending certificate. The SSL certificate is not yet ready.  - STATUS_ACTIVE: The domain is fully active  - STATUS_RENEWAL_PENDING: The domain is still serving traffic on a valid certificate, but the renewal of that certificate cannot be validated. It stops working at certificateExpiresAt.  - STATUS_EXPIRED: The certificate expired or was withdrawn. The domain no longer serves HTTPS.
      * @param {number} [pageSize] Maximum number of custom domains to return. Defaults to 100, capped at 1000.
-     * @param {string} [pageToken] Cursor from a previous response\&#39;s next_page_token. Empty starts at the first page. Pages are ordered by (created_at, id), which never change, so a record cannot move between pages while a client is walking them.
+     * @param {string} [pageToken] Cursor from a previous response\&#39;s nextPageToken. Empty starts at the first page. Pages are ordered by (createdAt, id), which never change, so a record cannot move between pages while a client is walking them.
      * @param {string} [cursor] Opaque cursor from the previous page\&#39;s nextPageToken. Same as pageToken; when both are sent, pageToken wins.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -253,7 +220,7 @@ export interface CustomDomainsApiInterface {
      * Creates request options for customDomainsServiceUpdate without sending the request
      * @param {string} id The ID of the custom domain to update (UUID)
      * @param {CustomDomainsServiceUpdateBody} customDomainsServiceUpdateBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof CustomDomainsApiInterface
      */
@@ -264,7 +231,7 @@ export interface CustomDomainsApiInterface {
      * @summary Update a custom domain
      * @param {string} id The ID of the custom domain to update (UUID)
      * @param {CustomDomainsServiceUpdateBody} customDomainsServiceUpdateBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CustomDomainsApiInterface
@@ -278,28 +245,30 @@ export interface CustomDomainsApiInterface {
     customDomainsServiceUpdate(requestParameters: CustomDomainsServiceUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdateCustomDomainResponse>;
 
     /**
-     * Creates request options for customDomainsServiceValidationInstructions without sending the request
-     * @param {string} id The ID of the custom domain to retrieve (UUID)
+     * Creates request options for customDomainsServiceVerify without sending the request
+     * @param {string} id The ID of the custom domain to verify (UUID)
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof CustomDomainsApiInterface
      */
-    customDomainsServiceValidationInstructionsRequestOpts(requestParameters: CustomDomainsServiceValidationInstructionsRequest): Promise<runtime.RequestOpts>;
+    customDomainsServiceVerifyRequestOpts(requestParameters: CustomDomainsServiceVerifyRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * Get the instructions for validating a custom domain. There may be a delay before the instructions are available.  Requires the `domains:read` scope.
-     * @summary Get the validation instructions
-     * @param {string} id The ID of the custom domain to retrieve (UUID)
+     * Verifies a custom domain by looking up its DNS records and TLS status, and updates the domain\'s status. This is done automatically when the domain is created.  Requires the `domains:write` scope.
+     * @summary Verify a custom domain
+     * @param {string} id The ID of the custom domain to verify (UUID)
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CustomDomainsApiInterface
      */
-    customDomainsServiceValidationInstructionsRaw(requestParameters: CustomDomainsServiceValidationInstructionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ValidationInstructionsCustomDomainResponse>>;
+    customDomainsServiceVerifyRaw(requestParameters: CustomDomainsServiceVerifyRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<VerifyCustomDomainResponse>>;
 
     /**
-     * Get the instructions for validating a custom domain. There may be a delay before the instructions are available.  Requires the `domains:read` scope.
-     * Get the validation instructions
+     * Verifies a custom domain by looking up its DNS records and TLS status, and updates the domain\'s status. This is done automatically when the domain is created.  Requires the `domains:write` scope.
+     * Verify a custom domain
      */
-    customDomainsServiceValidationInstructions(requestParameters: CustomDomainsServiceValidationInstructionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ValidationInstructionsCustomDomainResponse>;
+    customDomainsServiceVerify(requestParameters: CustomDomainsServiceVerifyRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<VerifyCustomDomainResponse>;
 
 }
 
@@ -307,70 +276,6 @@ export interface CustomDomainsApiInterface {
  * 
  */
 export class CustomDomainsApi extends runtime.BaseAPI implements CustomDomainsApiInterface {
-
-    /**
-     * Creates request options for customDomainsServiceCheck without sending the request
-     */
-    async customDomainsServiceCheckRequestOpts(requestParameters: CustomDomainsServiceCheckRequest): Promise<runtime.RequestOpts> {
-        if (requestParameters['id'] == null) {
-            throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling customDomainsServiceCheck().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (requestParameters['idempotencyKey'] != null) {
-            headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["domains:write"]);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", ["domains:write"]);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/v1/custom-domains/{id}/check`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
-
-        return {
-            path: urlPath,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     * Check a custom domain by looking up its DNS records and TLS status. This is automatically done when the domain is created. It will update the domain status.  Requires the `domains:write` scope.
-     * Check a custom domain
-     */
-    async customDomainsServiceCheckRaw(requestParameters: CustomDomainsServiceCheckRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CheckCustomDomainResponse>> {
-        const requestOptions = await this.customDomainsServiceCheckRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => CheckCustomDomainResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Check a custom domain by looking up its DNS records and TLS status. This is automatically done when the domain is created. It will update the domain status.  Requires the `domains:write` scope.
-     * Check a custom domain
-     */
-    async customDomainsServiceCheck(requestParameters: CustomDomainsServiceCheckRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CheckCustomDomainResponse> {
-        const response = await this.customDomainsServiceCheckRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
 
     /**
      * Creates request options for customDomainsServiceCreate without sending the request
@@ -479,7 +384,7 @@ export class CustomDomainsApi extends runtime.BaseAPI implements CustomDomainsAp
     }
 
     /**
-     * Removes a custom domain from the workspace, and deletes every link on it with their analytics (see link_count on the domain). This operation cannot be undone.  Requires the `domains:write` scope.
+     * Removes a custom domain from the workspace, and deletes every link on it with their analytics (see linkCount on the domain). This operation cannot be undone.  Requires the `domains:write` scope.
      * Delete a custom domain
      */
     async customDomainsServiceDeleteRaw(requestParameters: CustomDomainsServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>> {
@@ -490,7 +395,7 @@ export class CustomDomainsApi extends runtime.BaseAPI implements CustomDomainsAp
     }
 
     /**
-     * Removes a custom domain from the workspace, and deletes every link on it with their analytics (see link_count on the domain). This operation cannot be undone.  Requires the `domains:write` scope.
+     * Removes a custom domain from the workspace, and deletes every link on it with their analytics (see linkCount on the domain). This operation cannot be undone.  Requires the `domains:write` scope.
      * Delete a custom domain
      */
     async customDomainsServiceDelete(requestParameters: CustomDomainsServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object> {
@@ -761,13 +666,13 @@ export class CustomDomainsApi extends runtime.BaseAPI implements CustomDomainsAp
     }
 
     /**
-     * Creates request options for customDomainsServiceValidationInstructions without sending the request
+     * Creates request options for customDomainsServiceVerify without sending the request
      */
-    async customDomainsServiceValidationInstructionsRequestOpts(requestParameters: CustomDomainsServiceValidationInstructionsRequest): Promise<runtime.RequestOpts> {
+    async customDomainsServiceVerifyRequestOpts(requestParameters: CustomDomainsServiceVerifyRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
-                'Required parameter "id" was null or undefined when calling customDomainsServiceValidationInstructions().'
+                'Required parameter "id" was null or undefined when calling customDomainsServiceVerify().'
             );
         }
 
@@ -775,48 +680,52 @@ export class CustomDomainsApi extends runtime.BaseAPI implements CustomDomainsAp
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        if (requestParameters['idempotencyKey'] != null) {
+            headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
+        }
+
         if (this.configuration && this.configuration.accessToken) {
             // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["domains:read"]);
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["domains:write"]);
         }
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", ["domains:read"]);
+            const tokenString = await token("bearerAuth", ["domains:write"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
 
-        let urlPath = `/v1/custom-domains/{id}/validation_instructions`;
+        let urlPath = `/v1/custom-domains/{id}:verify`;
         urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
 
         return {
             path: urlPath,
-            method: 'GET',
+            method: 'POST',
             headers: headerParameters,
             query: queryParameters,
         };
     }
 
     /**
-     * Get the instructions for validating a custom domain. There may be a delay before the instructions are available.  Requires the `domains:read` scope.
-     * Get the validation instructions
+     * Verifies a custom domain by looking up its DNS records and TLS status, and updates the domain\'s status. This is done automatically when the domain is created.  Requires the `domains:write` scope.
+     * Verify a custom domain
      */
-    async customDomainsServiceValidationInstructionsRaw(requestParameters: CustomDomainsServiceValidationInstructionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ValidationInstructionsCustomDomainResponse>> {
-        const requestOptions = await this.customDomainsServiceValidationInstructionsRequestOpts(requestParameters);
+    async customDomainsServiceVerifyRaw(requestParameters: CustomDomainsServiceVerifyRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<VerifyCustomDomainResponse>> {
+        const requestOptions = await this.customDomainsServiceVerifyRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => ValidationInstructionsCustomDomainResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => VerifyCustomDomainResponseFromJSON(jsonValue));
     }
 
     /**
-     * Get the instructions for validating a custom domain. There may be a delay before the instructions are available.  Requires the `domains:read` scope.
-     * Get the validation instructions
+     * Verifies a custom domain by looking up its DNS records and TLS status, and updates the domain\'s status. This is done automatically when the domain is created.  Requires the `domains:write` scope.
+     * Verify a custom domain
      */
-    async customDomainsServiceValidationInstructions(requestParameters: CustomDomainsServiceValidationInstructionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ValidationInstructionsCustomDomainResponse> {
-        const response = await this.customDomainsServiceValidationInstructionsRaw(requestParameters, initOverrides);
+    async customDomainsServiceVerify(requestParameters: CustomDomainsServiceVerifyRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<VerifyCustomDomainResponse> {
+        const response = await this.customDomainsServiceVerifyRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

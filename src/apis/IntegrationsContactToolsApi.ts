@@ -2,9 +2,9 @@
 /* eslint-disable */
 /**
  * Linkbreakers API
- * This is a documentation of all the APIs of Linkbreakers  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
+ * The Linkbreakers REST API: links, QR codes, workflows, visitors and analytics, as JSON over HTTPS. Send a workspace API token as `Authorization: Bearer <token>`.  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  A renamed operation keeps answering its former path until that path\'s sunset. Responses on a former path carry the same `Deprecation`, `Sunset` and `Link` header fields; this document lists only the current path, and the policy lists the former ones.  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
  *
- * The version of the OpenAPI document: 1.198.0
+ * The version of the OpenAPI document: 1.198.1
  * 
  *
  * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
@@ -15,11 +15,8 @@
 
 import * as runtime from '../runtime';
 import type {
-  CompleteContactToolOAuthResponse,
   ConnectContactToolResponse,
-  ContactIntegrationsServiceCompleteOAuthBody,
   ContactIntegrationsServiceConnectToolBody,
-  ContactIntegrationsServiceStartOAuthBody,
   ContactIntegrationsServiceUpdateBody,
   ErrorResponse,
   GetContactConnectionResponse,
@@ -28,21 +25,14 @@ import type {
   ListContactToolFieldsResponse,
   ListContactToolListsResponse,
   ListContactToolPipelinesResponse,
-  StartContactToolOAuthResponse,
   TestContactConnectionResponse,
   UpdateContactConnectionResponse,
 } from '../models/index';
 import {
-    CompleteContactToolOAuthResponseFromJSON,
-    CompleteContactToolOAuthResponseToJSON,
     ConnectContactToolResponseFromJSON,
     ConnectContactToolResponseToJSON,
-    ContactIntegrationsServiceCompleteOAuthBodyFromJSON,
-    ContactIntegrationsServiceCompleteOAuthBodyToJSON,
     ContactIntegrationsServiceConnectToolBodyFromJSON,
     ContactIntegrationsServiceConnectToolBodyToJSON,
-    ContactIntegrationsServiceStartOAuthBodyFromJSON,
-    ContactIntegrationsServiceStartOAuthBodyToJSON,
     ContactIntegrationsServiceUpdateBodyFromJSON,
     ContactIntegrationsServiceUpdateBodyToJSON,
     ErrorResponseFromJSON,
@@ -59,19 +49,11 @@ import {
     ListContactToolListsResponseToJSON,
     ListContactToolPipelinesResponseFromJSON,
     ListContactToolPipelinesResponseToJSON,
-    StartContactToolOAuthResponseFromJSON,
-    StartContactToolOAuthResponseToJSON,
     TestContactConnectionResponseFromJSON,
     TestContactConnectionResponseToJSON,
     UpdateContactConnectionResponseFromJSON,
     UpdateContactConnectionResponseToJSON,
 } from '../models/index';
-
-export interface ContactIntegrationsServiceCompleteOAuthRequest {
-    tool: string;
-    contactIntegrationsServiceCompleteOAuthBody: ContactIntegrationsServiceCompleteOAuthBody;
-    idempotencyKey?: string;
-}
 
 export interface ContactIntegrationsServiceConnectToolRequest {
     tool: string;
@@ -103,12 +85,6 @@ export interface ContactIntegrationsServiceListPipelinesRequest {
     tool: string;
 }
 
-export interface ContactIntegrationsServiceStartOAuthRequest {
-    tool: string;
-    contactIntegrationsServiceStartOAuthBody: ContactIntegrationsServiceStartOAuthBody;
-    idempotencyKey?: string;
-}
-
 export interface ContactIntegrationsServiceTestRequest {
     tool: string;
     body: object;
@@ -122,47 +98,19 @@ export interface ContactIntegrationsServiceUpdateRequest {
 }
 
 /**
- * ContactIntegrationsApi - interface
+ * IntegrationsContactToolsApi - interface
  * 
  * @export
- * @interface ContactIntegrationsApiInterface
+ * @interface IntegrationsContactToolsApiInterface
  */
-export interface ContactIntegrationsApiInterface {
-    /**
-     * Creates request options for contactIntegrationsServiceCompleteOAuth without sending the request
-     * @param {string} tool The tool being connected.
-     * @param {ContactIntegrationsServiceCompleteOAuthBody} contactIntegrationsServiceCompleteOAuthBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
-     */
-    contactIntegrationsServiceCompleteOAuthRequestOpts(requestParameters: ContactIntegrationsServiceCompleteOAuthRequest): Promise<runtime.RequestOpts>;
-
-    /**
-     * Exchange the code the sign-in returned (with the PKCE verifier kept for its state), check the account, and connect the tool like ConnectTool. The state is valid once, for 15 minutes, for the member who started the sign-in.  Requires the `integrations:write` scope.
-     * @summary Finish signing in to a contact tool
-     * @param {string} tool The tool being connected.
-     * @param {ContactIntegrationsServiceCompleteOAuthBody} contactIntegrationsServiceCompleteOAuthBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
-     */
-    contactIntegrationsServiceCompleteOAuthRaw(requestParameters: ContactIntegrationsServiceCompleteOAuthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CompleteContactToolOAuthResponse>>;
-
-    /**
-     * Exchange the code the sign-in returned (with the PKCE verifier kept for its state), check the account, and connect the tool like ConnectTool. The state is valid once, for 15 minutes, for the member who started the sign-in.  Requires the `integrations:write` scope.
-     * Finish signing in to a contact tool
-     */
-    contactIntegrationsServiceCompleteOAuth(requestParameters: ContactIntegrationsServiceCompleteOAuthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CompleteContactToolOAuthResponse>;
-
+export interface IntegrationsContactToolsApiInterface {
     /**
      * Creates request options for contactIntegrationsServiceConnectTool without sending the request
      * @param {string} tool The tool to connect.
      * @param {ContactIntegrationsServiceConnectToolBody} contactIntegrationsServiceConnectToolBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceConnectToolRequestOpts(requestParameters: ContactIntegrationsServiceConnectToolRequest): Promise<runtime.RequestOpts>;
 
@@ -171,10 +119,10 @@ export interface ContactIntegrationsApiInterface {
      * @summary Connect a contact tool
      * @param {string} tool The tool to connect.
      * @param {ContactIntegrationsServiceConnectToolBody} contactIntegrationsServiceConnectToolBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceConnectToolRaw(requestParameters: ContactIntegrationsServiceConnectToolRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ConnectContactToolResponse>>;
 
@@ -188,7 +136,7 @@ export interface ContactIntegrationsApiInterface {
      * Creates request options for contactIntegrationsServiceDisconnect without sending the request
      * @param {string} tool The tool to disconnect.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceDisconnectRequestOpts(requestParameters: ContactIntegrationsServiceDisconnectRequest): Promise<runtime.RequestOpts>;
 
@@ -198,7 +146,7 @@ export interface ContactIntegrationsApiInterface {
      * @param {string} tool The tool to disconnect.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceDisconnectRaw(requestParameters: ContactIntegrationsServiceDisconnectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>>;
 
@@ -212,7 +160,7 @@ export interface ContactIntegrationsApiInterface {
      * Creates request options for contactIntegrationsServiceGet without sending the request
      * @param {string} tool The tool.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceGetRequestOpts(requestParameters: ContactIntegrationsServiceGetRequest): Promise<runtime.RequestOpts>;
 
@@ -222,7 +170,7 @@ export interface ContactIntegrationsApiInterface {
      * @param {string} tool The tool.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceGetRaw(requestParameters: ContactIntegrationsServiceGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetContactConnectionResponse>>;
 
@@ -236,7 +184,7 @@ export interface ContactIntegrationsApiInterface {
      * Creates request options for contactIntegrationsServiceGetTool without sending the request
      * @param {string} tool The tool, connected or not.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceGetToolRequestOpts(requestParameters: ContactIntegrationsServiceGetToolRequest): Promise<runtime.RequestOpts>;
 
@@ -246,7 +194,7 @@ export interface ContactIntegrationsApiInterface {
      * @param {string} tool The tool, connected or not.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceGetToolRaw(requestParameters: ContactIntegrationsServiceGetToolRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetContactToolResponse>>;
 
@@ -259,7 +207,7 @@ export interface ContactIntegrationsApiInterface {
     /**
      * Creates request options for contactIntegrationsServiceList without sending the request
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceListRequestOpts(): Promise<runtime.RequestOpts>;
 
@@ -268,7 +216,7 @@ export interface ContactIntegrationsApiInterface {
      * @summary List contact integrations
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceListRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListContactConnectionsResponse>>;
 
@@ -282,7 +230,7 @@ export interface ContactIntegrationsApiInterface {
      * Creates request options for contactIntegrationsServiceListFields without sending the request
      * @param {string} tool The connected tool.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceListFieldsRequestOpts(requestParameters: ContactIntegrationsServiceListFieldsRequest): Promise<runtime.RequestOpts>;
 
@@ -292,7 +240,7 @@ export interface ContactIntegrationsApiInterface {
      * @param {string} tool The connected tool.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceListFieldsRaw(requestParameters: ContactIntegrationsServiceListFieldsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListContactToolFieldsResponse>>;
 
@@ -306,7 +254,7 @@ export interface ContactIntegrationsApiInterface {
      * Creates request options for contactIntegrationsServiceListLists without sending the request
      * @param {string} tool The connected tool.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceListListsRequestOpts(requestParameters: ContactIntegrationsServiceListListsRequest): Promise<runtime.RequestOpts>;
 
@@ -316,7 +264,7 @@ export interface ContactIntegrationsApiInterface {
      * @param {string} tool The connected tool.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceListListsRaw(requestParameters: ContactIntegrationsServiceListListsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListContactToolListsResponse>>;
 
@@ -330,7 +278,7 @@ export interface ContactIntegrationsApiInterface {
      * Creates request options for contactIntegrationsServiceListPipelines without sending the request
      * @param {string} tool The connected CRM.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceListPipelinesRequestOpts(requestParameters: ContactIntegrationsServiceListPipelinesRequest): Promise<runtime.RequestOpts>;
 
@@ -340,7 +288,7 @@ export interface ContactIntegrationsApiInterface {
      * @param {string} tool The connected CRM.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceListPipelinesRaw(requestParameters: ContactIntegrationsServiceListPipelinesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListContactToolPipelinesResponse>>;
 
@@ -351,40 +299,12 @@ export interface ContactIntegrationsApiInterface {
     contactIntegrationsServiceListPipelines(requestParameters: ContactIntegrationsServiceListPipelinesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListContactToolPipelinesResponse>;
 
     /**
-     * Creates request options for contactIntegrationsServiceStartOAuth without sending the request
-     * @param {string} tool The tool to connect by signing in (CONTACT_TOOL_SALESFORCE, CONTACT_TOOL_ZOHO_CRM).
-     * @param {ContactIntegrationsServiceStartOAuthBody} contactIntegrationsServiceStartOAuthBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
-     */
-    contactIntegrationsServiceStartOAuthRequestOpts(requestParameters: ContactIntegrationsServiceStartOAuthRequest): Promise<runtime.RequestOpts>;
-
-    /**
-     * Return the URL where the person signs in to a contact tool that connects with OAuth (Salesforce, Zoho CRM). The sign-in comes back to the app\'s redirect URL with a code and a state, which CompleteOAuth exchanges.  Requires the `integrations:write` scope.
-     * @summary Start signing in to a contact tool
-     * @param {string} tool The tool to connect by signing in (CONTACT_TOOL_SALESFORCE, CONTACT_TOOL_ZOHO_CRM).
-     * @param {ContactIntegrationsServiceStartOAuthBody} contactIntegrationsServiceStartOAuthBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
-     */
-    contactIntegrationsServiceStartOAuthRaw(requestParameters: ContactIntegrationsServiceStartOAuthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StartContactToolOAuthResponse>>;
-
-    /**
-     * Return the URL where the person signs in to a contact tool that connects with OAuth (Salesforce, Zoho CRM). The sign-in comes back to the app\'s redirect URL with a code and a state, which CompleteOAuth exchanges.  Requires the `integrations:write` scope.
-     * Start signing in to a contact tool
-     */
-    contactIntegrationsServiceStartOAuth(requestParameters: ContactIntegrationsServiceStartOAuthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StartContactToolOAuthResponse>;
-
-    /**
      * Creates request options for contactIntegrationsServiceTest without sending the request
      * @param {string} tool The connected tool.
      * @param {object} body 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceTestRequestOpts(requestParameters: ContactIntegrationsServiceTestRequest): Promise<runtime.RequestOpts>;
 
@@ -393,10 +313,10 @@ export interface ContactIntegrationsApiInterface {
      * @summary Test a contact integration
      * @param {string} tool The connected tool.
      * @param {object} body 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceTestRaw(requestParameters: ContactIntegrationsServiceTestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TestContactConnectionResponse>>;
 
@@ -410,9 +330,9 @@ export interface ContactIntegrationsApiInterface {
      * Creates request options for contactIntegrationsServiceUpdate without sending the request
      * @param {string} tool The connected tool.
      * @param {ContactIntegrationsServiceUpdateBody} contactIntegrationsServiceUpdateBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceUpdateRequestOpts(requestParameters: ContactIntegrationsServiceUpdateRequest): Promise<runtime.RequestOpts>;
 
@@ -421,10 +341,10 @@ export interface ContactIntegrationsApiInterface {
      * @summary Update a contact integration
      * @param {string} tool The connected tool.
      * @param {ContactIntegrationsServiceUpdateBody} contactIntegrationsServiceUpdateBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ContactIntegrationsApiInterface
+     * @memberof IntegrationsContactToolsApiInterface
      */
     contactIntegrationsServiceUpdateRaw(requestParameters: ContactIntegrationsServiceUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdateContactConnectionResponse>>;
 
@@ -439,81 +359,7 @@ export interface ContactIntegrationsApiInterface {
 /**
  * 
  */
-export class ContactIntegrationsApi extends runtime.BaseAPI implements ContactIntegrationsApiInterface {
-
-    /**
-     * Creates request options for contactIntegrationsServiceCompleteOAuth without sending the request
-     */
-    async contactIntegrationsServiceCompleteOAuthRequestOpts(requestParameters: ContactIntegrationsServiceCompleteOAuthRequest): Promise<runtime.RequestOpts> {
-        if (requestParameters['tool'] == null) {
-            throw new runtime.RequiredError(
-                'tool',
-                'Required parameter "tool" was null or undefined when calling contactIntegrationsServiceCompleteOAuth().'
-            );
-        }
-
-        if (requestParameters['contactIntegrationsServiceCompleteOAuthBody'] == null) {
-            throw new runtime.RequiredError(
-                'contactIntegrationsServiceCompleteOAuthBody',
-                'Required parameter "contactIntegrationsServiceCompleteOAuthBody" was null or undefined when calling contactIntegrationsServiceCompleteOAuth().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (requestParameters['idempotencyKey'] != null) {
-            headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["integrations:write"]);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", ["integrations:write"]);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/v1/integrations/contacts/{tool}/oauth/complete`;
-        urlPath = urlPath.replace(`{${"tool"}}`, encodeURIComponent(String(requestParameters['tool'])));
-
-        return {
-            path: urlPath,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: ContactIntegrationsServiceCompleteOAuthBodyToJSON(requestParameters['contactIntegrationsServiceCompleteOAuthBody']),
-        };
-    }
-
-    /**
-     * Exchange the code the sign-in returned (with the PKCE verifier kept for its state), check the account, and connect the tool like ConnectTool. The state is valid once, for 15 minutes, for the member who started the sign-in.  Requires the `integrations:write` scope.
-     * Finish signing in to a contact tool
-     */
-    async contactIntegrationsServiceCompleteOAuthRaw(requestParameters: ContactIntegrationsServiceCompleteOAuthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CompleteContactToolOAuthResponse>> {
-        const requestOptions = await this.contactIntegrationsServiceCompleteOAuthRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => CompleteContactToolOAuthResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Exchange the code the sign-in returned (with the PKCE verifier kept for its state), check the account, and connect the tool like ConnectTool. The state is valid once, for 15 minutes, for the member who started the sign-in.  Requires the `integrations:write` scope.
-     * Finish signing in to a contact tool
-     */
-    async contactIntegrationsServiceCompleteOAuth(requestParameters: ContactIntegrationsServiceCompleteOAuthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CompleteContactToolOAuthResponse> {
-        const response = await this.contactIntegrationsServiceCompleteOAuthRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
+export class IntegrationsContactToolsApi extends runtime.BaseAPI implements IntegrationsContactToolsApiInterface {
 
     /**
      * Creates request options for contactIntegrationsServiceConnectTool without sending the request
@@ -998,80 +844,6 @@ export class ContactIntegrationsApi extends runtime.BaseAPI implements ContactIn
      */
     async contactIntegrationsServiceListPipelines(requestParameters: ContactIntegrationsServiceListPipelinesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListContactToolPipelinesResponse> {
         const response = await this.contactIntegrationsServiceListPipelinesRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for contactIntegrationsServiceStartOAuth without sending the request
-     */
-    async contactIntegrationsServiceStartOAuthRequestOpts(requestParameters: ContactIntegrationsServiceStartOAuthRequest): Promise<runtime.RequestOpts> {
-        if (requestParameters['tool'] == null) {
-            throw new runtime.RequiredError(
-                'tool',
-                'Required parameter "tool" was null or undefined when calling contactIntegrationsServiceStartOAuth().'
-            );
-        }
-
-        if (requestParameters['contactIntegrationsServiceStartOAuthBody'] == null) {
-            throw new runtime.RequiredError(
-                'contactIntegrationsServiceStartOAuthBody',
-                'Required parameter "contactIntegrationsServiceStartOAuthBody" was null or undefined when calling contactIntegrationsServiceStartOAuth().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (requestParameters['idempotencyKey'] != null) {
-            headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["integrations:write"]);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", ["integrations:write"]);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/v1/integrations/contacts/{tool}/oauth/start`;
-        urlPath = urlPath.replace(`{${"tool"}}`, encodeURIComponent(String(requestParameters['tool'])));
-
-        return {
-            path: urlPath,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: ContactIntegrationsServiceStartOAuthBodyToJSON(requestParameters['contactIntegrationsServiceStartOAuthBody']),
-        };
-    }
-
-    /**
-     * Return the URL where the person signs in to a contact tool that connects with OAuth (Salesforce, Zoho CRM). The sign-in comes back to the app\'s redirect URL with a code and a state, which CompleteOAuth exchanges.  Requires the `integrations:write` scope.
-     * Start signing in to a contact tool
-     */
-    async contactIntegrationsServiceStartOAuthRaw(requestParameters: ContactIntegrationsServiceStartOAuthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StartContactToolOAuthResponse>> {
-        const requestOptions = await this.contactIntegrationsServiceStartOAuthRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => StartContactToolOAuthResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Return the URL where the person signs in to a contact tool that connects with OAuth (Salesforce, Zoho CRM). The sign-in comes back to the app\'s redirect URL with a code and a state, which CompleteOAuth exchanges.  Requires the `integrations:write` scope.
-     * Start signing in to a contact tool
-     */
-    async contactIntegrationsServiceStartOAuth(requestParameters: ContactIntegrationsServiceStartOAuthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StartContactToolOAuthResponse> {
-        const response = await this.contactIntegrationsServiceStartOAuthRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

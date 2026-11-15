@@ -2,9 +2,9 @@
 /* eslint-disable */
 /**
  * Linkbreakers API
- * This is a documentation of all the APIs of Linkbreakers  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
+ * The Linkbreakers REST API: links, QR codes, workflows, visitors and analytics, as JSON over HTTPS. Send a workspace API token as `Authorization: Bearer <token>`.  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  A renamed operation keeps answering its former path until that path\'s sunset. Responses on a former path carry the same `Deprecation`, `Sunset` and `Link` header fields; this document lists only the current path, and the policy lists the former ones.  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
  *
- * The version of the OpenAPI document: 1.198.0
+ * The version of the OpenAPI document: 1.198.1
  * 
  *
  * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
@@ -15,51 +15,28 @@
 
 import * as runtime from '../runtime';
 import type {
-  CreateMyWorkspaceRequest,
-  CreateMyWorkspaceResponse,
   ErrorResponse,
   InviteMemberRequest,
-  ListMyWorkspacesResponse,
   ListResponse,
   Member,
-  MembersServiceSwitchWorkspaceBody,
   MembersServiceUpdateBody,
-  SwitchWorkspaceResponse,
-  UpdateMeRequest,
 } from '../models/index';
 import {
-    CreateMyWorkspaceRequestFromJSON,
-    CreateMyWorkspaceRequestToJSON,
-    CreateMyWorkspaceResponseFromJSON,
-    CreateMyWorkspaceResponseToJSON,
     ErrorResponseFromJSON,
     ErrorResponseToJSON,
     InviteMemberRequestFromJSON,
     InviteMemberRequestToJSON,
-    ListMyWorkspacesResponseFromJSON,
-    ListMyWorkspacesResponseToJSON,
     ListResponseFromJSON,
     ListResponseToJSON,
     MemberFromJSON,
     MemberToJSON,
-    MembersServiceSwitchWorkspaceBodyFromJSON,
-    MembersServiceSwitchWorkspaceBodyToJSON,
     MembersServiceUpdateBodyFromJSON,
     MembersServiceUpdateBodyToJSON,
-    SwitchWorkspaceResponseFromJSON,
-    SwitchWorkspaceResponseToJSON,
-    UpdateMeRequestFromJSON,
-    UpdateMeRequestToJSON,
 } from '../models/index';
 
 export interface MembersServiceAllowAccessRequest {
     id: string;
     body: object;
-    idempotencyKey?: string;
-}
-
-export interface MembersServiceCreateMyWorkspaceRequest {
-    createMyWorkspaceRequest: CreateMyWorkspaceRequest;
     idempotencyKey?: string;
 }
 
@@ -94,20 +71,9 @@ export interface MembersServiceRevokeAccessRequest {
     idempotencyKey?: string;
 }
 
-export interface MembersServiceSwitchWorkspaceRequest {
-    workspaceId: string;
-    membersServiceSwitchWorkspaceBody: MembersServiceSwitchWorkspaceBody;
-    idempotencyKey?: string;
-}
-
 export interface MembersServiceUpdateRequest {
     id: string;
     membersServiceUpdateBody: MembersServiceUpdateBody;
-    idempotencyKey?: string;
-}
-
-export interface MembersServiceUpdateMyselfRequest {
-    updateMeRequest: UpdateMeRequest;
     idempotencyKey?: string;
 }
 
@@ -122,7 +88,7 @@ export interface MembersApiInterface {
      * Creates request options for membersServiceAllowAccess without sending the request
      * @param {string} id Member identifier (UUID) whose access should be restored
      * @param {object} body 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof MembersApiInterface
      */
@@ -133,7 +99,7 @@ export interface MembersApiInterface {
      * @summary Allow access for a member
      * @param {string} id Member identifier (UUID) whose access should be restored
      * @param {object} body 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof MembersApiInterface
@@ -145,32 +111,6 @@ export interface MembersApiInterface {
      * Allow access for a member
      */
     membersServiceAllowAccess(requestParameters: MembersServiceAllowAccessRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Member>;
-
-    /**
-     * Creates request options for membersServiceCreateMyWorkspace without sending the request
-     * @param {CreateMyWorkspaceRequest} createMyWorkspaceRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @throws {RequiredError}
-     * @memberof MembersApiInterface
-     */
-    membersServiceCreateMyWorkspaceRequestOpts(requestParameters: MembersServiceCreateMyWorkspaceRequest): Promise<runtime.RequestOpts>;
-
-    /**
-     * Create another workspace for the signed-in person, such as one per client or brand, and issue an access token for it. The new workspace starts on the Free plan and is billed on its own plan. A person may found a limited number of Free workspaces: past that the call answers FREE_WORKSPACE_LIMIT_REACHED, with the limit in its metadata, until one of them is on a paid plan. Workspaces the person was invited to do not count. Needs a dashboard session or a full-access token of a member with an email; a workspace token or a token limited to scopes is refused.  Requires the `members:write` scope.
-     * @summary Create workspace
-     * @param {CreateMyWorkspaceRequest} createMyWorkspaceRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof MembersApiInterface
-     */
-    membersServiceCreateMyWorkspaceRaw(requestParameters: MembersServiceCreateMyWorkspaceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateMyWorkspaceResponse>>;
-
-    /**
-     * Create another workspace for the signed-in person, such as one per client or brand, and issue an access token for it. The new workspace starts on the Free plan and is billed on its own plan. A person may found a limited number of Free workspaces: past that the call answers FREE_WORKSPACE_LIMIT_REACHED, with the limit in its metadata, until one of them is on a paid plan. Workspaces the person was invited to do not count. Needs a dashboard session or a full-access token of a member with an email; a workspace token or a token limited to scopes is refused.  Requires the `members:write` scope.
-     * Create workspace
-     */
-    membersServiceCreateMyWorkspace(requestParameters: MembersServiceCreateMyWorkspaceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateMyWorkspaceResponse>;
 
     /**
      * Creates request options for membersServiceDelete without sending the request
@@ -200,7 +140,7 @@ export interface MembersApiInterface {
      * Creates request options for membersServiceForceSignout without sending the request
      * @param {string} id Member identifier (UUID) to sign out of all sessions
      * @param {object} body 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof MembersApiInterface
      */
@@ -211,7 +151,7 @@ export interface MembersApiInterface {
      * @summary Force a member to sign out
      * @param {string} id Member identifier (UUID) to sign out of all sessions
      * @param {object} body 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof MembersApiInterface
@@ -249,31 +189,9 @@ export interface MembersApiInterface {
     membersServiceGet(requestParameters: MembersServiceGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Member>;
 
     /**
-     * Creates request options for membersServiceGetMyself without sending the request
-     * @throws {RequiredError}
-     * @memberof MembersApiInterface
-     */
-    membersServiceGetMyselfRequestOpts(): Promise<runtime.RequestOpts>;
-
-    /**
-     * Return the member information associated with the authenticated caller.  Requires the `members:read` scope.
-     * @summary Get the current member
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof MembersApiInterface
-     */
-    membersServiceGetMyselfRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Member>>;
-
-    /**
-     * Return the member information associated with the authenticated caller.  Requires the `members:read` scope.
-     * Get the current member
-     */
-    membersServiceGetMyself(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Member>;
-
-    /**
      * Creates request options for membersServiceInvite without sending the request
      * @param {InviteMemberRequest} inviteMemberRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof MembersApiInterface
      */
@@ -283,7 +201,7 @@ export interface MembersApiInterface {
      * Create a pending member and dispatch an invitation email. A person who already has a Linkbreakers account is added to the workspace right away and told by email; inviting someone already in the workspace fails with MEMBER_ALREADY_IN_WORKSPACE.  Requires the `members:write` scope.
      * @summary Invite a new member
      * @param {InviteMemberRequest} inviteMemberRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof MembersApiInterface
@@ -299,7 +217,7 @@ export interface MembersApiInterface {
     /**
      * Creates request options for membersServiceList without sending the request
      * @param {number} [pageSize] Maximum number of members to return. Defaults to 100, capped at 1000.
-     * @param {string} [pageToken] Cursor from a previous response\&#39;s next_page_token. Empty starts at the first page. Pages are ordered by (created_at, id), which never change, so a record cannot move between pages while a client is walking them.
+     * @param {string} [pageToken] Cursor from a previous response\&#39;s nextPageToken. Empty starts at the first page. Pages are ordered by (createdAt, id), which never change, so a record cannot move between pages while a client is walking them.
      * @param {string} [cursor] Opaque cursor from the previous page\&#39;s nextPageToken. Same as pageToken; when both are sent, pageToken wins.
      * @throws {RequiredError}
      * @memberof MembersApiInterface
@@ -310,7 +228,7 @@ export interface MembersApiInterface {
      * Retrieve a paginated list of members in the current workspace.  Requires the `members:read` scope.
      * @summary List members
      * @param {number} [pageSize] Maximum number of members to return. Defaults to 100, capped at 1000.
-     * @param {string} [pageToken] Cursor from a previous response\&#39;s next_page_token. Empty starts at the first page. Pages are ordered by (created_at, id), which never change, so a record cannot move between pages while a client is walking them.
+     * @param {string} [pageToken] Cursor from a previous response\&#39;s nextPageToken. Empty starts at the first page. Pages are ordered by (createdAt, id), which never change, so a record cannot move between pages while a client is walking them.
      * @param {string} [cursor] Opaque cursor from the previous page\&#39;s nextPageToken. Same as pageToken; when both are sent, pageToken wins.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -325,32 +243,10 @@ export interface MembersApiInterface {
     membersServiceList(requestParameters: MembersServiceListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListResponse>;
 
     /**
-     * Creates request options for membersServiceListMyWorkspaces without sending the request
-     * @throws {RequiredError}
-     * @memberof MembersApiInterface
-     */
-    membersServiceListMyWorkspacesRequestOpts(): Promise<runtime.RequestOpts>;
-
-    /**
-     * Return every workspace the signed-in person belongs to, with their role, when they last used it and whether it is the one the token acts in. An API token sees only its own workspace.  Requires the `members:read` scope.
-     * @summary List my workspaces
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof MembersApiInterface
-     */
-    membersServiceListMyWorkspacesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListMyWorkspacesResponse>>;
-
-    /**
-     * Return every workspace the signed-in person belongs to, with their role, when they last used it and whether it is the one the token acts in. An API token sees only its own workspace.  Requires the `members:read` scope.
-     * List my workspaces
-     */
-    membersServiceListMyWorkspaces(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListMyWorkspacesResponse>;
-
-    /**
      * Creates request options for membersServiceRevokeAccess without sending the request
      * @param {string} id Member identifier (UUID) whose access should be suspended
      * @param {object} body 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof MembersApiInterface
      */
@@ -361,7 +257,7 @@ export interface MembersApiInterface {
      * @summary Revoke access for a member
      * @param {string} id Member identifier (UUID) whose access should be suspended
      * @param {object} body 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof MembersApiInterface
@@ -375,38 +271,10 @@ export interface MembersApiInterface {
     membersServiceRevokeAccess(requestParameters: MembersServiceRevokeAccessRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Member>;
 
     /**
-     * Creates request options for membersServiceSwitchWorkspace without sending the request
-     * @param {string} workspaceId Workspace to switch to (UUID). The caller must be a member of it.
-     * @param {MembersServiceSwitchWorkspaceBody} membersServiceSwitchWorkspaceBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @throws {RequiredError}
-     * @memberof MembersApiInterface
-     */
-    membersServiceSwitchWorkspaceRequestOpts(requestParameters: MembersServiceSwitchWorkspaceRequest): Promise<runtime.RequestOpts>;
-
-    /**
-     * Issue an access token for another workspace the signed-in person belongs to. Needs a dashboard session or a full-access token of a member; a workspace token or a token limited to scopes is refused. When the workspace enforces MFA, the first call emails a code and answers MFA_REQUIRED; repeat it with mfa_code.  Requires the `members:write` scope.
-     * @summary Switch workspace
-     * @param {string} workspaceId Workspace to switch to (UUID). The caller must be a member of it.
-     * @param {MembersServiceSwitchWorkspaceBody} membersServiceSwitchWorkspaceBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof MembersApiInterface
-     */
-    membersServiceSwitchWorkspaceRaw(requestParameters: MembersServiceSwitchWorkspaceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SwitchWorkspaceResponse>>;
-
-    /**
-     * Issue an access token for another workspace the signed-in person belongs to. Needs a dashboard session or a full-access token of a member; a workspace token or a token limited to scopes is refused. When the workspace enforces MFA, the first call emails a code and answers MFA_REQUIRED; repeat it with mfa_code.  Requires the `members:write` scope.
-     * Switch workspace
-     */
-    membersServiceSwitchWorkspace(requestParameters: MembersServiceSwitchWorkspaceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SwitchWorkspaceResponse>;
-
-    /**
      * Creates request options for membersServiceUpdate without sending the request
      * @param {string} id Member identifier (UUID) to update
      * @param {MembersServiceUpdateBody} membersServiceUpdateBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof MembersApiInterface
      */
@@ -417,7 +285,7 @@ export interface MembersApiInterface {
      * @summary Update a member
      * @param {string} id Member identifier (UUID) to update
      * @param {MembersServiceUpdateBody} membersServiceUpdateBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof MembersApiInterface
@@ -429,32 +297,6 @@ export interface MembersApiInterface {
      * Update a member
      */
     membersServiceUpdate(requestParameters: MembersServiceUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Member>;
-
-    /**
-     * Creates request options for membersServiceUpdateMyself without sending the request
-     * @param {UpdateMeRequest} updateMeRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @throws {RequiredError}
-     * @memberof MembersApiInterface
-     */
-    membersServiceUpdateMyselfRequestOpts(requestParameters: MembersServiceUpdateMyselfRequest): Promise<runtime.RequestOpts>;
-
-    /**
-     * Let the signed-in member update their own profile or credentials.  Requires the `members:write` scope.
-     * @summary Update the current member
-     * @param {UpdateMeRequest} updateMeRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof MembersApiInterface
-     */
-    membersServiceUpdateMyselfRaw(requestParameters: MembersServiceUpdateMyselfRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Member>>;
-
-    /**
-     * Let the signed-in member update their own profile or credentials.  Requires the `members:write` scope.
-     * Update the current member
-     */
-    membersServiceUpdateMyself(requestParameters: MembersServiceUpdateMyselfRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Member>;
 
 }
 
@@ -534,72 +376,6 @@ export class MembersApi extends runtime.BaseAPI implements MembersApiInterface {
      */
     async membersServiceAllowAccess(requestParameters: MembersServiceAllowAccessRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Member> {
         const response = await this.membersServiceAllowAccessRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for membersServiceCreateMyWorkspace without sending the request
-     */
-    async membersServiceCreateMyWorkspaceRequestOpts(requestParameters: MembersServiceCreateMyWorkspaceRequest): Promise<runtime.RequestOpts> {
-        if (requestParameters['createMyWorkspaceRequest'] == null) {
-            throw new runtime.RequiredError(
-                'createMyWorkspaceRequest',
-                'Required parameter "createMyWorkspaceRequest" was null or undefined when calling membersServiceCreateMyWorkspace().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (requestParameters['idempotencyKey'] != null) {
-            headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["members:write"]);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", ["members:write"]);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/v1/myself/workspaces`;
-
-        return {
-            path: urlPath,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: CreateMyWorkspaceRequestToJSON(requestParameters['createMyWorkspaceRequest']),
-        };
-    }
-
-    /**
-     * Create another workspace for the signed-in person, such as one per client or brand, and issue an access token for it. The new workspace starts on the Free plan and is billed on its own plan. A person may found a limited number of Free workspaces: past that the call answers FREE_WORKSPACE_LIMIT_REACHED, with the limit in its metadata, until one of them is on a paid plan. Workspaces the person was invited to do not count. Needs a dashboard session or a full-access token of a member with an email; a workspace token or a token limited to scopes is refused.  Requires the `members:write` scope.
-     * Create workspace
-     */
-    async membersServiceCreateMyWorkspaceRaw(requestParameters: MembersServiceCreateMyWorkspaceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateMyWorkspaceResponse>> {
-        const requestOptions = await this.membersServiceCreateMyWorkspaceRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => CreateMyWorkspaceResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Create another workspace for the signed-in person, such as one per client or brand, and issue an access token for it. The new workspace starts on the Free plan and is billed on its own plan. A person may found a limited number of Free workspaces: past that the call answers FREE_WORKSPACE_LIMIT_REACHED, with the limit in its metadata, until one of them is on a paid plan. Workspaces the person was invited to do not count. Needs a dashboard session or a full-access token of a member with an email; a workspace token or a token limited to scopes is refused.  Requires the `members:write` scope.
-     * Create workspace
-     */
-    async membersServiceCreateMyWorkspace(requestParameters: MembersServiceCreateMyWorkspaceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateMyWorkspaceResponse> {
-        const response = await this.membersServiceCreateMyWorkspaceRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -798,58 +574,6 @@ export class MembersApi extends runtime.BaseAPI implements MembersApiInterface {
     }
 
     /**
-     * Creates request options for membersServiceGetMyself without sending the request
-     */
-    async membersServiceGetMyselfRequestOpts(): Promise<runtime.RequestOpts> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["members:read"]);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", ["members:read"]);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/v1/member`;
-
-        return {
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     * Return the member information associated with the authenticated caller.  Requires the `members:read` scope.
-     * Get the current member
-     */
-    async membersServiceGetMyselfRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Member>> {
-        const requestOptions = await this.membersServiceGetMyselfRequestOpts();
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => MemberFromJSON(jsonValue));
-    }
-
-    /**
-     * Return the member information associated with the authenticated caller.  Requires the `members:read` scope.
-     * Get the current member
-     */
-    async membersServiceGetMyself(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Member> {
-        const response = await this.membersServiceGetMyselfRaw(initOverrides);
-        return await response.value();
-    }
-
-    /**
      * Creates request options for membersServiceInvite without sending the request
      */
     async membersServiceInviteRequestOpts(requestParameters: MembersServiceInviteRequest): Promise<runtime.RequestOpts> {
@@ -980,58 +704,6 @@ export class MembersApi extends runtime.BaseAPI implements MembersApiInterface {
     }
 
     /**
-     * Creates request options for membersServiceListMyWorkspaces without sending the request
-     */
-    async membersServiceListMyWorkspacesRequestOpts(): Promise<runtime.RequestOpts> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["members:read"]);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", ["members:read"]);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/v1/myself/workspaces`;
-
-        return {
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     * Return every workspace the signed-in person belongs to, with their role, when they last used it and whether it is the one the token acts in. An API token sees only its own workspace.  Requires the `members:read` scope.
-     * List my workspaces
-     */
-    async membersServiceListMyWorkspacesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListMyWorkspacesResponse>> {
-        const requestOptions = await this.membersServiceListMyWorkspacesRequestOpts();
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ListMyWorkspacesResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Return every workspace the signed-in person belongs to, with their role, when they last used it and whether it is the one the token acts in. An API token sees only its own workspace.  Requires the `members:read` scope.
-     * List my workspaces
-     */
-    async membersServiceListMyWorkspaces(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListMyWorkspacesResponse> {
-        const response = await this.membersServiceListMyWorkspacesRaw(initOverrides);
-        return await response.value();
-    }
-
-    /**
      * Creates request options for membersServiceRevokeAccess without sending the request
      */
     async membersServiceRevokeAccessRequestOpts(requestParameters: MembersServiceRevokeAccessRequest): Promise<runtime.RequestOpts> {
@@ -1106,80 +778,6 @@ export class MembersApi extends runtime.BaseAPI implements MembersApiInterface {
     }
 
     /**
-     * Creates request options for membersServiceSwitchWorkspace without sending the request
-     */
-    async membersServiceSwitchWorkspaceRequestOpts(requestParameters: MembersServiceSwitchWorkspaceRequest): Promise<runtime.RequestOpts> {
-        if (requestParameters['workspaceId'] == null) {
-            throw new runtime.RequiredError(
-                'workspaceId',
-                'Required parameter "workspaceId" was null or undefined when calling membersServiceSwitchWorkspace().'
-            );
-        }
-
-        if (requestParameters['membersServiceSwitchWorkspaceBody'] == null) {
-            throw new runtime.RequiredError(
-                'membersServiceSwitchWorkspaceBody',
-                'Required parameter "membersServiceSwitchWorkspaceBody" was null or undefined when calling membersServiceSwitchWorkspace().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (requestParameters['idempotencyKey'] != null) {
-            headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["members:write"]);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", ["members:write"]);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/v1/myself/workspaces/{workspaceId}:switch`;
-        urlPath = urlPath.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId'])));
-
-        return {
-            path: urlPath,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: MembersServiceSwitchWorkspaceBodyToJSON(requestParameters['membersServiceSwitchWorkspaceBody']),
-        };
-    }
-
-    /**
-     * Issue an access token for another workspace the signed-in person belongs to. Needs a dashboard session or a full-access token of a member; a workspace token or a token limited to scopes is refused. When the workspace enforces MFA, the first call emails a code and answers MFA_REQUIRED; repeat it with mfa_code.  Requires the `members:write` scope.
-     * Switch workspace
-     */
-    async membersServiceSwitchWorkspaceRaw(requestParameters: MembersServiceSwitchWorkspaceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SwitchWorkspaceResponse>> {
-        const requestOptions = await this.membersServiceSwitchWorkspaceRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => SwitchWorkspaceResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Issue an access token for another workspace the signed-in person belongs to. Needs a dashboard session or a full-access token of a member; a workspace token or a token limited to scopes is refused. When the workspace enforces MFA, the first call emails a code and answers MFA_REQUIRED; repeat it with mfa_code.  Requires the `members:write` scope.
-     * Switch workspace
-     */
-    async membersServiceSwitchWorkspace(requestParameters: MembersServiceSwitchWorkspaceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SwitchWorkspaceResponse> {
-        const response = await this.membersServiceSwitchWorkspaceRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
      * Creates request options for membersServiceUpdate without sending the request
      */
     async membersServiceUpdateRequestOpts(requestParameters: MembersServiceUpdateRequest): Promise<runtime.RequestOpts> {
@@ -1250,72 +848,6 @@ export class MembersApi extends runtime.BaseAPI implements MembersApiInterface {
      */
     async membersServiceUpdate(requestParameters: MembersServiceUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Member> {
         const response = await this.membersServiceUpdateRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for membersServiceUpdateMyself without sending the request
-     */
-    async membersServiceUpdateMyselfRequestOpts(requestParameters: MembersServiceUpdateMyselfRequest): Promise<runtime.RequestOpts> {
-        if (requestParameters['updateMeRequest'] == null) {
-            throw new runtime.RequiredError(
-                'updateMeRequest',
-                'Required parameter "updateMeRequest" was null or undefined when calling membersServiceUpdateMyself().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (requestParameters['idempotencyKey'] != null) {
-            headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["members:write"]);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", ["members:write"]);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/v1/member`;
-
-        return {
-            path: urlPath,
-            method: 'PUT',
-            headers: headerParameters,
-            query: queryParameters,
-            body: UpdateMeRequestToJSON(requestParameters['updateMeRequest']),
-        };
-    }
-
-    /**
-     * Let the signed-in member update their own profile or credentials.  Requires the `members:write` scope.
-     * Update the current member
-     */
-    async membersServiceUpdateMyselfRaw(requestParameters: MembersServiceUpdateMyselfRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Member>> {
-        const requestOptions = await this.membersServiceUpdateMyselfRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => MemberFromJSON(jsonValue));
-    }
-
-    /**
-     * Let the signed-in member update their own profile or credentials.  Requires the `members:write` scope.
-     * Update the current member
-     */
-    async membersServiceUpdateMyself(requestParameters: MembersServiceUpdateMyselfRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Member> {
-        const response = await this.membersServiceUpdateMyselfRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

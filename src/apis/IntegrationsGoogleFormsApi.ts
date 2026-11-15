@@ -2,9 +2,9 @@
 /* eslint-disable */
 /**
  * Linkbreakers API
- * This is a documentation of all the APIs of Linkbreakers  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
+ * The Linkbreakers REST API: links, QR codes, workflows, visitors and analytics, as JSON over HTTPS. Send a workspace API token as `Authorization: Bearer <token>`.  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  A renamed operation keeps answering its former path until that path\'s sunset. Responses on a former path carry the same `Deprecation`, `Sunset` and `Link` header fields; this document lists only the current path, and the policy lists the former ones.  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
  *
- * The version of the OpenAPI document: 1.198.0
+ * The version of the OpenAPI document: 1.198.1
  * 
  *
  * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
@@ -15,11 +15,8 @@
 
 import * as runtime from '../runtime';
 import type {
-  CompleteGoogleFormsOAuthRequest,
-  CompleteGoogleFormsOAuthResponse,
   ErrorResponse,
   GetGoogleFormsIntegrationResponse,
-  GetGoogleFormsOAuthURLResponse,
   GoogleFormsIntegrationsServiceChooseFormLinkBody,
   ListDetectedGoogleFormsResponse,
   SyncGoogleFormsResponse,
@@ -27,16 +24,10 @@ import type {
   UpdateGoogleFormsIntegrationResponse,
 } from '../models/index';
 import {
-    CompleteGoogleFormsOAuthRequestFromJSON,
-    CompleteGoogleFormsOAuthRequestToJSON,
-    CompleteGoogleFormsOAuthResponseFromJSON,
-    CompleteGoogleFormsOAuthResponseToJSON,
     ErrorResponseFromJSON,
     ErrorResponseToJSON,
     GetGoogleFormsIntegrationResponseFromJSON,
     GetGoogleFormsIntegrationResponseToJSON,
-    GetGoogleFormsOAuthURLResponseFromJSON,
-    GetGoogleFormsOAuthURLResponseToJSON,
     GoogleFormsIntegrationsServiceChooseFormLinkBodyFromJSON,
     GoogleFormsIntegrationsServiceChooseFormLinkBodyToJSON,
     ListDetectedGoogleFormsResponseFromJSON,
@@ -55,11 +46,6 @@ export interface GoogleFormsIntegrationsServiceChooseFormLinkRequest {
     idempotencyKey?: string;
 }
 
-export interface GoogleFormsIntegrationsServiceCompleteOAuthRequest {
-    completeGoogleFormsOAuthRequest: CompleteGoogleFormsOAuthRequest;
-    idempotencyKey?: string;
-}
-
 export interface GoogleFormsIntegrationsServiceSyncNowRequest {
     body: object;
     idempotencyKey?: string;
@@ -71,19 +57,19 @@ export interface GoogleFormsIntegrationsServiceUpdateRequest {
 }
 
 /**
- * GoogleFormsIntegrationsApi - interface
+ * IntegrationsGoogleFormsApi - interface
  * 
  * @export
- * @interface GoogleFormsIntegrationsApiInterface
+ * @interface IntegrationsGoogleFormsApiInterface
  */
-export interface GoogleFormsIntegrationsApiInterface {
+export interface IntegrationsGoogleFormsApiInterface {
     /**
      * Creates request options for googleFormsIntegrationsServiceChooseFormLink without sending the request
      * @param {string} formId The Google Form.
      * @param {GoogleFormsIntegrationsServiceChooseFormLinkBody} googleFormsIntegrationsServiceChooseFormLinkBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
-     * @memberof GoogleFormsIntegrationsApiInterface
+     * @memberof IntegrationsGoogleFormsApiInterface
      */
     googleFormsIntegrationsServiceChooseFormLinkRequestOpts(requestParameters: GoogleFormsIntegrationsServiceChooseFormLinkRequest): Promise<runtime.RequestOpts>;
 
@@ -92,10 +78,10 @@ export interface GoogleFormsIntegrationsApiInterface {
      * @summary Choose a Google Form\'s link
      * @param {string} formId The Google Form.
      * @param {GoogleFormsIntegrationsServiceChooseFormLinkBody} googleFormsIntegrationsServiceChooseFormLinkBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof GoogleFormsIntegrationsApiInterface
+     * @memberof IntegrationsGoogleFormsApiInterface
      */
     googleFormsIntegrationsServiceChooseFormLinkRaw(requestParameters: GoogleFormsIntegrationsServiceChooseFormLinkRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>>;
 
@@ -106,35 +92,9 @@ export interface GoogleFormsIntegrationsApiInterface {
     googleFormsIntegrationsServiceChooseFormLink(requestParameters: GoogleFormsIntegrationsServiceChooseFormLinkRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object>;
 
     /**
-     * Creates request options for googleFormsIntegrationsServiceCompleteOAuth without sending the request
-     * @param {CompleteGoogleFormsOAuthRequest} completeGoogleFormsOAuthRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @throws {RequiredError}
-     * @memberof GoogleFormsIntegrationsApiInterface
-     */
-    googleFormsIntegrationsServiceCompleteOAuthRequestOpts(requestParameters: GoogleFormsIntegrationsServiceCompleteOAuthRequest): Promise<runtime.RequestOpts>;
-
-    /**
-     * Exchanges the Google authorization code for tokens and creates the workspace integration.  Requires the `integrations:write` scope.
-     * @summary Complete Google OAuth
-     * @param {CompleteGoogleFormsOAuthRequest} completeGoogleFormsOAuthRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof GoogleFormsIntegrationsApiInterface
-     */
-    googleFormsIntegrationsServiceCompleteOAuthRaw(requestParameters: GoogleFormsIntegrationsServiceCompleteOAuthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CompleteGoogleFormsOAuthResponse>>;
-
-    /**
-     * Exchanges the Google authorization code for tokens and creates the workspace integration.  Requires the `integrations:write` scope.
-     * Complete Google OAuth
-     */
-    googleFormsIntegrationsServiceCompleteOAuth(requestParameters: GoogleFormsIntegrationsServiceCompleteOAuthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CompleteGoogleFormsOAuthResponse>;
-
-    /**
      * Creates request options for googleFormsIntegrationsServiceDelete without sending the request
      * @throws {RequiredError}
-     * @memberof GoogleFormsIntegrationsApiInterface
+     * @memberof IntegrationsGoogleFormsApiInterface
      */
     googleFormsIntegrationsServiceDeleteRequestOpts(): Promise<runtime.RequestOpts>;
 
@@ -143,7 +103,7 @@ export interface GoogleFormsIntegrationsApiInterface {
      * @summary Disconnect Google Forms integration
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof GoogleFormsIntegrationsApiInterface
+     * @memberof IntegrationsGoogleFormsApiInterface
      */
     googleFormsIntegrationsServiceDeleteRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>>;
 
@@ -156,7 +116,7 @@ export interface GoogleFormsIntegrationsApiInterface {
     /**
      * Creates request options for googleFormsIntegrationsServiceGet without sending the request
      * @throws {RequiredError}
-     * @memberof GoogleFormsIntegrationsApiInterface
+     * @memberof IntegrationsGoogleFormsApiInterface
      */
     googleFormsIntegrationsServiceGetRequestOpts(): Promise<runtime.RequestOpts>;
 
@@ -165,7 +125,7 @@ export interface GoogleFormsIntegrationsApiInterface {
      * @summary Get Google Forms integration
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof GoogleFormsIntegrationsApiInterface
+     * @memberof IntegrationsGoogleFormsApiInterface
      */
     googleFormsIntegrationsServiceGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetGoogleFormsIntegrationResponse>>;
 
@@ -176,31 +136,9 @@ export interface GoogleFormsIntegrationsApiInterface {
     googleFormsIntegrationsServiceGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetGoogleFormsIntegrationResponse>;
 
     /**
-     * Creates request options for googleFormsIntegrationsServiceGetOAuthURL without sending the request
-     * @throws {RequiredError}
-     * @memberof GoogleFormsIntegrationsApiInterface
-     */
-    googleFormsIntegrationsServiceGetOAuthURLRequestOpts(): Promise<runtime.RequestOpts>;
-
-    /**
-     * Returns the Google OAuth authorization URL to initiate the connection flow.  Requires the `integrations:write` scope.
-     * @summary Get Google OAuth URL
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof GoogleFormsIntegrationsApiInterface
-     */
-    googleFormsIntegrationsServiceGetOAuthURLRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetGoogleFormsOAuthURLResponse>>;
-
-    /**
-     * Returns the Google OAuth authorization URL to initiate the connection flow.  Requires the `integrations:write` scope.
-     * Get Google OAuth URL
-     */
-    googleFormsIntegrationsServiceGetOAuthURL(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetGoogleFormsOAuthURLResponse>;
-
-    /**
      * Creates request options for googleFormsIntegrationsServiceListDetectedForms without sending the request
      * @throws {RequiredError}
-     * @memberof GoogleFormsIntegrationsApiInterface
+     * @memberof IntegrationsGoogleFormsApiInterface
      */
     googleFormsIntegrationsServiceListDetectedFormsRequestOpts(): Promise<runtime.RequestOpts>;
 
@@ -209,7 +147,7 @@ export interface GoogleFormsIntegrationsApiInterface {
      * @summary List detected Google Forms
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof GoogleFormsIntegrationsApiInterface
+     * @memberof IntegrationsGoogleFormsApiInterface
      */
     googleFormsIntegrationsServiceListDetectedFormsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListDetectedGoogleFormsResponse>>;
 
@@ -222,9 +160,9 @@ export interface GoogleFormsIntegrationsApiInterface {
     /**
      * Creates request options for googleFormsIntegrationsServiceSyncNow without sending the request
      * @param {object} body 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
-     * @memberof GoogleFormsIntegrationsApiInterface
+     * @memberof IntegrationsGoogleFormsApiInterface
      */
     googleFormsIntegrationsServiceSyncNowRequestOpts(requestParameters: GoogleFormsIntegrationsServiceSyncNowRequest): Promise<runtime.RequestOpts>;
 
@@ -232,10 +170,10 @@ export interface GoogleFormsIntegrationsApiInterface {
      * Trigger an immediate sync of new Google Forms responses from all detected forms.  Requires the `integrations:write` scope.
      * @summary Sync now
      * @param {object} body 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof GoogleFormsIntegrationsApiInterface
+     * @memberof IntegrationsGoogleFormsApiInterface
      */
     googleFormsIntegrationsServiceSyncNowRaw(requestParameters: GoogleFormsIntegrationsServiceSyncNowRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SyncGoogleFormsResponse>>;
 
@@ -248,9 +186,9 @@ export interface GoogleFormsIntegrationsApiInterface {
     /**
      * Creates request options for googleFormsIntegrationsServiceUpdate without sending the request
      * @param {UpdateGoogleFormsIntegrationRequest} updateGoogleFormsIntegrationRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
-     * @memberof GoogleFormsIntegrationsApiInterface
+     * @memberof IntegrationsGoogleFormsApiInterface
      */
     googleFormsIntegrationsServiceUpdateRequestOpts(requestParameters: GoogleFormsIntegrationsServiceUpdateRequest): Promise<runtime.RequestOpts>;
 
@@ -258,10 +196,10 @@ export interface GoogleFormsIntegrationsApiInterface {
      * Update the integration status (pause or resume syncing).  Requires the `integrations:write` scope.
      * @summary Update Google Forms integration
      * @param {UpdateGoogleFormsIntegrationRequest} updateGoogleFormsIntegrationRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof GoogleFormsIntegrationsApiInterface
+     * @memberof IntegrationsGoogleFormsApiInterface
      */
     googleFormsIntegrationsServiceUpdateRaw(requestParameters: GoogleFormsIntegrationsServiceUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdateGoogleFormsIntegrationResponse>>;
 
@@ -276,7 +214,7 @@ export interface GoogleFormsIntegrationsApiInterface {
 /**
  * 
  */
-export class GoogleFormsIntegrationsApi extends runtime.BaseAPI implements GoogleFormsIntegrationsApiInterface {
+export class IntegrationsGoogleFormsApi extends runtime.BaseAPI implements IntegrationsGoogleFormsApiInterface {
 
     /**
      * Creates request options for googleFormsIntegrationsServiceChooseFormLink without sending the request
@@ -349,72 +287,6 @@ export class GoogleFormsIntegrationsApi extends runtime.BaseAPI implements Googl
      */
     async googleFormsIntegrationsServiceChooseFormLink(requestParameters: GoogleFormsIntegrationsServiceChooseFormLinkRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object> {
         const response = await this.googleFormsIntegrationsServiceChooseFormLinkRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for googleFormsIntegrationsServiceCompleteOAuth without sending the request
-     */
-    async googleFormsIntegrationsServiceCompleteOAuthRequestOpts(requestParameters: GoogleFormsIntegrationsServiceCompleteOAuthRequest): Promise<runtime.RequestOpts> {
-        if (requestParameters['completeGoogleFormsOAuthRequest'] == null) {
-            throw new runtime.RequiredError(
-                'completeGoogleFormsOAuthRequest',
-                'Required parameter "completeGoogleFormsOAuthRequest" was null or undefined when calling googleFormsIntegrationsServiceCompleteOAuth().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (requestParameters['idempotencyKey'] != null) {
-            headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["integrations:write"]);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", ["integrations:write"]);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/v1/google-forms-integrations/oauth/complete`;
-
-        return {
-            path: urlPath,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: CompleteGoogleFormsOAuthRequestToJSON(requestParameters['completeGoogleFormsOAuthRequest']),
-        };
-    }
-
-    /**
-     * Exchanges the Google authorization code for tokens and creates the workspace integration.  Requires the `integrations:write` scope.
-     * Complete Google OAuth
-     */
-    async googleFormsIntegrationsServiceCompleteOAuthRaw(requestParameters: GoogleFormsIntegrationsServiceCompleteOAuthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CompleteGoogleFormsOAuthResponse>> {
-        const requestOptions = await this.googleFormsIntegrationsServiceCompleteOAuthRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => CompleteGoogleFormsOAuthResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Exchanges the Google authorization code for tokens and creates the workspace integration.  Requires the `integrations:write` scope.
-     * Complete Google OAuth
-     */
-    async googleFormsIntegrationsServiceCompleteOAuth(requestParameters: GoogleFormsIntegrationsServiceCompleteOAuthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CompleteGoogleFormsOAuthResponse> {
-        const response = await this.googleFormsIntegrationsServiceCompleteOAuthRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -519,58 +391,6 @@ export class GoogleFormsIntegrationsApi extends runtime.BaseAPI implements Googl
      */
     async googleFormsIntegrationsServiceGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetGoogleFormsIntegrationResponse> {
         const response = await this.googleFormsIntegrationsServiceGetRaw(initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for googleFormsIntegrationsServiceGetOAuthURL without sending the request
-     */
-    async googleFormsIntegrationsServiceGetOAuthURLRequestOpts(): Promise<runtime.RequestOpts> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["integrations:write"]);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", ["integrations:write"]);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/v1/google-forms-integrations/oauth-url`;
-
-        return {
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     * Returns the Google OAuth authorization URL to initiate the connection flow.  Requires the `integrations:write` scope.
-     * Get Google OAuth URL
-     */
-    async googleFormsIntegrationsServiceGetOAuthURLRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetGoogleFormsOAuthURLResponse>> {
-        const requestOptions = await this.googleFormsIntegrationsServiceGetOAuthURLRequestOpts();
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => GetGoogleFormsOAuthURLResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Returns the Google OAuth authorization URL to initiate the connection flow.  Requires the `integrations:write` scope.
-     * Get Google OAuth URL
-     */
-    async googleFormsIntegrationsServiceGetOAuthURL(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetGoogleFormsOAuthURLResponse> {
-        const response = await this.googleFormsIntegrationsServiceGetOAuthURLRaw(initOverrides);
         return await response.value();
     }
 

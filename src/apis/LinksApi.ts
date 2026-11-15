@@ -2,9 +2,9 @@
 /* eslint-disable */
 /**
  * Linkbreakers API
- * This is a documentation of all the APIs of Linkbreakers  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
+ * The Linkbreakers REST API: links, QR codes, workflows, visitors and analytics, as JSON over HTTPS. Send a workspace API token as `Authorization: Bearer <token>`.  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  A renamed operation keeps answering its former path until that path\'s sunset. Responses on a former path carry the same `Deprecation`, `Sunset` and `Link` header fields; this document lists only the current path, and the policy lists the former ones.  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
  *
- * The version of the OpenAPI document: 1.198.0
+ * The version of the OpenAPI document: 1.198.1
  * 
  *
  * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
@@ -15,6 +15,7 @@
 
 import * as runtime from '../runtime';
 import type {
+  CheckShortlinkAvailabilityResponse,
   CreateBulkLinksRequest,
   CreateBulkLinksResponse,
   CreateContactLinkRequest,
@@ -26,19 +27,18 @@ import type {
   CreateThankYouLinkRequest,
   CreateThankYouLinkResponse,
   ErrorResponse,
+  GenerateShortlinkResponse,
   GetLinkResponse,
   Job,
   LinksServiceRenderQrcodeImagesBody,
   LinksServiceUpdateBody,
   ListLinksResponse,
   RenderQrcodeImagesResponse,
-  ResolveQrcodeImagesRequest,
-  ResolveQrcodeImagesResponse,
-  ShortlinkAvailabilityResponse,
-  ShortlinkRandomResponse,
   UpdateLinkResponse,
 } from '../models/index';
 import {
+    CheckShortlinkAvailabilityResponseFromJSON,
+    CheckShortlinkAvailabilityResponseToJSON,
     CreateBulkLinksRequestFromJSON,
     CreateBulkLinksRequestToJSON,
     CreateBulkLinksResponseFromJSON,
@@ -61,6 +61,8 @@ import {
     CreateThankYouLinkResponseToJSON,
     ErrorResponseFromJSON,
     ErrorResponseToJSON,
+    GenerateShortlinkResponseFromJSON,
+    GenerateShortlinkResponseToJSON,
     GetLinkResponseFromJSON,
     GetLinkResponseToJSON,
     JobFromJSON,
@@ -73,17 +75,14 @@ import {
     ListLinksResponseToJSON,
     RenderQrcodeImagesResponseFromJSON,
     RenderQrcodeImagesResponseToJSON,
-    ResolveQrcodeImagesRequestFromJSON,
-    ResolveQrcodeImagesRequestToJSON,
-    ResolveQrcodeImagesResponseFromJSON,
-    ResolveQrcodeImagesResponseToJSON,
-    ShortlinkAvailabilityResponseFromJSON,
-    ShortlinkAvailabilityResponseToJSON,
-    ShortlinkRandomResponseFromJSON,
-    ShortlinkRandomResponseToJSON,
     UpdateLinkResponseFromJSON,
     UpdateLinkResponseToJSON,
 } from '../models/index';
+
+export interface LinksServiceCheckShortlinkAvailabilityRequest {
+    shortlink?: string;
+    customDomainId?: string;
+}
 
 export interface LinksServiceCreateRequest {
     createLinkRequest: CreateLinkRequest;
@@ -148,16 +147,6 @@ export interface LinksServiceRenderQrcodeImagesRequest {
     idempotencyKey?: string;
 }
 
-export interface LinksServiceResolveQrcodeImagesRequest {
-    resolveQrcodeImagesRequest: ResolveQrcodeImagesRequest;
-    idempotencyKey?: string;
-}
-
-export interface LinksServiceShortlinkAvailabilityRequest {
-    shortlink?: string;
-    customDomainId?: string;
-}
-
 export interface LinksServiceUpdateRequest {
     id: string;
     linksServiceUpdateBody: LinksServiceUpdateBody;
@@ -172,9 +161,35 @@ export interface LinksServiceUpdateRequest {
  */
 export interface LinksApiInterface {
     /**
+     * Creates request options for linksServiceCheckShortlinkAvailability without sending the request
+     * @param {string} [shortlink] The shortlink to check availability for.
+     * @param {string} [customDomainId] The ID of the custom domain to check against (UUID) If not provided, checks against the default domain
+     * @throws {RequiredError}
+     * @memberof LinksApiInterface
+     */
+    linksServiceCheckShortlinkAvailabilityRequestOpts(requestParameters: LinksServiceCheckShortlinkAvailabilityRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * Checks if a shortlink is available for use to create a new link. A custom domain can be provided to check against. It typically checks the shortlink slugs and shortlink IDs already present within the system.  Requires the `links:read` scope.
+     * @summary Check shortlink availability
+     * @param {string} [shortlink] The shortlink to check availability for.
+     * @param {string} [customDomainId] The ID of the custom domain to check against (UUID) If not provided, checks against the default domain
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LinksApiInterface
+     */
+    linksServiceCheckShortlinkAvailabilityRaw(requestParameters: LinksServiceCheckShortlinkAvailabilityRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CheckShortlinkAvailabilityResponse>>;
+
+    /**
+     * Checks if a shortlink is available for use to create a new link. A custom domain can be provided to check against. It typically checks the shortlink slugs and shortlink IDs already present within the system.  Requires the `links:read` scope.
+     * Check shortlink availability
+     */
+    linksServiceCheckShortlinkAvailability(requestParameters: LinksServiceCheckShortlinkAvailabilityRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CheckShortlinkAvailabilityResponse>;
+
+    /**
      * Creates request options for linksServiceCreate without sending the request
      * @param {CreateLinkRequest} createLinkRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof LinksApiInterface
      */
@@ -184,7 +199,7 @@ export interface LinksApiInterface {
      * This endpoint allows users to create a new shortened URL link in their Linkbreakers workspace. The URL will be checked for malicious content before being shortened.  Requires the `links:write` scope.
      * @summary Create a new link
      * @param {CreateLinkRequest} createLinkRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LinksApiInterface
@@ -200,7 +215,7 @@ export interface LinksApiInterface {
     /**
      * Creates request options for linksServiceCreateBatch without sending the request
      * @param {Array<CreateLinkRequest>} createLinkRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof LinksApiInterface
      */
@@ -208,9 +223,9 @@ export interface LinksApiInterface {
 
     /**
      * Creates links in batch using the same per-link options as Create. This operation is transactional: if one link fails validation or insertion, no links from the batch are created.  Requires the `links:write` scope.
-     * @summary Create multiple links in a single request
+     * @summary Create multiple links from a bare JSON array
      * @param {Array<CreateLinkRequest>} createLinkRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LinksApiInterface
@@ -219,14 +234,14 @@ export interface LinksApiInterface {
 
     /**
      * Creates links in batch using the same per-link options as Create. This operation is transactional: if one link fails validation or insertion, no links from the batch are created.  Requires the `links:write` scope.
-     * Create multiple links in a single request
+     * Create multiple links from a bare JSON array
      */
     linksServiceCreateBatch(requestParameters: LinksServiceCreateBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateBulkLinksResponse>;
 
     /**
      * Creates request options for linksServiceCreateBulk without sending the request
      * @param {CreateBulkLinksRequest} createBulkLinksRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof LinksApiInterface
      */
@@ -236,7 +251,7 @@ export interface LinksApiInterface {
      * Creates links in batch using the same per-link options as Create. This operation is transactional: if one link fails validation or insertion, no links from the batch are created.  Requires the `links:write` scope.
      * @summary Create multiple links in a single request
      * @param {CreateBulkLinksRequest} createBulkLinksRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LinksApiInterface
@@ -252,7 +267,7 @@ export interface LinksApiInterface {
     /**
      * Creates request options for linksServiceCreateBulkAsync without sending the request
      * @param {CreateBulkLinksRequest} createBulkLinksRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof LinksApiInterface
      */
@@ -262,7 +277,7 @@ export interface LinksApiInterface {
      * Accepts the same batch as POST /v1/links/bulk, answers 202 Accepted at once with a job and a Location header, and creates the links in the background. Poll GET /v1/jobs/{id} for the result. The batch is transactional: when the job fails, no link was created.  Requires the `links:write` scope.
      * @summary Create links in bulk in the background
      * @param {CreateBulkLinksRequest} createBulkLinksRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LinksApiInterface
@@ -278,7 +293,7 @@ export interface LinksApiInterface {
     /**
      * Creates request options for linksServiceCreateContactLink without sending the request
      * @param {CreateContactLinkRequest} createContactLinkRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof LinksApiInterface
      */
@@ -288,7 +303,7 @@ export interface LinksApiInterface {
      * This endpoint allows users to create a new vCard contact link in their Linkbreakers workspace. The link will generate a vCard file for contact information sharing.  Requires the `links:write` scope.
      * @summary Create a new contact card link
      * @param {CreateContactLinkRequest} createContactLinkRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LinksApiInterface
@@ -304,17 +319,17 @@ export interface LinksApiInterface {
     /**
      * Creates request options for linksServiceCreateOpenMediaLink without sending the request
      * @param {CreateOpenMediaLinkRequest} createOpenMediaLinkRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof LinksApiInterface
      */
     linksServiceCreateOpenMediaLinkRequestOpts(requestParameters: LinksServiceCreateOpenMediaLinkRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * Creates a link, and its QR code, that hands visitors one piece of media from the media library: a PDF (a menu or brochure), an image (PNG, JPEG, WebP, SVG) or an MP4 video. Upload the media first (POST /v1/media, or a direct upload for media over 3 MB; no usage is needed), then pass its media_id. Any media of the library can be opened. The Open media step is the exit step. Swap the media later by pointing the step at another media item.  Requires the `links:write` scope.
+     * Creates a link, and its QR code, that hands visitors one piece of media from the media library: a PDF (a menu or brochure), an image (PNG, JPEG, WebP, SVG) or an MP4 video. Upload the media first (POST /v1/media, or a direct upload for media over 3 MB; no usage is needed), then pass its mediaId. Any media of the library can be opened. The Open media step is the exit step. Swap the media later by pointing the step at another media item.  Requires the `links:write` scope.
      * @summary Create a new media link
      * @param {CreateOpenMediaLinkRequest} createOpenMediaLinkRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LinksApiInterface
@@ -322,7 +337,7 @@ export interface LinksApiInterface {
     linksServiceCreateOpenMediaLinkRaw(requestParameters: LinksServiceCreateOpenMediaLinkRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateOpenMediaLinkResponse>>;
 
     /**
-     * Creates a link, and its QR code, that hands visitors one piece of media from the media library: a PDF (a menu or brochure), an image (PNG, JPEG, WebP, SVG) or an MP4 video. Upload the media first (POST /v1/media, or a direct upload for media over 3 MB; no usage is needed), then pass its media_id. Any media of the library can be opened. The Open media step is the exit step. Swap the media later by pointing the step at another media item.  Requires the `links:write` scope.
+     * Creates a link, and its QR code, that hands visitors one piece of media from the media library: a PDF (a menu or brochure), an image (PNG, JPEG, WebP, SVG) or an MP4 video. Upload the media first (POST /v1/media, or a direct upload for media over 3 MB; no usage is needed), then pass its mediaId. Any media of the library can be opened. The Open media step is the exit step. Swap the media later by pointing the step at another media item.  Requires the `links:write` scope.
      * Create a new media link
      */
     linksServiceCreateOpenMediaLink(requestParameters: LinksServiceCreateOpenMediaLinkRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateOpenMediaLinkResponse>;
@@ -330,7 +345,7 @@ export interface LinksApiInterface {
     /**
      * Creates request options for linksServiceCreateThankYouLink without sending the request
      * @param {CreateThankYouLinkRequest} createThankYouLinkRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof LinksApiInterface
      */
@@ -340,7 +355,7 @@ export interface LinksApiInterface {
      * This endpoint allows users to create a new link with a thank you page as the exit step.  Requires the `links:write` scope.
      * @summary Create a new thank you page link
      * @param {CreateThankYouLinkRequest} createThankYouLinkRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LinksApiInterface
@@ -378,6 +393,28 @@ export interface LinksApiInterface {
     linksServiceDelete(requestParameters: LinksServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object>;
 
     /**
+     * Creates request options for linksServiceGenerateShortlink without sending the request
+     * @throws {RequiredError}
+     * @memberof LinksApiInterface
+     */
+    linksServiceGenerateShortlinkRequestOpts(): Promise<runtime.RequestOpts>;
+
+    /**
+     * Generates a random shortlink that is still available, to use for a new link.  Requires the `links:read` scope.
+     * @summary Generate a shortlink
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LinksApiInterface
+     */
+    linksServiceGenerateShortlinkRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GenerateShortlinkResponse>>;
+
+    /**
+     * Generates a random shortlink that is still available, to use for a new link.  Requires the `links:read` scope.
+     * Generate a shortlink
+     */
+    linksServiceGenerateShortlink(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GenerateShortlinkResponse>;
+
+    /**
      * Creates request options for linksServiceGet without sending the request
      * @param {string} id The ID of the link to retrieve (UUID)
      * @param {Array<string>} [include] List of related resources to include in the response. Supported values: \&quot;customDomain\&quot;, \&quot;qrcodeDesign\&quot;, \&quot;qrcodeSignedUrl\&quot;, \&quot;tags\&quot;, \&quot;pageTheme\&quot;. Use \&quot;qrcodeSignedUrl\&quot; to fetch signed QR image URLs—they are omitted by default to keep requests fast.
@@ -410,9 +447,9 @@ export interface LinksApiInterface {
      * @param {Array<string>} [include] List of related resources to include in the response. Supported values: \&quot;customDomain\&quot;, \&quot;qrcodeDesign\&quot;, \&quot;qrcodeSignedUrl\&quot;, \&quot;tags\&quot;, \&quot;pageTheme\&quot;. Use \&quot;qrcodeSignedUrl\&quot; to fetch signed QR image URLs—they are omitted by default to keep requests fast.
      * @param {Array<string>} [tags] Tags to filter links by (matches links containing any of the provided tags)
      * @param {string} [search] Search query to filter links by name or shortlink  Search query to filter links by name or shortlink
-     * @param {string} [sortBy] Field to sort links by (defaults to updated_at if not specified)  Field to sort links by   - LINK_SORT_FIELD_UNSPECIFIED: Sort field not specified (defaults to updated_at)  - LINK_SORT_FIELD_CREATED_AT: Sort by creation date  - LINK_SORT_FIELD_UPDATED_AT: Sort by last update date  - LINK_SORT_FIELD_SHORTLINK: Sort by shortlink name  - LINK_SORT_FIELD_NAME: Sort by link name  - LINK_SORT_FIELD_EVENT_COUNT: Sort by event count
+     * @param {string} [sortBy] Field to sort links by (defaults to updatedAt if not specified)  Field to sort links by   - LINK_SORT_FIELD_UNSPECIFIED: Sort field not specified (defaults to updatedAt)  - LINK_SORT_FIELD_CREATED_AT: Sort by creation date  - LINK_SORT_FIELD_UPDATED_AT: Sort by last update date  - LINK_SORT_FIELD_SHORTLINK: Sort by shortlink name  - LINK_SORT_FIELD_NAME: Sort by link name  - LINK_SORT_FIELD_EVENT_COUNT: Sort by event count
      * @param {string} [sortDirection] Sort direction (defaults to descending if not specified)  Sort direction (ascending or descending)   - SORT_DIRECTION_UNSPECIFIED: Sort direction not specified (defaults to descending)  - SORT_DIRECTION_ASC: Sort in ascending order  - SORT_DIRECTION_DESC: Sort in descending order
-     * @param {string} [view] View mode. Default returns all links. LINK_VIEW_DIRECTORY scopes to a directory (or root when directory_id is empty).   - LINK_VIEW_UNSPECIFIED: Return all links regardless of directory (default)  - LINK_VIEW_DIRECTORY: Return links scoped to a directory. When directory_id is set, returns links in that directory. When directory_id is empty, returns root-level links (no directory).
+     * @param {string} [view] View mode. Default returns all links. LINK_VIEW_DIRECTORY scopes to a directory (or root when directoryId is empty).   - LINK_VIEW_UNSPECIFIED: Return all links regardless of directory (default)  - LINK_VIEW_DIRECTORY: Return links scoped to a directory. When directoryId is set, returns links in that directory. When directoryId is empty, returns root-level links (no directory).
      * @param {string} [directoryId] Directory ID to scope to when view is LINK_VIEW_DIRECTORY. When empty with LINK_VIEW_DIRECTORY, returns root-level links.
      * @param {string} [cursor] Opaque cursor from the previous page\&#39;s nextPageToken. Same as pageToken; when both are sent, pageToken wins.
      * @throws {RequiredError}
@@ -428,9 +465,9 @@ export interface LinksApiInterface {
      * @param {Array<string>} [include] List of related resources to include in the response. Supported values: \&quot;customDomain\&quot;, \&quot;qrcodeDesign\&quot;, \&quot;qrcodeSignedUrl\&quot;, \&quot;tags\&quot;, \&quot;pageTheme\&quot;. Use \&quot;qrcodeSignedUrl\&quot; to fetch signed QR image URLs—they are omitted by default to keep requests fast.
      * @param {Array<string>} [tags] Tags to filter links by (matches links containing any of the provided tags)
      * @param {string} [search] Search query to filter links by name or shortlink  Search query to filter links by name or shortlink
-     * @param {string} [sortBy] Field to sort links by (defaults to updated_at if not specified)  Field to sort links by   - LINK_SORT_FIELD_UNSPECIFIED: Sort field not specified (defaults to updated_at)  - LINK_SORT_FIELD_CREATED_AT: Sort by creation date  - LINK_SORT_FIELD_UPDATED_AT: Sort by last update date  - LINK_SORT_FIELD_SHORTLINK: Sort by shortlink name  - LINK_SORT_FIELD_NAME: Sort by link name  - LINK_SORT_FIELD_EVENT_COUNT: Sort by event count
+     * @param {string} [sortBy] Field to sort links by (defaults to updatedAt if not specified)  Field to sort links by   - LINK_SORT_FIELD_UNSPECIFIED: Sort field not specified (defaults to updatedAt)  - LINK_SORT_FIELD_CREATED_AT: Sort by creation date  - LINK_SORT_FIELD_UPDATED_AT: Sort by last update date  - LINK_SORT_FIELD_SHORTLINK: Sort by shortlink name  - LINK_SORT_FIELD_NAME: Sort by link name  - LINK_SORT_FIELD_EVENT_COUNT: Sort by event count
      * @param {string} [sortDirection] Sort direction (defaults to descending if not specified)  Sort direction (ascending or descending)   - SORT_DIRECTION_UNSPECIFIED: Sort direction not specified (defaults to descending)  - SORT_DIRECTION_ASC: Sort in ascending order  - SORT_DIRECTION_DESC: Sort in descending order
-     * @param {string} [view] View mode. Default returns all links. LINK_VIEW_DIRECTORY scopes to a directory (or root when directory_id is empty).   - LINK_VIEW_UNSPECIFIED: Return all links regardless of directory (default)  - LINK_VIEW_DIRECTORY: Return links scoped to a directory. When directory_id is set, returns links in that directory. When directory_id is empty, returns root-level links (no directory).
+     * @param {string} [view] View mode. Default returns all links. LINK_VIEW_DIRECTORY scopes to a directory (or root when directoryId is empty).   - LINK_VIEW_UNSPECIFIED: Return all links regardless of directory (default)  - LINK_VIEW_DIRECTORY: Return links scoped to a directory. When directoryId is set, returns links in that directory. When directoryId is empty, returns root-level links (no directory).
      * @param {string} [directoryId] Directory ID to scope to when view is LINK_VIEW_DIRECTORY. When empty with LINK_VIEW_DIRECTORY, returns root-level links.
      * @param {string} [cursor] Opaque cursor from the previous page\&#39;s nextPageToken. Same as pageToken; when both are sent, pageToken wins.
      * @param {*} [options] Override http request option.
@@ -449,7 +486,7 @@ export interface LinksApiInterface {
      * Creates request options for linksServiceRenderQrcodeImages without sending the request
      * @param {string} id The link\&#39;s ID (UUID).
      * @param {LinksServiceRenderQrcodeImagesBody} linksServiceRenderQrcodeImagesBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof LinksApiInterface
      */
@@ -460,7 +497,7 @@ export interface LinksApiInterface {
      * @summary Render QR codes for a link
      * @param {string} id The link\&#39;s ID (UUID).
      * @param {LinksServiceRenderQrcodeImagesBody} linksServiceRenderQrcodeImagesBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LinksApiInterface
@@ -474,84 +511,10 @@ export interface LinksApiInterface {
     linksServiceRenderQrcodeImages(requestParameters: LinksServiceRenderQrcodeImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RenderQrcodeImagesResponse>;
 
     /**
-     * Creates request options for linksServiceResolveQrcodeImages without sending the request
-     * @param {ResolveQrcodeImagesRequest} resolveQrcodeImagesRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @throws {RequiredError}
-     * @memberof LinksApiInterface
-     */
-    linksServiceResolveQrcodeImagesRequestOpts(requestParameters: LinksServiceResolveQrcodeImagesRequest): Promise<runtime.RequestOpts>;
-
-    /**
-     * Return freshly signed QR code image URLs for the given links. The URLs expire, so callers fetch them when they need to render rather than storing them.  Requires the `links:read` scope.
-     * @summary Resolve QR code image URLs
-     * @param {ResolveQrcodeImagesRequest} resolveQrcodeImagesRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof LinksApiInterface
-     */
-    linksServiceResolveQrcodeImagesRaw(requestParameters: LinksServiceResolveQrcodeImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResolveQrcodeImagesResponse>>;
-
-    /**
-     * Return freshly signed QR code image URLs for the given links. The URLs expire, so callers fetch them when they need to render rather than storing them.  Requires the `links:read` scope.
-     * Resolve QR code image URLs
-     */
-    linksServiceResolveQrcodeImages(requestParameters: LinksServiceResolveQrcodeImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResolveQrcodeImagesResponse>;
-
-    /**
-     * Creates request options for linksServiceShortlinkAvailability without sending the request
-     * @param {string} [shortlink] The shortlink to check availability for.
-     * @param {string} [customDomainId] The ID of the custom domain to check against (UUID) If not provided, checks against the default domain
-     * @throws {RequiredError}
-     * @memberof LinksApiInterface
-     */
-    linksServiceShortlinkAvailabilityRequestOpts(requestParameters: LinksServiceShortlinkAvailabilityRequest): Promise<runtime.RequestOpts>;
-
-    /**
-     * Checks if a shortlink is available for use to create a new link. A custom domain can be provided to check against. It typically checks the shortlink slugs and shortlink IDs already present within the system.  Requires the `links:read` scope.
-     * @summary Check shortlink availability
-     * @param {string} [shortlink] The shortlink to check availability for.
-     * @param {string} [customDomainId] The ID of the custom domain to check against (UUID) If not provided, checks against the default domain
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof LinksApiInterface
-     */
-    linksServiceShortlinkAvailabilityRaw(requestParameters: LinksServiceShortlinkAvailabilityRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ShortlinkAvailabilityResponse>>;
-
-    /**
-     * Checks if a shortlink is available for use to create a new link. A custom domain can be provided to check against. It typically checks the shortlink slugs and shortlink IDs already present within the system.  Requires the `links:read` scope.
-     * Check shortlink availability
-     */
-    linksServiceShortlinkAvailability(requestParameters: LinksServiceShortlinkAvailabilityRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ShortlinkAvailabilityResponse>;
-
-    /**
-     * Creates request options for linksServiceShortlinkRandom without sending the request
-     * @throws {RequiredError}
-     * @memberof LinksApiInterface
-     */
-    linksServiceShortlinkRandomRequestOpts(): Promise<runtime.RequestOpts>;
-
-    /**
-     * Generates a random availableshortlink for a new link.  Requires the `links:read` scope.
-     * @summary Get a random shortlink
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof LinksApiInterface
-     */
-    linksServiceShortlinkRandomRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ShortlinkRandomResponse>>;
-
-    /**
-     * Generates a random availableshortlink for a new link.  Requires the `links:read` scope.
-     * Get a random shortlink
-     */
-    linksServiceShortlinkRandom(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ShortlinkRandomResponse>;
-
-    /**
      * Creates request options for linksServiceUpdate without sending the request
      * @param {string} id The ID of the link to update (UUID)
      * @param {LinksServiceUpdateBody} linksServiceUpdateBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof LinksApiInterface
      */
@@ -562,7 +525,7 @@ export interface LinksApiInterface {
      * @summary Update a link
      * @param {string} id The ID of the link to update (UUID)
      * @param {LinksServiceUpdateBody} linksServiceUpdateBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LinksApiInterface
@@ -581,6 +544,66 @@ export interface LinksApiInterface {
  * 
  */
 export class LinksApi extends runtime.BaseAPI implements LinksApiInterface {
+
+    /**
+     * Creates request options for linksServiceCheckShortlinkAvailability without sending the request
+     */
+    async linksServiceCheckShortlinkAvailabilityRequestOpts(requestParameters: LinksServiceCheckShortlinkAvailabilityRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        if (requestParameters['shortlink'] != null) {
+            queryParameters['shortlink'] = requestParameters['shortlink'];
+        }
+
+        if (requestParameters['customDomainId'] != null) {
+            queryParameters['customDomainId'] = requestParameters['customDomainId'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["links:read"]);
+        }
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", ["links:read"]);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/v1/links/shortlink-availability`;
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Checks if a shortlink is available for use to create a new link. A custom domain can be provided to check against. It typically checks the shortlink slugs and shortlink IDs already present within the system.  Requires the `links:read` scope.
+     * Check shortlink availability
+     */
+    async linksServiceCheckShortlinkAvailabilityRaw(requestParameters: LinksServiceCheckShortlinkAvailabilityRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CheckShortlinkAvailabilityResponse>> {
+        const requestOptions = await this.linksServiceCheckShortlinkAvailabilityRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => CheckShortlinkAvailabilityResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Checks if a shortlink is available for use to create a new link. A custom domain can be provided to check against. It typically checks the shortlink slugs and shortlink IDs already present within the system.  Requires the `links:read` scope.
+     * Check shortlink availability
+     */
+    async linksServiceCheckShortlinkAvailability(requestParameters: LinksServiceCheckShortlinkAvailabilityRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CheckShortlinkAvailabilityResponse> {
+        const response = await this.linksServiceCheckShortlinkAvailabilityRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      * Creates request options for linksServiceCreate without sending the request
@@ -696,7 +719,7 @@ export class LinksApi extends runtime.BaseAPI implements LinksApiInterface {
 
     /**
      * Creates links in batch using the same per-link options as Create. This operation is transactional: if one link fails validation or insertion, no links from the batch are created.  Requires the `links:write` scope.
-     * Create multiple links in a single request
+     * Create multiple links from a bare JSON array
      */
     async linksServiceCreateBatchRaw(requestParameters: LinksServiceCreateBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateBulkLinksResponse>> {
         const requestOptions = await this.linksServiceCreateBatchRequestOpts(requestParameters);
@@ -707,7 +730,7 @@ export class LinksApi extends runtime.BaseAPI implements LinksApiInterface {
 
     /**
      * Creates links in batch using the same per-link options as Create. This operation is transactional: if one link fails validation or insertion, no links from the batch are created.  Requires the `links:write` scope.
-     * Create multiple links in a single request
+     * Create multiple links from a bare JSON array
      */
     async linksServiceCreateBatch(requestParameters: LinksServiceCreateBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateBulkLinksResponse> {
         const response = await this.linksServiceCreateBatchRaw(requestParameters, initOverrides);
@@ -959,7 +982,7 @@ export class LinksApi extends runtime.BaseAPI implements LinksApiInterface {
     }
 
     /**
-     * Creates a link, and its QR code, that hands visitors one piece of media from the media library: a PDF (a menu or brochure), an image (PNG, JPEG, WebP, SVG) or an MP4 video. Upload the media first (POST /v1/media, or a direct upload for media over 3 MB; no usage is needed), then pass its media_id. Any media of the library can be opened. The Open media step is the exit step. Swap the media later by pointing the step at another media item.  Requires the `links:write` scope.
+     * Creates a link, and its QR code, that hands visitors one piece of media from the media library: a PDF (a menu or brochure), an image (PNG, JPEG, WebP, SVG) or an MP4 video. Upload the media first (POST /v1/media, or a direct upload for media over 3 MB; no usage is needed), then pass its mediaId. Any media of the library can be opened. The Open media step is the exit step. Swap the media later by pointing the step at another media item.  Requires the `links:write` scope.
      * Create a new media link
      */
     async linksServiceCreateOpenMediaLinkRaw(requestParameters: LinksServiceCreateOpenMediaLinkRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateOpenMediaLinkResponse>> {
@@ -970,7 +993,7 @@ export class LinksApi extends runtime.BaseAPI implements LinksApiInterface {
     }
 
     /**
-     * Creates a link, and its QR code, that hands visitors one piece of media from the media library: a PDF (a menu or brochure), an image (PNG, JPEG, WebP, SVG) or an MP4 video. Upload the media first (POST /v1/media, or a direct upload for media over 3 MB; no usage is needed), then pass its media_id. Any media of the library can be opened. The Open media step is the exit step. Swap the media later by pointing the step at another media item.  Requires the `links:write` scope.
+     * Creates a link, and its QR code, that hands visitors one piece of media from the media library: a PDF (a menu or brochure), an image (PNG, JPEG, WebP, SVG) or an MP4 video. Upload the media first (POST /v1/media, or a direct upload for media over 3 MB; no usage is needed), then pass its mediaId. Any media of the library can be opened. The Open media step is the exit step. Swap the media later by pointing the step at another media item.  Requires the `links:write` scope.
      * Create a new media link
      */
     async linksServiceCreateOpenMediaLink(requestParameters: LinksServiceCreateOpenMediaLinkRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateOpenMediaLinkResponse> {
@@ -1101,6 +1124,58 @@ export class LinksApi extends runtime.BaseAPI implements LinksApiInterface {
      */
     async linksServiceDelete(requestParameters: LinksServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object> {
         const response = await this.linksServiceDeleteRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for linksServiceGenerateShortlink without sending the request
+     */
+    async linksServiceGenerateShortlinkRequestOpts(): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["links:read"]);
+        }
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", ["links:read"]);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/v1/links/shortlink-random`;
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Generates a random shortlink that is still available, to use for a new link.  Requires the `links:read` scope.
+     * Generate a shortlink
+     */
+    async linksServiceGenerateShortlinkRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GenerateShortlinkResponse>> {
+        const requestOptions = await this.linksServiceGenerateShortlinkRequestOpts();
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GenerateShortlinkResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Generates a random shortlink that is still available, to use for a new link.  Requires the `links:read` scope.
+     * Generate a shortlink
+     */
+    async linksServiceGenerateShortlink(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GenerateShortlinkResponse> {
+        const response = await this.linksServiceGenerateShortlinkRaw(initOverrides);
         return await response.value();
     }
 
@@ -1338,184 +1413,6 @@ export class LinksApi extends runtime.BaseAPI implements LinksApiInterface {
      */
     async linksServiceRenderQrcodeImages(requestParameters: LinksServiceRenderQrcodeImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RenderQrcodeImagesResponse> {
         const response = await this.linksServiceRenderQrcodeImagesRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for linksServiceResolveQrcodeImages without sending the request
-     */
-    async linksServiceResolveQrcodeImagesRequestOpts(requestParameters: LinksServiceResolveQrcodeImagesRequest): Promise<runtime.RequestOpts> {
-        if (requestParameters['resolveQrcodeImagesRequest'] == null) {
-            throw new runtime.RequiredError(
-                'resolveQrcodeImagesRequest',
-                'Required parameter "resolveQrcodeImagesRequest" was null or undefined when calling linksServiceResolveQrcodeImages().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (requestParameters['idempotencyKey'] != null) {
-            headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["links:read"]);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", ["links:read"]);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/v1/links/qrcode-images:resolve`;
-
-        return {
-            path: urlPath,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: ResolveQrcodeImagesRequestToJSON(requestParameters['resolveQrcodeImagesRequest']),
-        };
-    }
-
-    /**
-     * Return freshly signed QR code image URLs for the given links. The URLs expire, so callers fetch them when they need to render rather than storing them.  Requires the `links:read` scope.
-     * Resolve QR code image URLs
-     */
-    async linksServiceResolveQrcodeImagesRaw(requestParameters: LinksServiceResolveQrcodeImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResolveQrcodeImagesResponse>> {
-        const requestOptions = await this.linksServiceResolveQrcodeImagesRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ResolveQrcodeImagesResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Return freshly signed QR code image URLs for the given links. The URLs expire, so callers fetch them when they need to render rather than storing them.  Requires the `links:read` scope.
-     * Resolve QR code image URLs
-     */
-    async linksServiceResolveQrcodeImages(requestParameters: LinksServiceResolveQrcodeImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResolveQrcodeImagesResponse> {
-        const response = await this.linksServiceResolveQrcodeImagesRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for linksServiceShortlinkAvailability without sending the request
-     */
-    async linksServiceShortlinkAvailabilityRequestOpts(requestParameters: LinksServiceShortlinkAvailabilityRequest): Promise<runtime.RequestOpts> {
-        const queryParameters: any = {};
-
-        if (requestParameters['shortlink'] != null) {
-            queryParameters['shortlink'] = requestParameters['shortlink'];
-        }
-
-        if (requestParameters['customDomainId'] != null) {
-            queryParameters['customDomainId'] = requestParameters['customDomainId'];
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["links:read"]);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", ["links:read"]);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/v1/links/shortlink-availability`;
-
-        return {
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     * Checks if a shortlink is available for use to create a new link. A custom domain can be provided to check against. It typically checks the shortlink slugs and shortlink IDs already present within the system.  Requires the `links:read` scope.
-     * Check shortlink availability
-     */
-    async linksServiceShortlinkAvailabilityRaw(requestParameters: LinksServiceShortlinkAvailabilityRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ShortlinkAvailabilityResponse>> {
-        const requestOptions = await this.linksServiceShortlinkAvailabilityRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ShortlinkAvailabilityResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Checks if a shortlink is available for use to create a new link. A custom domain can be provided to check against. It typically checks the shortlink slugs and shortlink IDs already present within the system.  Requires the `links:read` scope.
-     * Check shortlink availability
-     */
-    async linksServiceShortlinkAvailability(requestParameters: LinksServiceShortlinkAvailabilityRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ShortlinkAvailabilityResponse> {
-        const response = await this.linksServiceShortlinkAvailabilityRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for linksServiceShortlinkRandom without sending the request
-     */
-    async linksServiceShortlinkRandomRequestOpts(): Promise<runtime.RequestOpts> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["links:read"]);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", ["links:read"]);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/v1/links/shortlink-random`;
-
-        return {
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     * Generates a random availableshortlink for a new link.  Requires the `links:read` scope.
-     * Get a random shortlink
-     */
-    async linksServiceShortlinkRandomRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ShortlinkRandomResponse>> {
-        const requestOptions = await this.linksServiceShortlinkRandomRequestOpts();
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ShortlinkRandomResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Generates a random availableshortlink for a new link.  Requires the `links:read` scope.
-     * Get a random shortlink
-     */
-    async linksServiceShortlinkRandom(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ShortlinkRandomResponse> {
-        const response = await this.linksServiceShortlinkRandomRaw(initOverrides);
         return await response.value();
     }
 

@@ -2,9 +2,9 @@
 /* eslint-disable */
 /**
  * Linkbreakers API
- * This is a documentation of all the APIs of Linkbreakers  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
+ * The Linkbreakers REST API: links, QR codes, workflows, visitors and analytics, as JSON over HTTPS. Send a workspace API token as `Authorization: Bearer <token>`.  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  A renamed operation keeps answering its former path until that path\'s sunset. Responses on a former path carry the same `Deprecation`, `Sunset` and `Link` header fields; this document lists only the current path, and the policy lists the former ones.  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
  *
- * The version of the OpenAPI document: 1.198.0
+ * The version of the OpenAPI document: 1.198.1
  * 
  *
  * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
@@ -22,13 +22,11 @@ import type {
   ImportPageThemeTemplateResponse,
   ListPageThemeTemplatesResponse,
   PageThemeTemplate,
-  PageThemeTemplatesServiceUpdatePageThemeTemplateBody,
-  PageThemeTemplatesServiceUpdatePageThemeTemplateStylingBody,
+  PageThemeTemplatesServiceUpdateBody,
+  PageThemeTemplatesServiceUpdateStylingBody,
   PublicListPageThemeTemplatesResponse,
   PublicPageThemeTemplate,
   PublishPageThemeTemplateResponse,
-  ResolvePageThemeTemplateImagesRequest,
-  ResolvePageThemeTemplateImagesResponse,
   UpdatePageThemeTemplateResponse,
   UpdatePageThemeTemplateStylingResponse,
 } from '../models/index';
@@ -47,46 +45,47 @@ import {
     ListPageThemeTemplatesResponseToJSON,
     PageThemeTemplateFromJSON,
     PageThemeTemplateToJSON,
-    PageThemeTemplatesServiceUpdatePageThemeTemplateBodyFromJSON,
-    PageThemeTemplatesServiceUpdatePageThemeTemplateBodyToJSON,
-    PageThemeTemplatesServiceUpdatePageThemeTemplateStylingBodyFromJSON,
-    PageThemeTemplatesServiceUpdatePageThemeTemplateStylingBodyToJSON,
+    PageThemeTemplatesServiceUpdateBodyFromJSON,
+    PageThemeTemplatesServiceUpdateBodyToJSON,
+    PageThemeTemplatesServiceUpdateStylingBodyFromJSON,
+    PageThemeTemplatesServiceUpdateStylingBodyToJSON,
     PublicListPageThemeTemplatesResponseFromJSON,
     PublicListPageThemeTemplatesResponseToJSON,
     PublicPageThemeTemplateFromJSON,
     PublicPageThemeTemplateToJSON,
     PublishPageThemeTemplateResponseFromJSON,
     PublishPageThemeTemplateResponseToJSON,
-    ResolvePageThemeTemplateImagesRequestFromJSON,
-    ResolvePageThemeTemplateImagesRequestToJSON,
-    ResolvePageThemeTemplateImagesResponseFromJSON,
-    ResolvePageThemeTemplateImagesResponseToJSON,
     UpdatePageThemeTemplateResponseFromJSON,
     UpdatePageThemeTemplateResponseToJSON,
     UpdatePageThemeTemplateStylingResponseFromJSON,
     UpdatePageThemeTemplateStylingResponseToJSON,
 } from '../models/index';
 
-export interface PageThemeTemplatesServiceCreatePageThemeTemplateRequest {
+export interface PageThemeTemplatesServiceCreateRequest {
     createPageThemeTemplateRequest: CreatePageThemeTemplateRequest;
     idempotencyKey?: string;
 }
 
-export interface PageThemeTemplatesServiceDeletePageThemeTemplateRequest {
+export interface PageThemeTemplatesServiceDeleteRequest {
     id: string;
 }
 
-export interface PageThemeTemplatesServiceGetPageThemeTemplateRequest {
+export interface PageThemeTemplatesServiceGetRequest {
     id: string;
     include?: Array<string>;
 }
 
-export interface PageThemeTemplatesServiceImportPageThemeTemplateRequest {
+export interface PageThemeTemplatesServiceGetPublicRequest {
+    slug: string;
+    include?: Array<string>;
+}
+
+export interface PageThemeTemplatesServiceImportRequest {
     importPageThemeTemplateRequest: ImportPageThemeTemplateRequest;
     idempotencyKey?: string;
 }
 
-export interface PageThemeTemplatesServiceListPageThemeTemplatesRequest {
+export interface PageThemeTemplatesServiceListRequest {
     include?: Array<string>;
     search?: string;
     pageSize?: number;
@@ -95,12 +94,7 @@ export interface PageThemeTemplatesServiceListPageThemeTemplatesRequest {
     cursor?: string;
 }
 
-export interface PageThemeTemplatesServicePublicGetPageThemeTemplateRequest {
-    slug: string;
-    include?: Array<string>;
-}
-
-export interface PageThemeTemplatesServicePublicListPageThemeTemplatesRequest {
+export interface PageThemeTemplatesServiceListPublicRequest {
     include?: Array<string>;
     search?: string;
     pageSize?: number;
@@ -109,26 +103,21 @@ export interface PageThemeTemplatesServicePublicListPageThemeTemplatesRequest {
     cursor?: string;
 }
 
-export interface PageThemeTemplatesServicePublishPageThemeTemplateRequest {
+export interface PageThemeTemplatesServicePublishRequest {
     id: string;
     body: object;
     idempotencyKey?: string;
 }
 
-export interface PageThemeTemplatesServiceResolvePageThemeTemplateImagesRequest {
-    resolvePageThemeTemplateImagesRequest: ResolvePageThemeTemplateImagesRequest;
+export interface PageThemeTemplatesServiceUpdateRequest {
+    id: string;
+    pageThemeTemplatesServiceUpdateBody: PageThemeTemplatesServiceUpdateBody;
     idempotencyKey?: string;
 }
 
-export interface PageThemeTemplatesServiceUpdatePageThemeTemplateRequest {
+export interface PageThemeTemplatesServiceUpdateStylingRequest {
     id: string;
-    pageThemeTemplatesServiceUpdatePageThemeTemplateBody: PageThemeTemplatesServiceUpdatePageThemeTemplateBody;
-    idempotencyKey?: string;
-}
-
-export interface PageThemeTemplatesServiceUpdatePageThemeTemplateStylingRequest {
-    id: string;
-    pageThemeTemplatesServiceUpdatePageThemeTemplateStylingBody: PageThemeTemplatesServiceUpdatePageThemeTemplateStylingBody;
+    pageThemeTemplatesServiceUpdateStylingBody: PageThemeTemplatesServiceUpdateStylingBody;
     idempotencyKey?: string;
 }
 
@@ -140,38 +129,38 @@ export interface PageThemeTemplatesServiceUpdatePageThemeTemplateStylingRequest 
  */
 export interface PageThemeTemplatesApiInterface {
     /**
-     * Creates request options for pageThemeTemplatesServiceCreatePageThemeTemplate without sending the request
+     * Creates request options for pageThemeTemplatesServiceCreate without sending the request
      * @param {CreatePageThemeTemplateRequest} createPageThemeTemplateRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof PageThemeTemplatesApiInterface
      */
-    pageThemeTemplatesServiceCreatePageThemeTemplateRequestOpts(requestParameters: PageThemeTemplatesServiceCreatePageThemeTemplateRequest): Promise<runtime.RequestOpts>;
+    pageThemeTemplatesServiceCreateRequestOpts(requestParameters: PageThemeTemplatesServiceCreateRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Create a page theme template by copying the styling of an existing page theme into a fresh detached theme owned by the template.  Requires the `page_themes:write` scope.
      * @summary Create a new page theme template
      * @param {CreatePageThemeTemplateRequest} createPageThemeTemplateRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PageThemeTemplatesApiInterface
      */
-    pageThemeTemplatesServiceCreatePageThemeTemplateRaw(requestParameters: PageThemeTemplatesServiceCreatePageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreatePageThemeTemplateResponse>>;
+    pageThemeTemplatesServiceCreateRaw(requestParameters: PageThemeTemplatesServiceCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreatePageThemeTemplateResponse>>;
 
     /**
      * Create a page theme template by copying the styling of an existing page theme into a fresh detached theme owned by the template.  Requires the `page_themes:write` scope.
      * Create a new page theme template
      */
-    pageThemeTemplatesServiceCreatePageThemeTemplate(requestParameters: PageThemeTemplatesServiceCreatePageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreatePageThemeTemplateResponse>;
+    pageThemeTemplatesServiceCreate(requestParameters: PageThemeTemplatesServiceCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreatePageThemeTemplateResponse>;
 
     /**
-     * Creates request options for pageThemeTemplatesServiceDeletePageThemeTemplate without sending the request
+     * Creates request options for pageThemeTemplatesServiceDelete without sending the request
      * @param {string} id 
      * @throws {RequiredError}
      * @memberof PageThemeTemplatesApiInterface
      */
-    pageThemeTemplatesServiceDeletePageThemeTemplateRequestOpts(requestParameters: PageThemeTemplatesServiceDeletePageThemeTemplateRequest): Promise<runtime.RequestOpts>;
+    pageThemeTemplatesServiceDeleteRequestOpts(requestParameters: PageThemeTemplatesServiceDeleteRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Remove a page theme template belonging to the authenticated caller\'s workspace. Pages already styled from it are unaffected.  Requires the `page_themes:write` scope.
@@ -181,22 +170,22 @@ export interface PageThemeTemplatesApiInterface {
      * @throws {RequiredError}
      * @memberof PageThemeTemplatesApiInterface
      */
-    pageThemeTemplatesServiceDeletePageThemeTemplateRaw(requestParameters: PageThemeTemplatesServiceDeletePageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>>;
+    pageThemeTemplatesServiceDeleteRaw(requestParameters: PageThemeTemplatesServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>>;
 
     /**
      * Remove a page theme template belonging to the authenticated caller\'s workspace. Pages already styled from it are unaffected.  Requires the `page_themes:write` scope.
      * Delete a workspace page theme template
      */
-    pageThemeTemplatesServiceDeletePageThemeTemplate(requestParameters: PageThemeTemplatesServiceDeletePageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object>;
+    pageThemeTemplatesServiceDelete(requestParameters: PageThemeTemplatesServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object>;
 
     /**
-     * Creates request options for pageThemeTemplatesServiceGetPageThemeTemplate without sending the request
+     * Creates request options for pageThemeTemplatesServiceGet without sending the request
      * @param {string} id 
      * @param {Array<string>} [include] 
      * @throws {RequiredError}
      * @memberof PageThemeTemplatesApiInterface
      */
-    pageThemeTemplatesServiceGetPageThemeTemplateRequestOpts(requestParameters: PageThemeTemplatesServiceGetPageThemeTemplateRequest): Promise<runtime.RequestOpts>;
+    pageThemeTemplatesServiceGetRequestOpts(requestParameters: PageThemeTemplatesServiceGetRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Retrieve a page theme template that belongs to the authenticated caller\'s workspace.  Requires the `page_themes:read` scope.
@@ -207,42 +196,68 @@ export interface PageThemeTemplatesApiInterface {
      * @throws {RequiredError}
      * @memberof PageThemeTemplatesApiInterface
      */
-    pageThemeTemplatesServiceGetPageThemeTemplateRaw(requestParameters: PageThemeTemplatesServiceGetPageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PageThemeTemplate>>;
+    pageThemeTemplatesServiceGetRaw(requestParameters: PageThemeTemplatesServiceGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PageThemeTemplate>>;
 
     /**
      * Retrieve a page theme template that belongs to the authenticated caller\'s workspace.  Requires the `page_themes:read` scope.
      * Get a workspace page theme template
      */
-    pageThemeTemplatesServiceGetPageThemeTemplate(requestParameters: PageThemeTemplatesServiceGetPageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PageThemeTemplate>;
+    pageThemeTemplatesServiceGet(requestParameters: PageThemeTemplatesServiceGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PageThemeTemplate>;
 
     /**
-     * Creates request options for pageThemeTemplatesServiceImportPageThemeTemplate without sending the request
-     * @param {ImportPageThemeTemplateRequest} importPageThemeTemplateRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * Creates request options for pageThemeTemplatesServiceGetPublic without sending the request
+     * @param {string} slug 
+     * @param {Array<string>} [include] Related objects to include in the response  List of related objects to include. Supported values: \&#39;workspace\&#39;
      * @throws {RequiredError}
      * @memberof PageThemeTemplatesApiInterface
      */
-    pageThemeTemplatesServiceImportPageThemeTemplateRequestOpts(requestParameters: PageThemeTemplatesServiceImportPageThemeTemplateRequest): Promise<runtime.RequestOpts>;
+    pageThemeTemplatesServiceGetPublicRequestOpts(requestParameters: PageThemeTemplatesServiceGetPublicRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * Retrieve a single published page theme template that is visible in the public gallery.
+     * @summary Get a public page theme template
+     * @param {string} slug 
+     * @param {Array<string>} [include] Related objects to include in the response  List of related objects to include. Supported values: \&#39;workspace\&#39;
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PageThemeTemplatesApiInterface
+     */
+    pageThemeTemplatesServiceGetPublicRaw(requestParameters: PageThemeTemplatesServiceGetPublicRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicPageThemeTemplate>>;
+
+    /**
+     * Retrieve a single published page theme template that is visible in the public gallery.
+     * Get a public page theme template
+     */
+    pageThemeTemplatesServiceGetPublic(requestParameters: PageThemeTemplatesServiceGetPublicRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicPageThemeTemplate>;
+
+    /**
+     * Creates request options for pageThemeTemplatesServiceImport without sending the request
+     * @param {ImportPageThemeTemplateRequest} importPageThemeTemplateRequest 
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
+     * @throws {RequiredError}
+     * @memberof PageThemeTemplatesApiInterface
+     */
+    pageThemeTemplatesServiceImportRequestOpts(requestParameters: PageThemeTemplatesServiceImportRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Import a public page theme template into your workspace by slug. Creates a private copy owned by your workspace.  Requires the `page_themes:write` scope.
      * @summary Import a public page theme template
      * @param {ImportPageThemeTemplateRequest} importPageThemeTemplateRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PageThemeTemplatesApiInterface
      */
-    pageThemeTemplatesServiceImportPageThemeTemplateRaw(requestParameters: PageThemeTemplatesServiceImportPageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ImportPageThemeTemplateResponse>>;
+    pageThemeTemplatesServiceImportRaw(requestParameters: PageThemeTemplatesServiceImportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ImportPageThemeTemplateResponse>>;
 
     /**
      * Import a public page theme template into your workspace by slug. Creates a private copy owned by your workspace.  Requires the `page_themes:write` scope.
      * Import a public page theme template
      */
-    pageThemeTemplatesServiceImportPageThemeTemplate(requestParameters: PageThemeTemplatesServiceImportPageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ImportPageThemeTemplateResponse>;
+    pageThemeTemplatesServiceImport(requestParameters: PageThemeTemplatesServiceImportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ImportPageThemeTemplateResponse>;
 
     /**
-     * Creates request options for pageThemeTemplatesServiceListPageThemeTemplates without sending the request
+     * Creates request options for pageThemeTemplatesServiceList without sending the request
      * @param {Array<string>} [include] 
      * @param {string} [search] 
      * @param {number} [pageSize] 
@@ -252,7 +267,7 @@ export interface PageThemeTemplatesApiInterface {
      * @throws {RequiredError}
      * @memberof PageThemeTemplatesApiInterface
      */
-    pageThemeTemplatesServiceListPageThemeTemplatesRequestOpts(requestParameters: PageThemeTemplatesServiceListPageThemeTemplatesRequest): Promise<runtime.RequestOpts>;
+    pageThemeTemplatesServiceListRequestOpts(requestParameters: PageThemeTemplatesServiceListRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Retrieve page theme templates that belong to the authenticated caller\'s workspace.  Requires the `page_themes:read` scope.
@@ -267,42 +282,16 @@ export interface PageThemeTemplatesApiInterface {
      * @throws {RequiredError}
      * @memberof PageThemeTemplatesApiInterface
      */
-    pageThemeTemplatesServiceListPageThemeTemplatesRaw(requestParameters: PageThemeTemplatesServiceListPageThemeTemplatesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListPageThemeTemplatesResponse>>;
+    pageThemeTemplatesServiceListRaw(requestParameters: PageThemeTemplatesServiceListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListPageThemeTemplatesResponse>>;
 
     /**
      * Retrieve page theme templates that belong to the authenticated caller\'s workspace.  Requires the `page_themes:read` scope.
      * List my page theme templates
      */
-    pageThemeTemplatesServiceListPageThemeTemplates(requestParameters: PageThemeTemplatesServiceListPageThemeTemplatesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListPageThemeTemplatesResponse>;
+    pageThemeTemplatesServiceList(requestParameters: PageThemeTemplatesServiceListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListPageThemeTemplatesResponse>;
 
     /**
-     * Creates request options for pageThemeTemplatesServicePublicGetPageThemeTemplate without sending the request
-     * @param {string} slug 
-     * @param {Array<string>} [include] Related objects to include in the response  List of related objects to include. Supported values: \&#39;workspace\&#39;
-     * @throws {RequiredError}
-     * @memberof PageThemeTemplatesApiInterface
-     */
-    pageThemeTemplatesServicePublicGetPageThemeTemplateRequestOpts(requestParameters: PageThemeTemplatesServicePublicGetPageThemeTemplateRequest): Promise<runtime.RequestOpts>;
-
-    /**
-     * Retrieve a single published page theme template that is visible in the public gallery.
-     * @summary Get a public page theme template
-     * @param {string} slug 
-     * @param {Array<string>} [include] Related objects to include in the response  List of related objects to include. Supported values: \&#39;workspace\&#39;
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PageThemeTemplatesApiInterface
-     */
-    pageThemeTemplatesServicePublicGetPageThemeTemplateRaw(requestParameters: PageThemeTemplatesServicePublicGetPageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicPageThemeTemplate>>;
-
-    /**
-     * Retrieve a single published page theme template that is visible in the public gallery.
-     * Get a public page theme template
-     */
-    pageThemeTemplatesServicePublicGetPageThemeTemplate(requestParameters: PageThemeTemplatesServicePublicGetPageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicPageThemeTemplate>;
-
-    /**
-     * Creates request options for pageThemeTemplatesServicePublicListPageThemeTemplates without sending the request
+     * Creates request options for pageThemeTemplatesServiceListPublic without sending the request
      * @param {Array<string>} [include] Related objects to include in the response  List of related objects to include. Supported values: \&#39;workspace\&#39;
      * @param {string} [search] Search query applied to template name/description
      * @param {number} [pageSize] Maximum number of templates to return (defaults to 20)
@@ -312,7 +301,7 @@ export interface PageThemeTemplatesApiInterface {
      * @throws {RequiredError}
      * @memberof PageThemeTemplatesApiInterface
      */
-    pageThemeTemplatesServicePublicListPageThemeTemplatesRequestOpts(requestParameters: PageThemeTemplatesServicePublicListPageThemeTemplatesRequest): Promise<runtime.RequestOpts>;
+    pageThemeTemplatesServiceListPublicRequestOpts(requestParameters: PageThemeTemplatesServiceListPublicRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Retrieve available public page theme templates, optionally filtered by search terms.
@@ -327,123 +316,97 @@ export interface PageThemeTemplatesApiInterface {
      * @throws {RequiredError}
      * @memberof PageThemeTemplatesApiInterface
      */
-    pageThemeTemplatesServicePublicListPageThemeTemplatesRaw(requestParameters: PageThemeTemplatesServicePublicListPageThemeTemplatesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicListPageThemeTemplatesResponse>>;
+    pageThemeTemplatesServiceListPublicRaw(requestParameters: PageThemeTemplatesServiceListPublicRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicListPageThemeTemplatesResponse>>;
 
     /**
      * Retrieve available public page theme templates, optionally filtered by search terms.
      * List page theme templates
      */
-    pageThemeTemplatesServicePublicListPageThemeTemplates(requestParameters: PageThemeTemplatesServicePublicListPageThemeTemplatesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicListPageThemeTemplatesResponse>;
+    pageThemeTemplatesServiceListPublic(requestParameters: PageThemeTemplatesServiceListPublicRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicListPageThemeTemplatesResponse>;
 
     /**
-     * Creates request options for pageThemeTemplatesServicePublishPageThemeTemplate without sending the request
+     * Creates request options for pageThemeTemplatesServicePublish without sending the request
      * @param {string} id The ID of the page theme template to publish (UUID)
      * @param {object} body 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof PageThemeTemplatesApiInterface
      */
-    pageThemeTemplatesServicePublishPageThemeTemplateRequestOpts(requestParameters: PageThemeTemplatesServicePublishPageThemeTemplateRequest): Promise<runtime.RequestOpts>;
+    pageThemeTemplatesServicePublishRequestOpts(requestParameters: PageThemeTemplatesServicePublishRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Publish a page theme template to make it available in the public gallery. Requires workspace to be public and template to have slug, description, and name.  Requires the `page_themes:write` scope.
      * @summary Publish a workspace page theme template
      * @param {string} id The ID of the page theme template to publish (UUID)
      * @param {object} body 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PageThemeTemplatesApiInterface
      */
-    pageThemeTemplatesServicePublishPageThemeTemplateRaw(requestParameters: PageThemeTemplatesServicePublishPageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublishPageThemeTemplateResponse>>;
+    pageThemeTemplatesServicePublishRaw(requestParameters: PageThemeTemplatesServicePublishRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublishPageThemeTemplateResponse>>;
 
     /**
      * Publish a page theme template to make it available in the public gallery. Requires workspace to be public and template to have slug, description, and name.  Requires the `page_themes:write` scope.
      * Publish a workspace page theme template
      */
-    pageThemeTemplatesServicePublishPageThemeTemplate(requestParameters: PageThemeTemplatesServicePublishPageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublishPageThemeTemplateResponse>;
+    pageThemeTemplatesServicePublish(requestParameters: PageThemeTemplatesServicePublishRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublishPageThemeTemplateResponse>;
 
     /**
-     * Creates request options for pageThemeTemplatesServiceResolvePageThemeTemplateImages without sending the request
-     * @param {ResolvePageThemeTemplateImagesRequest} resolvePageThemeTemplateImagesRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @throws {RequiredError}
-     * @memberof PageThemeTemplatesApiInterface
-     */
-    pageThemeTemplatesServiceResolvePageThemeTemplateImagesRequestOpts(requestParameters: PageThemeTemplatesServiceResolvePageThemeTemplateImagesRequest): Promise<runtime.RequestOpts>;
-
-    /**
-     * Return freshly signed thumbnail, cover, badge and footer logo URLs for the given templates. The URLs expire, so callers fetch them when they need to render rather than storing them.  Requires the `page_themes:read` scope.
-     * @summary Resolve page theme template images
-     * @param {ResolvePageThemeTemplateImagesRequest} resolvePageThemeTemplateImagesRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PageThemeTemplatesApiInterface
-     */
-    pageThemeTemplatesServiceResolvePageThemeTemplateImagesRaw(requestParameters: PageThemeTemplatesServiceResolvePageThemeTemplateImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResolvePageThemeTemplateImagesResponse>>;
-
-    /**
-     * Return freshly signed thumbnail, cover, badge and footer logo URLs for the given templates. The URLs expire, so callers fetch them when they need to render rather than storing them.  Requires the `page_themes:read` scope.
-     * Resolve page theme template images
-     */
-    pageThemeTemplatesServiceResolvePageThemeTemplateImages(requestParameters: PageThemeTemplatesServiceResolvePageThemeTemplateImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResolvePageThemeTemplateImagesResponse>;
-
-    /**
-     * Creates request options for pageThemeTemplatesServiceUpdatePageThemeTemplate without sending the request
+     * Creates request options for pageThemeTemplatesServiceUpdate without sending the request
      * @param {string} id The ID of the page theme template to update (UUID)
-     * @param {PageThemeTemplatesServiceUpdatePageThemeTemplateBody} pageThemeTemplatesServiceUpdatePageThemeTemplateBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {PageThemeTemplatesServiceUpdateBody} pageThemeTemplatesServiceUpdateBody 
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof PageThemeTemplatesApiInterface
      */
-    pageThemeTemplatesServiceUpdatePageThemeTemplateRequestOpts(requestParameters: PageThemeTemplatesServiceUpdatePageThemeTemplateRequest): Promise<runtime.RequestOpts>;
+    pageThemeTemplatesServiceUpdateRequestOpts(requestParameters: PageThemeTemplatesServiceUpdateRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Modify the metadata of a page theme template owned by the authenticated workspace.  Requires the `page_themes:write` scope.
      * @summary Update a workspace page theme template
      * @param {string} id The ID of the page theme template to update (UUID)
-     * @param {PageThemeTemplatesServiceUpdatePageThemeTemplateBody} pageThemeTemplatesServiceUpdatePageThemeTemplateBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {PageThemeTemplatesServiceUpdateBody} pageThemeTemplatesServiceUpdateBody 
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PageThemeTemplatesApiInterface
      */
-    pageThemeTemplatesServiceUpdatePageThemeTemplateRaw(requestParameters: PageThemeTemplatesServiceUpdatePageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdatePageThemeTemplateResponse>>;
+    pageThemeTemplatesServiceUpdateRaw(requestParameters: PageThemeTemplatesServiceUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdatePageThemeTemplateResponse>>;
 
     /**
      * Modify the metadata of a page theme template owned by the authenticated workspace.  Requires the `page_themes:write` scope.
      * Update a workspace page theme template
      */
-    pageThemeTemplatesServiceUpdatePageThemeTemplate(requestParameters: PageThemeTemplatesServiceUpdatePageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdatePageThemeTemplateResponse>;
+    pageThemeTemplatesServiceUpdate(requestParameters: PageThemeTemplatesServiceUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdatePageThemeTemplateResponse>;
 
     /**
-     * Creates request options for pageThemeTemplatesServiceUpdatePageThemeTemplateStyling without sending the request
+     * Creates request options for pageThemeTemplatesServiceUpdateStyling without sending the request
      * @param {string} id The ID of the page theme template whose styling to update (UUID)
-     * @param {PageThemeTemplatesServiceUpdatePageThemeTemplateStylingBody} pageThemeTemplatesServiceUpdatePageThemeTemplateStylingBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {PageThemeTemplatesServiceUpdateStylingBody} pageThemeTemplatesServiceUpdateStylingBody 
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof PageThemeTemplatesApiInterface
      */
-    pageThemeTemplatesServiceUpdatePageThemeTemplateStylingRequestOpts(requestParameters: PageThemeTemplatesServiceUpdatePageThemeTemplateStylingRequest): Promise<runtime.RequestOpts>;
+    pageThemeTemplatesServiceUpdateStylingRequestOpts(requestParameters: PageThemeTemplatesServiceUpdateStylingRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Edit the colours, typography, container and media of a page theme template. Queues a thumbnail regeneration.  Requires the `page_themes:write` scope.
      * @summary Update a page theme template\'s styling
      * @param {string} id The ID of the page theme template whose styling to update (UUID)
-     * @param {PageThemeTemplatesServiceUpdatePageThemeTemplateStylingBody} pageThemeTemplatesServiceUpdatePageThemeTemplateStylingBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {PageThemeTemplatesServiceUpdateStylingBody} pageThemeTemplatesServiceUpdateStylingBody 
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PageThemeTemplatesApiInterface
      */
-    pageThemeTemplatesServiceUpdatePageThemeTemplateStylingRaw(requestParameters: PageThemeTemplatesServiceUpdatePageThemeTemplateStylingRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdatePageThemeTemplateStylingResponse>>;
+    pageThemeTemplatesServiceUpdateStylingRaw(requestParameters: PageThemeTemplatesServiceUpdateStylingRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdatePageThemeTemplateStylingResponse>>;
 
     /**
      * Edit the colours, typography, container and media of a page theme template. Queues a thumbnail regeneration.  Requires the `page_themes:write` scope.
      * Update a page theme template\'s styling
      */
-    pageThemeTemplatesServiceUpdatePageThemeTemplateStyling(requestParameters: PageThemeTemplatesServiceUpdatePageThemeTemplateStylingRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdatePageThemeTemplateStylingResponse>;
+    pageThemeTemplatesServiceUpdateStyling(requestParameters: PageThemeTemplatesServiceUpdateStylingRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdatePageThemeTemplateStylingResponse>;
 
 }
 
@@ -453,13 +416,13 @@ export interface PageThemeTemplatesApiInterface {
 export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeTemplatesApiInterface {
 
     /**
-     * Creates request options for pageThemeTemplatesServiceCreatePageThemeTemplate without sending the request
+     * Creates request options for pageThemeTemplatesServiceCreate without sending the request
      */
-    async pageThemeTemplatesServiceCreatePageThemeTemplateRequestOpts(requestParameters: PageThemeTemplatesServiceCreatePageThemeTemplateRequest): Promise<runtime.RequestOpts> {
+    async pageThemeTemplatesServiceCreateRequestOpts(requestParameters: PageThemeTemplatesServiceCreateRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['createPageThemeTemplateRequest'] == null) {
             throw new runtime.RequiredError(
                 'createPageThemeTemplateRequest',
-                'Required parameter "createPageThemeTemplateRequest" was null or undefined when calling pageThemeTemplatesServiceCreatePageThemeTemplate().'
+                'Required parameter "createPageThemeTemplateRequest" was null or undefined when calling pageThemeTemplatesServiceCreate().'
             );
         }
 
@@ -502,8 +465,8 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
      * Create a page theme template by copying the styling of an existing page theme into a fresh detached theme owned by the template.  Requires the `page_themes:write` scope.
      * Create a new page theme template
      */
-    async pageThemeTemplatesServiceCreatePageThemeTemplateRaw(requestParameters: PageThemeTemplatesServiceCreatePageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreatePageThemeTemplateResponse>> {
-        const requestOptions = await this.pageThemeTemplatesServiceCreatePageThemeTemplateRequestOpts(requestParameters);
+    async pageThemeTemplatesServiceCreateRaw(requestParameters: PageThemeTemplatesServiceCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreatePageThemeTemplateResponse>> {
+        const requestOptions = await this.pageThemeTemplatesServiceCreateRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => CreatePageThemeTemplateResponseFromJSON(jsonValue));
@@ -513,19 +476,19 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
      * Create a page theme template by copying the styling of an existing page theme into a fresh detached theme owned by the template.  Requires the `page_themes:write` scope.
      * Create a new page theme template
      */
-    async pageThemeTemplatesServiceCreatePageThemeTemplate(requestParameters: PageThemeTemplatesServiceCreatePageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreatePageThemeTemplateResponse> {
-        const response = await this.pageThemeTemplatesServiceCreatePageThemeTemplateRaw(requestParameters, initOverrides);
+    async pageThemeTemplatesServiceCreate(requestParameters: PageThemeTemplatesServiceCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreatePageThemeTemplateResponse> {
+        const response = await this.pageThemeTemplatesServiceCreateRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Creates request options for pageThemeTemplatesServiceDeletePageThemeTemplate without sending the request
+     * Creates request options for pageThemeTemplatesServiceDelete without sending the request
      */
-    async pageThemeTemplatesServiceDeletePageThemeTemplateRequestOpts(requestParameters: PageThemeTemplatesServiceDeletePageThemeTemplateRequest): Promise<runtime.RequestOpts> {
+    async pageThemeTemplatesServiceDeleteRequestOpts(requestParameters: PageThemeTemplatesServiceDeleteRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
-                'Required parameter "id" was null or undefined when calling pageThemeTemplatesServiceDeletePageThemeTemplate().'
+                'Required parameter "id" was null or undefined when calling pageThemeTemplatesServiceDelete().'
             );
         }
 
@@ -562,8 +525,8 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
      * Remove a page theme template belonging to the authenticated caller\'s workspace. Pages already styled from it are unaffected.  Requires the `page_themes:write` scope.
      * Delete a workspace page theme template
      */
-    async pageThemeTemplatesServiceDeletePageThemeTemplateRaw(requestParameters: PageThemeTemplatesServiceDeletePageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>> {
-        const requestOptions = await this.pageThemeTemplatesServiceDeletePageThemeTemplateRequestOpts(requestParameters);
+    async pageThemeTemplatesServiceDeleteRaw(requestParameters: PageThemeTemplatesServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>> {
+        const requestOptions = await this.pageThemeTemplatesServiceDeleteRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse<any>(response);
@@ -573,19 +536,19 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
      * Remove a page theme template belonging to the authenticated caller\'s workspace. Pages already styled from it are unaffected.  Requires the `page_themes:write` scope.
      * Delete a workspace page theme template
      */
-    async pageThemeTemplatesServiceDeletePageThemeTemplate(requestParameters: PageThemeTemplatesServiceDeletePageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object> {
-        const response = await this.pageThemeTemplatesServiceDeletePageThemeTemplateRaw(requestParameters, initOverrides);
+    async pageThemeTemplatesServiceDelete(requestParameters: PageThemeTemplatesServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object> {
+        const response = await this.pageThemeTemplatesServiceDeleteRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Creates request options for pageThemeTemplatesServiceGetPageThemeTemplate without sending the request
+     * Creates request options for pageThemeTemplatesServiceGet without sending the request
      */
-    async pageThemeTemplatesServiceGetPageThemeTemplateRequestOpts(requestParameters: PageThemeTemplatesServiceGetPageThemeTemplateRequest): Promise<runtime.RequestOpts> {
+    async pageThemeTemplatesServiceGetRequestOpts(requestParameters: PageThemeTemplatesServiceGetRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
-                'Required parameter "id" was null or undefined when calling pageThemeTemplatesServiceGetPageThemeTemplate().'
+                'Required parameter "id" was null or undefined when calling pageThemeTemplatesServiceGet().'
             );
         }
 
@@ -626,8 +589,8 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
      * Retrieve a page theme template that belongs to the authenticated caller\'s workspace.  Requires the `page_themes:read` scope.
      * Get a workspace page theme template
      */
-    async pageThemeTemplatesServiceGetPageThemeTemplateRaw(requestParameters: PageThemeTemplatesServiceGetPageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PageThemeTemplate>> {
-        const requestOptions = await this.pageThemeTemplatesServiceGetPageThemeTemplateRequestOpts(requestParameters);
+    async pageThemeTemplatesServiceGetRaw(requestParameters: PageThemeTemplatesServiceGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PageThemeTemplate>> {
+        const requestOptions = await this.pageThemeTemplatesServiceGetRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => PageThemeTemplateFromJSON(jsonValue));
@@ -637,19 +600,70 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
      * Retrieve a page theme template that belongs to the authenticated caller\'s workspace.  Requires the `page_themes:read` scope.
      * Get a workspace page theme template
      */
-    async pageThemeTemplatesServiceGetPageThemeTemplate(requestParameters: PageThemeTemplatesServiceGetPageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PageThemeTemplate> {
-        const response = await this.pageThemeTemplatesServiceGetPageThemeTemplateRaw(requestParameters, initOverrides);
+    async pageThemeTemplatesServiceGet(requestParameters: PageThemeTemplatesServiceGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PageThemeTemplate> {
+        const response = await this.pageThemeTemplatesServiceGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Creates request options for pageThemeTemplatesServiceImportPageThemeTemplate without sending the request
+     * Creates request options for pageThemeTemplatesServiceGetPublic without sending the request
      */
-    async pageThemeTemplatesServiceImportPageThemeTemplateRequestOpts(requestParameters: PageThemeTemplatesServiceImportPageThemeTemplateRequest): Promise<runtime.RequestOpts> {
+    async pageThemeTemplatesServiceGetPublicRequestOpts(requestParameters: PageThemeTemplatesServiceGetPublicRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['slug'] == null) {
+            throw new runtime.RequiredError(
+                'slug',
+                'Required parameter "slug" was null or undefined when calling pageThemeTemplatesServiceGetPublic().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['include'] != null) {
+            queryParameters['include'] = requestParameters['include'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/v1/public/page-theme-templates/{slug}`;
+        urlPath = urlPath.replace(`{${"slug"}}`, encodeURIComponent(String(requestParameters['slug'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Retrieve a single published page theme template that is visible in the public gallery.
+     * Get a public page theme template
+     */
+    async pageThemeTemplatesServiceGetPublicRaw(requestParameters: PageThemeTemplatesServiceGetPublicRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicPageThemeTemplate>> {
+        const requestOptions = await this.pageThemeTemplatesServiceGetPublicRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PublicPageThemeTemplateFromJSON(jsonValue));
+    }
+
+    /**
+     * Retrieve a single published page theme template that is visible in the public gallery.
+     * Get a public page theme template
+     */
+    async pageThemeTemplatesServiceGetPublic(requestParameters: PageThemeTemplatesServiceGetPublicRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicPageThemeTemplate> {
+        const response = await this.pageThemeTemplatesServiceGetPublicRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for pageThemeTemplatesServiceImport without sending the request
+     */
+    async pageThemeTemplatesServiceImportRequestOpts(requestParameters: PageThemeTemplatesServiceImportRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['importPageThemeTemplateRequest'] == null) {
             throw new runtime.RequiredError(
                 'importPageThemeTemplateRequest',
-                'Required parameter "importPageThemeTemplateRequest" was null or undefined when calling pageThemeTemplatesServiceImportPageThemeTemplate().'
+                'Required parameter "importPageThemeTemplateRequest" was null or undefined when calling pageThemeTemplatesServiceImport().'
             );
         }
 
@@ -692,8 +706,8 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
      * Import a public page theme template into your workspace by slug. Creates a private copy owned by your workspace.  Requires the `page_themes:write` scope.
      * Import a public page theme template
      */
-    async pageThemeTemplatesServiceImportPageThemeTemplateRaw(requestParameters: PageThemeTemplatesServiceImportPageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ImportPageThemeTemplateResponse>> {
-        const requestOptions = await this.pageThemeTemplatesServiceImportPageThemeTemplateRequestOpts(requestParameters);
+    async pageThemeTemplatesServiceImportRaw(requestParameters: PageThemeTemplatesServiceImportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ImportPageThemeTemplateResponse>> {
+        const requestOptions = await this.pageThemeTemplatesServiceImportRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ImportPageThemeTemplateResponseFromJSON(jsonValue));
@@ -703,15 +717,15 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
      * Import a public page theme template into your workspace by slug. Creates a private copy owned by your workspace.  Requires the `page_themes:write` scope.
      * Import a public page theme template
      */
-    async pageThemeTemplatesServiceImportPageThemeTemplate(requestParameters: PageThemeTemplatesServiceImportPageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ImportPageThemeTemplateResponse> {
-        const response = await this.pageThemeTemplatesServiceImportPageThemeTemplateRaw(requestParameters, initOverrides);
+    async pageThemeTemplatesServiceImport(requestParameters: PageThemeTemplatesServiceImportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ImportPageThemeTemplateResponse> {
+        const response = await this.pageThemeTemplatesServiceImportRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Creates request options for pageThemeTemplatesServiceListPageThemeTemplates without sending the request
+     * Creates request options for pageThemeTemplatesServiceList without sending the request
      */
-    async pageThemeTemplatesServiceListPageThemeTemplatesRequestOpts(requestParameters: PageThemeTemplatesServiceListPageThemeTemplatesRequest): Promise<runtime.RequestOpts> {
+    async pageThemeTemplatesServiceListRequestOpts(requestParameters: PageThemeTemplatesServiceListRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
         if (requestParameters['include'] != null) {
@@ -768,8 +782,8 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
      * Retrieve page theme templates that belong to the authenticated caller\'s workspace.  Requires the `page_themes:read` scope.
      * List my page theme templates
      */
-    async pageThemeTemplatesServiceListPageThemeTemplatesRaw(requestParameters: PageThemeTemplatesServiceListPageThemeTemplatesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListPageThemeTemplatesResponse>> {
-        const requestOptions = await this.pageThemeTemplatesServiceListPageThemeTemplatesRequestOpts(requestParameters);
+    async pageThemeTemplatesServiceListRaw(requestParameters: PageThemeTemplatesServiceListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListPageThemeTemplatesResponse>> {
+        const requestOptions = await this.pageThemeTemplatesServiceListRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ListPageThemeTemplatesResponseFromJSON(jsonValue));
@@ -779,66 +793,15 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
      * Retrieve page theme templates that belong to the authenticated caller\'s workspace.  Requires the `page_themes:read` scope.
      * List my page theme templates
      */
-    async pageThemeTemplatesServiceListPageThemeTemplates(requestParameters: PageThemeTemplatesServiceListPageThemeTemplatesRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListPageThemeTemplatesResponse> {
-        const response = await this.pageThemeTemplatesServiceListPageThemeTemplatesRaw(requestParameters, initOverrides);
+    async pageThemeTemplatesServiceList(requestParameters: PageThemeTemplatesServiceListRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListPageThemeTemplatesResponse> {
+        const response = await this.pageThemeTemplatesServiceListRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Creates request options for pageThemeTemplatesServicePublicGetPageThemeTemplate without sending the request
+     * Creates request options for pageThemeTemplatesServiceListPublic without sending the request
      */
-    async pageThemeTemplatesServicePublicGetPageThemeTemplateRequestOpts(requestParameters: PageThemeTemplatesServicePublicGetPageThemeTemplateRequest): Promise<runtime.RequestOpts> {
-        if (requestParameters['slug'] == null) {
-            throw new runtime.RequiredError(
-                'slug',
-                'Required parameter "slug" was null or undefined when calling pageThemeTemplatesServicePublicGetPageThemeTemplate().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        if (requestParameters['include'] != null) {
-            queryParameters['include'] = requestParameters['include'];
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/v1/public/page-theme-templates/{slug}`;
-        urlPath = urlPath.replace(`{${"slug"}}`, encodeURIComponent(String(requestParameters['slug'])));
-
-        return {
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     * Retrieve a single published page theme template that is visible in the public gallery.
-     * Get a public page theme template
-     */
-    async pageThemeTemplatesServicePublicGetPageThemeTemplateRaw(requestParameters: PageThemeTemplatesServicePublicGetPageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicPageThemeTemplate>> {
-        const requestOptions = await this.pageThemeTemplatesServicePublicGetPageThemeTemplateRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => PublicPageThemeTemplateFromJSON(jsonValue));
-    }
-
-    /**
-     * Retrieve a single published page theme template that is visible in the public gallery.
-     * Get a public page theme template
-     */
-    async pageThemeTemplatesServicePublicGetPageThemeTemplate(requestParameters: PageThemeTemplatesServicePublicGetPageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicPageThemeTemplate> {
-        const response = await this.pageThemeTemplatesServicePublicGetPageThemeTemplateRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for pageThemeTemplatesServicePublicListPageThemeTemplates without sending the request
-     */
-    async pageThemeTemplatesServicePublicListPageThemeTemplatesRequestOpts(requestParameters: PageThemeTemplatesServicePublicListPageThemeTemplatesRequest): Promise<runtime.RequestOpts> {
+    async pageThemeTemplatesServiceListPublicRequestOpts(requestParameters: PageThemeTemplatesServiceListPublicRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
         if (requestParameters['include'] != null) {
@@ -882,8 +845,8 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
      * Retrieve available public page theme templates, optionally filtered by search terms.
      * List page theme templates
      */
-    async pageThemeTemplatesServicePublicListPageThemeTemplatesRaw(requestParameters: PageThemeTemplatesServicePublicListPageThemeTemplatesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicListPageThemeTemplatesResponse>> {
-        const requestOptions = await this.pageThemeTemplatesServicePublicListPageThemeTemplatesRequestOpts(requestParameters);
+    async pageThemeTemplatesServiceListPublicRaw(requestParameters: PageThemeTemplatesServiceListPublicRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicListPageThemeTemplatesResponse>> {
+        const requestOptions = await this.pageThemeTemplatesServiceListPublicRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => PublicListPageThemeTemplatesResponseFromJSON(jsonValue));
@@ -893,26 +856,26 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
      * Retrieve available public page theme templates, optionally filtered by search terms.
      * List page theme templates
      */
-    async pageThemeTemplatesServicePublicListPageThemeTemplates(requestParameters: PageThemeTemplatesServicePublicListPageThemeTemplatesRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicListPageThemeTemplatesResponse> {
-        const response = await this.pageThemeTemplatesServicePublicListPageThemeTemplatesRaw(requestParameters, initOverrides);
+    async pageThemeTemplatesServiceListPublic(requestParameters: PageThemeTemplatesServiceListPublicRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicListPageThemeTemplatesResponse> {
+        const response = await this.pageThemeTemplatesServiceListPublicRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Creates request options for pageThemeTemplatesServicePublishPageThemeTemplate without sending the request
+     * Creates request options for pageThemeTemplatesServicePublish without sending the request
      */
-    async pageThemeTemplatesServicePublishPageThemeTemplateRequestOpts(requestParameters: PageThemeTemplatesServicePublishPageThemeTemplateRequest): Promise<runtime.RequestOpts> {
+    async pageThemeTemplatesServicePublishRequestOpts(requestParameters: PageThemeTemplatesServicePublishRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
-                'Required parameter "id" was null or undefined when calling pageThemeTemplatesServicePublishPageThemeTemplate().'
+                'Required parameter "id" was null or undefined when calling pageThemeTemplatesServicePublish().'
             );
         }
 
         if (requestParameters['body'] == null) {
             throw new runtime.RequiredError(
                 'body',
-                'Required parameter "body" was null or undefined when calling pageThemeTemplatesServicePublishPageThemeTemplate().'
+                'Required parameter "body" was null or undefined when calling pageThemeTemplatesServicePublish().'
             );
         }
 
@@ -956,8 +919,8 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
      * Publish a page theme template to make it available in the public gallery. Requires workspace to be public and template to have slug, description, and name.  Requires the `page_themes:write` scope.
      * Publish a workspace page theme template
      */
-    async pageThemeTemplatesServicePublishPageThemeTemplateRaw(requestParameters: PageThemeTemplatesServicePublishPageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublishPageThemeTemplateResponse>> {
-        const requestOptions = await this.pageThemeTemplatesServicePublishPageThemeTemplateRequestOpts(requestParameters);
+    async pageThemeTemplatesServicePublishRaw(requestParameters: PageThemeTemplatesServicePublishRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublishPageThemeTemplateResponse>> {
+        const requestOptions = await this.pageThemeTemplatesServicePublishRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => PublishPageThemeTemplateResponseFromJSON(jsonValue));
@@ -967,92 +930,26 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
      * Publish a page theme template to make it available in the public gallery. Requires workspace to be public and template to have slug, description, and name.  Requires the `page_themes:write` scope.
      * Publish a workspace page theme template
      */
-    async pageThemeTemplatesServicePublishPageThemeTemplate(requestParameters: PageThemeTemplatesServicePublishPageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublishPageThemeTemplateResponse> {
-        const response = await this.pageThemeTemplatesServicePublishPageThemeTemplateRaw(requestParameters, initOverrides);
+    async pageThemeTemplatesServicePublish(requestParameters: PageThemeTemplatesServicePublishRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublishPageThemeTemplateResponse> {
+        const response = await this.pageThemeTemplatesServicePublishRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Creates request options for pageThemeTemplatesServiceResolvePageThemeTemplateImages without sending the request
+     * Creates request options for pageThemeTemplatesServiceUpdate without sending the request
      */
-    async pageThemeTemplatesServiceResolvePageThemeTemplateImagesRequestOpts(requestParameters: PageThemeTemplatesServiceResolvePageThemeTemplateImagesRequest): Promise<runtime.RequestOpts> {
-        if (requestParameters['resolvePageThemeTemplateImagesRequest'] == null) {
-            throw new runtime.RequiredError(
-                'resolvePageThemeTemplateImagesRequest',
-                'Required parameter "resolvePageThemeTemplateImagesRequest" was null or undefined when calling pageThemeTemplatesServiceResolvePageThemeTemplateImages().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (requestParameters['idempotencyKey'] != null) {
-            headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["page_themes:read"]);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", ["page_themes:read"]);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/v1/page-theme-templates/images:resolve`;
-
-        return {
-            path: urlPath,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: ResolvePageThemeTemplateImagesRequestToJSON(requestParameters['resolvePageThemeTemplateImagesRequest']),
-        };
-    }
-
-    /**
-     * Return freshly signed thumbnail, cover, badge and footer logo URLs for the given templates. The URLs expire, so callers fetch them when they need to render rather than storing them.  Requires the `page_themes:read` scope.
-     * Resolve page theme template images
-     */
-    async pageThemeTemplatesServiceResolvePageThemeTemplateImagesRaw(requestParameters: PageThemeTemplatesServiceResolvePageThemeTemplateImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResolvePageThemeTemplateImagesResponse>> {
-        const requestOptions = await this.pageThemeTemplatesServiceResolvePageThemeTemplateImagesRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ResolvePageThemeTemplateImagesResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Return freshly signed thumbnail, cover, badge and footer logo URLs for the given templates. The URLs expire, so callers fetch them when they need to render rather than storing them.  Requires the `page_themes:read` scope.
-     * Resolve page theme template images
-     */
-    async pageThemeTemplatesServiceResolvePageThemeTemplateImages(requestParameters: PageThemeTemplatesServiceResolvePageThemeTemplateImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResolvePageThemeTemplateImagesResponse> {
-        const response = await this.pageThemeTemplatesServiceResolvePageThemeTemplateImagesRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for pageThemeTemplatesServiceUpdatePageThemeTemplate without sending the request
-     */
-    async pageThemeTemplatesServiceUpdatePageThemeTemplateRequestOpts(requestParameters: PageThemeTemplatesServiceUpdatePageThemeTemplateRequest): Promise<runtime.RequestOpts> {
+    async pageThemeTemplatesServiceUpdateRequestOpts(requestParameters: PageThemeTemplatesServiceUpdateRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
-                'Required parameter "id" was null or undefined when calling pageThemeTemplatesServiceUpdatePageThemeTemplate().'
+                'Required parameter "id" was null or undefined when calling pageThemeTemplatesServiceUpdate().'
             );
         }
 
-        if (requestParameters['pageThemeTemplatesServiceUpdatePageThemeTemplateBody'] == null) {
+        if (requestParameters['pageThemeTemplatesServiceUpdateBody'] == null) {
             throw new runtime.RequiredError(
-                'pageThemeTemplatesServiceUpdatePageThemeTemplateBody',
-                'Required parameter "pageThemeTemplatesServiceUpdatePageThemeTemplateBody" was null or undefined when calling pageThemeTemplatesServiceUpdatePageThemeTemplate().'
+                'pageThemeTemplatesServiceUpdateBody',
+                'Required parameter "pageThemeTemplatesServiceUpdateBody" was null or undefined when calling pageThemeTemplatesServiceUpdate().'
             );
         }
 
@@ -1088,7 +985,7 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
             method: 'PATCH',
             headers: headerParameters,
             query: queryParameters,
-            body: PageThemeTemplatesServiceUpdatePageThemeTemplateBodyToJSON(requestParameters['pageThemeTemplatesServiceUpdatePageThemeTemplateBody']),
+            body: PageThemeTemplatesServiceUpdateBodyToJSON(requestParameters['pageThemeTemplatesServiceUpdateBody']),
         };
     }
 
@@ -1096,8 +993,8 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
      * Modify the metadata of a page theme template owned by the authenticated workspace.  Requires the `page_themes:write` scope.
      * Update a workspace page theme template
      */
-    async pageThemeTemplatesServiceUpdatePageThemeTemplateRaw(requestParameters: PageThemeTemplatesServiceUpdatePageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdatePageThemeTemplateResponse>> {
-        const requestOptions = await this.pageThemeTemplatesServiceUpdatePageThemeTemplateRequestOpts(requestParameters);
+    async pageThemeTemplatesServiceUpdateRaw(requestParameters: PageThemeTemplatesServiceUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdatePageThemeTemplateResponse>> {
+        const requestOptions = await this.pageThemeTemplatesServiceUpdateRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => UpdatePageThemeTemplateResponseFromJSON(jsonValue));
@@ -1107,26 +1004,26 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
      * Modify the metadata of a page theme template owned by the authenticated workspace.  Requires the `page_themes:write` scope.
      * Update a workspace page theme template
      */
-    async pageThemeTemplatesServiceUpdatePageThemeTemplate(requestParameters: PageThemeTemplatesServiceUpdatePageThemeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdatePageThemeTemplateResponse> {
-        const response = await this.pageThemeTemplatesServiceUpdatePageThemeTemplateRaw(requestParameters, initOverrides);
+    async pageThemeTemplatesServiceUpdate(requestParameters: PageThemeTemplatesServiceUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdatePageThemeTemplateResponse> {
+        const response = await this.pageThemeTemplatesServiceUpdateRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Creates request options for pageThemeTemplatesServiceUpdatePageThemeTemplateStyling without sending the request
+     * Creates request options for pageThemeTemplatesServiceUpdateStyling without sending the request
      */
-    async pageThemeTemplatesServiceUpdatePageThemeTemplateStylingRequestOpts(requestParameters: PageThemeTemplatesServiceUpdatePageThemeTemplateStylingRequest): Promise<runtime.RequestOpts> {
+    async pageThemeTemplatesServiceUpdateStylingRequestOpts(requestParameters: PageThemeTemplatesServiceUpdateStylingRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
-                'Required parameter "id" was null or undefined when calling pageThemeTemplatesServiceUpdatePageThemeTemplateStyling().'
+                'Required parameter "id" was null or undefined when calling pageThemeTemplatesServiceUpdateStyling().'
             );
         }
 
-        if (requestParameters['pageThemeTemplatesServiceUpdatePageThemeTemplateStylingBody'] == null) {
+        if (requestParameters['pageThemeTemplatesServiceUpdateStylingBody'] == null) {
             throw new runtime.RequiredError(
-                'pageThemeTemplatesServiceUpdatePageThemeTemplateStylingBody',
-                'Required parameter "pageThemeTemplatesServiceUpdatePageThemeTemplateStylingBody" was null or undefined when calling pageThemeTemplatesServiceUpdatePageThemeTemplateStyling().'
+                'pageThemeTemplatesServiceUpdateStylingBody',
+                'Required parameter "pageThemeTemplatesServiceUpdateStylingBody" was null or undefined when calling pageThemeTemplatesServiceUpdateStyling().'
             );
         }
 
@@ -1162,7 +1059,7 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
             method: 'PATCH',
             headers: headerParameters,
             query: queryParameters,
-            body: PageThemeTemplatesServiceUpdatePageThemeTemplateStylingBodyToJSON(requestParameters['pageThemeTemplatesServiceUpdatePageThemeTemplateStylingBody']),
+            body: PageThemeTemplatesServiceUpdateStylingBodyToJSON(requestParameters['pageThemeTemplatesServiceUpdateStylingBody']),
         };
     }
 
@@ -1170,8 +1067,8 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
      * Edit the colours, typography, container and media of a page theme template. Queues a thumbnail regeneration.  Requires the `page_themes:write` scope.
      * Update a page theme template\'s styling
      */
-    async pageThemeTemplatesServiceUpdatePageThemeTemplateStylingRaw(requestParameters: PageThemeTemplatesServiceUpdatePageThemeTemplateStylingRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdatePageThemeTemplateStylingResponse>> {
-        const requestOptions = await this.pageThemeTemplatesServiceUpdatePageThemeTemplateStylingRequestOpts(requestParameters);
+    async pageThemeTemplatesServiceUpdateStylingRaw(requestParameters: PageThemeTemplatesServiceUpdateStylingRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdatePageThemeTemplateStylingResponse>> {
+        const requestOptions = await this.pageThemeTemplatesServiceUpdateStylingRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => UpdatePageThemeTemplateStylingResponseFromJSON(jsonValue));
@@ -1181,8 +1078,8 @@ export class PageThemeTemplatesApi extends runtime.BaseAPI implements PageThemeT
      * Edit the colours, typography, container and media of a page theme template. Queues a thumbnail regeneration.  Requires the `page_themes:write` scope.
      * Update a page theme template\'s styling
      */
-    async pageThemeTemplatesServiceUpdatePageThemeTemplateStyling(requestParameters: PageThemeTemplatesServiceUpdatePageThemeTemplateStylingRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdatePageThemeTemplateStylingResponse> {
-        const response = await this.pageThemeTemplatesServiceUpdatePageThemeTemplateStylingRaw(requestParameters, initOverrides);
+    async pageThemeTemplatesServiceUpdateStyling(requestParameters: PageThemeTemplatesServiceUpdateStylingRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdatePageThemeTemplateStylingResponse> {
+        const response = await this.pageThemeTemplatesServiceUpdateStylingRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

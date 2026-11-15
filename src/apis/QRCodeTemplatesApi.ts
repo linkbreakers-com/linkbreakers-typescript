@@ -2,9 +2,9 @@
 /* eslint-disable */
 /**
  * Linkbreakers API
- * This is a documentation of all the APIs of Linkbreakers  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
+ * The Linkbreakers REST API: links, QR codes, workflows, visitors and analytics, as JSON over HTTPS. Send a workspace API token as `Authorization: Bearer <token>`.  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  A renamed operation keeps answering its former path until that path\'s sunset. Responses on a former path carry the same `Deprecation`, `Sunset` and `Link` header fields; this document lists only the current path, and the policy lists the former ones.  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
  *
- * The version of the OpenAPI document: 1.198.0
+ * The version of the OpenAPI document: 1.198.1
  * 
  *
  * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
@@ -25,9 +25,7 @@ import type {
   PublicQrcodeTemplate,
   PublishQrcodeTemplateResponse,
   QrcodeTemplate,
-  QrcodeTemplatesServiceUpdateQrcodeTemplateBody,
-  ResolveQrcodeTemplateImagesRequest,
-  ResolveQrcodeTemplateImagesResponse,
+  QrcodeTemplatesServiceUpdateBody,
   UpdateQrcodeTemplateResponse,
 } from '../models/index';
 import {
@@ -51,36 +49,37 @@ import {
     PublishQrcodeTemplateResponseToJSON,
     QrcodeTemplateFromJSON,
     QrcodeTemplateToJSON,
-    QrcodeTemplatesServiceUpdateQrcodeTemplateBodyFromJSON,
-    QrcodeTemplatesServiceUpdateQrcodeTemplateBodyToJSON,
-    ResolveQrcodeTemplateImagesRequestFromJSON,
-    ResolveQrcodeTemplateImagesRequestToJSON,
-    ResolveQrcodeTemplateImagesResponseFromJSON,
-    ResolveQrcodeTemplateImagesResponseToJSON,
+    QrcodeTemplatesServiceUpdateBodyFromJSON,
+    QrcodeTemplatesServiceUpdateBodyToJSON,
     UpdateQrcodeTemplateResponseFromJSON,
     UpdateQrcodeTemplateResponseToJSON,
 } from '../models/index';
 
-export interface QrcodeTemplatesServiceCreateQrcodeTemplateRequest {
+export interface QrcodeTemplatesServiceCreateRequest {
     createQrcodeTemplateRequest: CreateQrcodeTemplateRequest;
     idempotencyKey?: string;
 }
 
-export interface QrcodeTemplatesServiceDeleteQrcodeTemplateRequest {
+export interface QrcodeTemplatesServiceDeleteRequest {
     id: string;
 }
 
-export interface QrcodeTemplatesServiceGetQrcodeTemplateRequest {
+export interface QrcodeTemplatesServiceGetRequest {
     id: string;
     include?: Array<string>;
 }
 
-export interface QrcodeTemplatesServiceImportQrcodeTemplateRequest {
+export interface QrcodeTemplatesServiceGetPublicRequest {
+    slug: string;
+    include?: Array<string>;
+}
+
+export interface QrcodeTemplatesServiceImportRequest {
     importQrcodeTemplateRequest: ImportQrcodeTemplateRequest;
     idempotencyKey?: string;
 }
 
-export interface QrcodeTemplatesServiceListQrcodeTemplatesRequest {
+export interface QrcodeTemplatesServiceListRequest {
     include?: Array<string>;
     search?: string;
     pageSize?: number;
@@ -89,12 +88,7 @@ export interface QrcodeTemplatesServiceListQrcodeTemplatesRequest {
     cursor?: string;
 }
 
-export interface QrcodeTemplatesServicePublicGetQrcodeTemplateRequest {
-    slug: string;
-    include?: Array<string>;
-}
-
-export interface QrcodeTemplatesServicePublicListQrcodeTemplatesRequest {
+export interface QrcodeTemplatesServiceListPublicRequest {
     include?: Array<string>;
     search?: string;
     pageSize?: number;
@@ -103,20 +97,15 @@ export interface QrcodeTemplatesServicePublicListQrcodeTemplatesRequest {
     cursor?: string;
 }
 
-export interface QrcodeTemplatesServicePublishQrcodeTemplateRequest {
+export interface QrcodeTemplatesServicePublishRequest {
     id: string;
     body: object;
     idempotencyKey?: string;
 }
 
-export interface QrcodeTemplatesServiceResolveQrcodeTemplateImagesRequest {
-    resolveQrcodeTemplateImagesRequest: ResolveQrcodeTemplateImagesRequest;
-    idempotencyKey?: string;
-}
-
-export interface QrcodeTemplatesServiceUpdateQrcodeTemplateRequest {
+export interface QrcodeTemplatesServiceUpdateRequest {
     id: string;
-    qrcodeTemplatesServiceUpdateQrcodeTemplateBody: QrcodeTemplatesServiceUpdateQrcodeTemplateBody;
+    qrcodeTemplatesServiceUpdateBody: QrcodeTemplatesServiceUpdateBody;
     idempotencyKey?: string;
 }
 
@@ -128,38 +117,38 @@ export interface QrcodeTemplatesServiceUpdateQrcodeTemplateRequest {
  */
 export interface QRCodeTemplatesApiInterface {
     /**
-     * Creates request options for qrcodeTemplatesServiceCreateQrcodeTemplate without sending the request
+     * Creates request options for qrcodeTemplatesServiceCreate without sending the request
      * @param {CreateQrcodeTemplateRequest} createQrcodeTemplateRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof QRCodeTemplatesApiInterface
      */
-    qrcodeTemplatesServiceCreateQrcodeTemplateRequestOpts(requestParameters: QrcodeTemplatesServiceCreateQrcodeTemplateRequest): Promise<runtime.RequestOpts>;
+    qrcodeTemplatesServiceCreateRequestOpts(requestParameters: QrcodeTemplatesServiceCreateRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Create a new QR code template using a fresh design. The design must not be used by any other links or templates.  Requires the `qrcodes:write` scope.
      * @summary Create a new QR code template
      * @param {CreateQrcodeTemplateRequest} createQrcodeTemplateRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QRCodeTemplatesApiInterface
      */
-    qrcodeTemplatesServiceCreateQrcodeTemplateRaw(requestParameters: QrcodeTemplatesServiceCreateQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateQrcodeTemplateResponse>>;
+    qrcodeTemplatesServiceCreateRaw(requestParameters: QrcodeTemplatesServiceCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateQrcodeTemplateResponse>>;
 
     /**
      * Create a new QR code template using a fresh design. The design must not be used by any other links or templates.  Requires the `qrcodes:write` scope.
      * Create a new QR code template
      */
-    qrcodeTemplatesServiceCreateQrcodeTemplate(requestParameters: QrcodeTemplatesServiceCreateQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateQrcodeTemplateResponse>;
+    qrcodeTemplatesServiceCreate(requestParameters: QrcodeTemplatesServiceCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateQrcodeTemplateResponse>;
 
     /**
-     * Creates request options for qrcodeTemplatesServiceDeleteQrcodeTemplate without sending the request
+     * Creates request options for qrcodeTemplatesServiceDelete without sending the request
      * @param {string} id 
      * @throws {RequiredError}
      * @memberof QRCodeTemplatesApiInterface
      */
-    qrcodeTemplatesServiceDeleteQrcodeTemplateRequestOpts(requestParameters: QrcodeTemplatesServiceDeleteQrcodeTemplateRequest): Promise<runtime.RequestOpts>;
+    qrcodeTemplatesServiceDeleteRequestOpts(requestParameters: QrcodeTemplatesServiceDeleteRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Remove a QR code template belonging to the authenticated caller\'s workspace.  Requires the `qrcodes:write` scope.
@@ -169,22 +158,22 @@ export interface QRCodeTemplatesApiInterface {
      * @throws {RequiredError}
      * @memberof QRCodeTemplatesApiInterface
      */
-    qrcodeTemplatesServiceDeleteQrcodeTemplateRaw(requestParameters: QrcodeTemplatesServiceDeleteQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>>;
+    qrcodeTemplatesServiceDeleteRaw(requestParameters: QrcodeTemplatesServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>>;
 
     /**
      * Remove a QR code template belonging to the authenticated caller\'s workspace.  Requires the `qrcodes:write` scope.
      * Delete a workspace QR code template
      */
-    qrcodeTemplatesServiceDeleteQrcodeTemplate(requestParameters: QrcodeTemplatesServiceDeleteQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object>;
+    qrcodeTemplatesServiceDelete(requestParameters: QrcodeTemplatesServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object>;
 
     /**
-     * Creates request options for qrcodeTemplatesServiceGetQrcodeTemplate without sending the request
+     * Creates request options for qrcodeTemplatesServiceGet without sending the request
      * @param {string} id 
      * @param {Array<string>} [include] 
      * @throws {RequiredError}
      * @memberof QRCodeTemplatesApiInterface
      */
-    qrcodeTemplatesServiceGetQrcodeTemplateRequestOpts(requestParameters: QrcodeTemplatesServiceGetQrcodeTemplateRequest): Promise<runtime.RequestOpts>;
+    qrcodeTemplatesServiceGetRequestOpts(requestParameters: QrcodeTemplatesServiceGetRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Retrieve a QR code template that belongs to the authenticated caller\'s workspace.  Requires the `qrcodes:read` scope.
@@ -195,42 +184,68 @@ export interface QRCodeTemplatesApiInterface {
      * @throws {RequiredError}
      * @memberof QRCodeTemplatesApiInterface
      */
-    qrcodeTemplatesServiceGetQrcodeTemplateRaw(requestParameters: QrcodeTemplatesServiceGetQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<QrcodeTemplate>>;
+    qrcodeTemplatesServiceGetRaw(requestParameters: QrcodeTemplatesServiceGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<QrcodeTemplate>>;
 
     /**
      * Retrieve a QR code template that belongs to the authenticated caller\'s workspace.  Requires the `qrcodes:read` scope.
      * Get a workspace QR code template
      */
-    qrcodeTemplatesServiceGetQrcodeTemplate(requestParameters: QrcodeTemplatesServiceGetQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<QrcodeTemplate>;
+    qrcodeTemplatesServiceGet(requestParameters: QrcodeTemplatesServiceGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<QrcodeTemplate>;
 
     /**
-     * Creates request options for qrcodeTemplatesServiceImportQrcodeTemplate without sending the request
-     * @param {ImportQrcodeTemplateRequest} importQrcodeTemplateRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * Creates request options for qrcodeTemplatesServiceGetPublic without sending the request
+     * @param {string} slug 
+     * @param {Array<string>} [include] Related objects to include in the response  List of related objects to include. Supported values: \&#39;workspace\&#39;
      * @throws {RequiredError}
      * @memberof QRCodeTemplatesApiInterface
      */
-    qrcodeTemplatesServiceImportQrcodeTemplateRequestOpts(requestParameters: QrcodeTemplatesServiceImportQrcodeTemplateRequest): Promise<runtime.RequestOpts>;
+    qrcodeTemplatesServiceGetPublicRequestOpts(requestParameters: QrcodeTemplatesServiceGetPublicRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * Retrieve a single published QR code template that is visible in the public gallery.
+     * @summary Get a public QR code template
+     * @param {string} slug 
+     * @param {Array<string>} [include] Related objects to include in the response  List of related objects to include. Supported values: \&#39;workspace\&#39;
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QRCodeTemplatesApiInterface
+     */
+    qrcodeTemplatesServiceGetPublicRaw(requestParameters: QrcodeTemplatesServiceGetPublicRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicQrcodeTemplate>>;
+
+    /**
+     * Retrieve a single published QR code template that is visible in the public gallery.
+     * Get a public QR code template
+     */
+    qrcodeTemplatesServiceGetPublic(requestParameters: QrcodeTemplatesServiceGetPublicRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicQrcodeTemplate>;
+
+    /**
+     * Creates request options for qrcodeTemplatesServiceImport without sending the request
+     * @param {ImportQrcodeTemplateRequest} importQrcodeTemplateRequest 
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
+     * @throws {RequiredError}
+     * @memberof QRCodeTemplatesApiInterface
+     */
+    qrcodeTemplatesServiceImportRequestOpts(requestParameters: QrcodeTemplatesServiceImportRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Import a public QR code template into your workspace by slug. Creates a private copy owned by your workspace.  Requires the `qrcodes:write` scope.
      * @summary Import a public QR code template
      * @param {ImportQrcodeTemplateRequest} importQrcodeTemplateRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QRCodeTemplatesApiInterface
      */
-    qrcodeTemplatesServiceImportQrcodeTemplateRaw(requestParameters: QrcodeTemplatesServiceImportQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ImportQrcodeTemplateResponse>>;
+    qrcodeTemplatesServiceImportRaw(requestParameters: QrcodeTemplatesServiceImportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ImportQrcodeTemplateResponse>>;
 
     /**
      * Import a public QR code template into your workspace by slug. Creates a private copy owned by your workspace.  Requires the `qrcodes:write` scope.
      * Import a public QR code template
      */
-    qrcodeTemplatesServiceImportQrcodeTemplate(requestParameters: QrcodeTemplatesServiceImportQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ImportQrcodeTemplateResponse>;
+    qrcodeTemplatesServiceImport(requestParameters: QrcodeTemplatesServiceImportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ImportQrcodeTemplateResponse>;
 
     /**
-     * Creates request options for qrcodeTemplatesServiceListQrcodeTemplates without sending the request
+     * Creates request options for qrcodeTemplatesServiceList without sending the request
      * @param {Array<string>} [include] 
      * @param {string} [search] 
      * @param {number} [pageSize] 
@@ -240,7 +255,7 @@ export interface QRCodeTemplatesApiInterface {
      * @throws {RequiredError}
      * @memberof QRCodeTemplatesApiInterface
      */
-    qrcodeTemplatesServiceListQrcodeTemplatesRequestOpts(requestParameters: QrcodeTemplatesServiceListQrcodeTemplatesRequest): Promise<runtime.RequestOpts>;
+    qrcodeTemplatesServiceListRequestOpts(requestParameters: QrcodeTemplatesServiceListRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Retrieve QR code templates that belong to the authenticated caller\'s workspace.  Requires the `qrcodes:read` scope.
@@ -255,42 +270,16 @@ export interface QRCodeTemplatesApiInterface {
      * @throws {RequiredError}
      * @memberof QRCodeTemplatesApiInterface
      */
-    qrcodeTemplatesServiceListQrcodeTemplatesRaw(requestParameters: QrcodeTemplatesServiceListQrcodeTemplatesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListQrcodeTemplatesResponse>>;
+    qrcodeTemplatesServiceListRaw(requestParameters: QrcodeTemplatesServiceListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListQrcodeTemplatesResponse>>;
 
     /**
      * Retrieve QR code templates that belong to the authenticated caller\'s workspace.  Requires the `qrcodes:read` scope.
      * List my QR code templates
      */
-    qrcodeTemplatesServiceListQrcodeTemplates(requestParameters: QrcodeTemplatesServiceListQrcodeTemplatesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListQrcodeTemplatesResponse>;
+    qrcodeTemplatesServiceList(requestParameters: QrcodeTemplatesServiceListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListQrcodeTemplatesResponse>;
 
     /**
-     * Creates request options for qrcodeTemplatesServicePublicGetQrcodeTemplate without sending the request
-     * @param {string} slug 
-     * @param {Array<string>} [include] Related objects to include in the response  List of related objects to include. Supported values: \&#39;workspace\&#39;
-     * @throws {RequiredError}
-     * @memberof QRCodeTemplatesApiInterface
-     */
-    qrcodeTemplatesServicePublicGetQrcodeTemplateRequestOpts(requestParameters: QrcodeTemplatesServicePublicGetQrcodeTemplateRequest): Promise<runtime.RequestOpts>;
-
-    /**
-     * Retrieve a single published QR code template that is visible in the public gallery.
-     * @summary Get a public QR code template
-     * @param {string} slug 
-     * @param {Array<string>} [include] Related objects to include in the response  List of related objects to include. Supported values: \&#39;workspace\&#39;
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QRCodeTemplatesApiInterface
-     */
-    qrcodeTemplatesServicePublicGetQrcodeTemplateRaw(requestParameters: QrcodeTemplatesServicePublicGetQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicQrcodeTemplate>>;
-
-    /**
-     * Retrieve a single published QR code template that is visible in the public gallery.
-     * Get a public QR code template
-     */
-    qrcodeTemplatesServicePublicGetQrcodeTemplate(requestParameters: QrcodeTemplatesServicePublicGetQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicQrcodeTemplate>;
-
-    /**
-     * Creates request options for qrcodeTemplatesServicePublicListQrcodeTemplates without sending the request
+     * Creates request options for qrcodeTemplatesServiceListPublic without sending the request
      * @param {Array<string>} [include] Related objects to include in the response  List of related objects to include. Supported values: \&#39;workspace\&#39;
      * @param {string} [search] Search query applied to template name/description
      * @param {number} [pageSize] Maximum number of templates to return (defaults to 20)
@@ -300,7 +289,7 @@ export interface QRCodeTemplatesApiInterface {
      * @throws {RequiredError}
      * @memberof QRCodeTemplatesApiInterface
      */
-    qrcodeTemplatesServicePublicListQrcodeTemplatesRequestOpts(requestParameters: QrcodeTemplatesServicePublicListQrcodeTemplatesRequest): Promise<runtime.RequestOpts>;
+    qrcodeTemplatesServiceListPublicRequestOpts(requestParameters: QrcodeTemplatesServiceListPublicRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Retrieve available QR code templates, optionally filtered by search terms or link destination.
@@ -315,95 +304,69 @@ export interface QRCodeTemplatesApiInterface {
      * @throws {RequiredError}
      * @memberof QRCodeTemplatesApiInterface
      */
-    qrcodeTemplatesServicePublicListQrcodeTemplatesRaw(requestParameters: QrcodeTemplatesServicePublicListQrcodeTemplatesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicListQrcodeTemplatesResponse>>;
+    qrcodeTemplatesServiceListPublicRaw(requestParameters: QrcodeTemplatesServiceListPublicRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicListQrcodeTemplatesResponse>>;
 
     /**
      * Retrieve available QR code templates, optionally filtered by search terms or link destination.
      * List QR code templates
      */
-    qrcodeTemplatesServicePublicListQrcodeTemplates(requestParameters: QrcodeTemplatesServicePublicListQrcodeTemplatesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicListQrcodeTemplatesResponse>;
+    qrcodeTemplatesServiceListPublic(requestParameters: QrcodeTemplatesServiceListPublicRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicListQrcodeTemplatesResponse>;
 
     /**
-     * Creates request options for qrcodeTemplatesServicePublishQrcodeTemplate without sending the request
+     * Creates request options for qrcodeTemplatesServicePublish without sending the request
      * @param {string} id The ID of the QR code template to publish (UUID)
      * @param {object} body 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof QRCodeTemplatesApiInterface
      */
-    qrcodeTemplatesServicePublishQrcodeTemplateRequestOpts(requestParameters: QrcodeTemplatesServicePublishQrcodeTemplateRequest): Promise<runtime.RequestOpts>;
+    qrcodeTemplatesServicePublishRequestOpts(requestParameters: QrcodeTemplatesServicePublishRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Publish a QR code template to make it available in the public gallery. Requires workspace to be public and template to have slug, description, and name.  Requires the `qrcodes:write` scope.
      * @summary Publish a workspace QR code template
      * @param {string} id The ID of the QR code template to publish (UUID)
      * @param {object} body 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QRCodeTemplatesApiInterface
      */
-    qrcodeTemplatesServicePublishQrcodeTemplateRaw(requestParameters: QrcodeTemplatesServicePublishQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublishQrcodeTemplateResponse>>;
+    qrcodeTemplatesServicePublishRaw(requestParameters: QrcodeTemplatesServicePublishRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublishQrcodeTemplateResponse>>;
 
     /**
      * Publish a QR code template to make it available in the public gallery. Requires workspace to be public and template to have slug, description, and name.  Requires the `qrcodes:write` scope.
      * Publish a workspace QR code template
      */
-    qrcodeTemplatesServicePublishQrcodeTemplate(requestParameters: QrcodeTemplatesServicePublishQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublishQrcodeTemplateResponse>;
+    qrcodeTemplatesServicePublish(requestParameters: QrcodeTemplatesServicePublishRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublishQrcodeTemplateResponse>;
 
     /**
-     * Creates request options for qrcodeTemplatesServiceResolveQrcodeTemplateImages without sending the request
-     * @param {ResolveQrcodeTemplateImagesRequest} resolveQrcodeTemplateImagesRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @throws {RequiredError}
-     * @memberof QRCodeTemplatesApiInterface
-     */
-    qrcodeTemplatesServiceResolveQrcodeTemplateImagesRequestOpts(requestParameters: QrcodeTemplatesServiceResolveQrcodeTemplateImagesRequest): Promise<runtime.RequestOpts>;
-
-    /**
-     * Return freshly signed thumbnail URLs for the given templates. The URLs expire, so callers fetch them when they need to render rather than storing them.  Requires the `qrcodes:read` scope.
-     * @summary Resolve QR code template thumbnails
-     * @param {ResolveQrcodeTemplateImagesRequest} resolveQrcodeTemplateImagesRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QRCodeTemplatesApiInterface
-     */
-    qrcodeTemplatesServiceResolveQrcodeTemplateImagesRaw(requestParameters: QrcodeTemplatesServiceResolveQrcodeTemplateImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResolveQrcodeTemplateImagesResponse>>;
-
-    /**
-     * Return freshly signed thumbnail URLs for the given templates. The URLs expire, so callers fetch them when they need to render rather than storing them.  Requires the `qrcodes:read` scope.
-     * Resolve QR code template thumbnails
-     */
-    qrcodeTemplatesServiceResolveQrcodeTemplateImages(requestParameters: QrcodeTemplatesServiceResolveQrcodeTemplateImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResolveQrcodeTemplateImagesResponse>;
-
-    /**
-     * Creates request options for qrcodeTemplatesServiceUpdateQrcodeTemplate without sending the request
+     * Creates request options for qrcodeTemplatesServiceUpdate without sending the request
      * @param {string} id The ID of the QR code template to update (UUID)
-     * @param {QrcodeTemplatesServiceUpdateQrcodeTemplateBody} qrcodeTemplatesServiceUpdateQrcodeTemplateBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {QrcodeTemplatesServiceUpdateBody} qrcodeTemplatesServiceUpdateBody 
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof QRCodeTemplatesApiInterface
      */
-    qrcodeTemplatesServiceUpdateQrcodeTemplateRequestOpts(requestParameters: QrcodeTemplatesServiceUpdateQrcodeTemplateRequest): Promise<runtime.RequestOpts>;
+    qrcodeTemplatesServiceUpdateRequestOpts(requestParameters: QrcodeTemplatesServiceUpdateRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Modify the name or description of a QR code template owned by the authenticated workspace.  Requires the `qrcodes:write` scope.
      * @summary Update a workspace QR code template
      * @param {string} id The ID of the QR code template to update (UUID)
-     * @param {QrcodeTemplatesServiceUpdateQrcodeTemplateBody} qrcodeTemplatesServiceUpdateQrcodeTemplateBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {QrcodeTemplatesServiceUpdateBody} qrcodeTemplatesServiceUpdateBody 
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QRCodeTemplatesApiInterface
      */
-    qrcodeTemplatesServiceUpdateQrcodeTemplateRaw(requestParameters: QrcodeTemplatesServiceUpdateQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdateQrcodeTemplateResponse>>;
+    qrcodeTemplatesServiceUpdateRaw(requestParameters: QrcodeTemplatesServiceUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdateQrcodeTemplateResponse>>;
 
     /**
      * Modify the name or description of a QR code template owned by the authenticated workspace.  Requires the `qrcodes:write` scope.
      * Update a workspace QR code template
      */
-    qrcodeTemplatesServiceUpdateQrcodeTemplate(requestParameters: QrcodeTemplatesServiceUpdateQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdateQrcodeTemplateResponse>;
+    qrcodeTemplatesServiceUpdate(requestParameters: QrcodeTemplatesServiceUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdateQrcodeTemplateResponse>;
 
 }
 
@@ -413,13 +376,13 @@ export interface QRCodeTemplatesApiInterface {
 export class QRCodeTemplatesApi extends runtime.BaseAPI implements QRCodeTemplatesApiInterface {
 
     /**
-     * Creates request options for qrcodeTemplatesServiceCreateQrcodeTemplate without sending the request
+     * Creates request options for qrcodeTemplatesServiceCreate without sending the request
      */
-    async qrcodeTemplatesServiceCreateQrcodeTemplateRequestOpts(requestParameters: QrcodeTemplatesServiceCreateQrcodeTemplateRequest): Promise<runtime.RequestOpts> {
+    async qrcodeTemplatesServiceCreateRequestOpts(requestParameters: QrcodeTemplatesServiceCreateRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['createQrcodeTemplateRequest'] == null) {
             throw new runtime.RequiredError(
                 'createQrcodeTemplateRequest',
-                'Required parameter "createQrcodeTemplateRequest" was null or undefined when calling qrcodeTemplatesServiceCreateQrcodeTemplate().'
+                'Required parameter "createQrcodeTemplateRequest" was null or undefined when calling qrcodeTemplatesServiceCreate().'
             );
         }
 
@@ -462,8 +425,8 @@ export class QRCodeTemplatesApi extends runtime.BaseAPI implements QRCodeTemplat
      * Create a new QR code template using a fresh design. The design must not be used by any other links or templates.  Requires the `qrcodes:write` scope.
      * Create a new QR code template
      */
-    async qrcodeTemplatesServiceCreateQrcodeTemplateRaw(requestParameters: QrcodeTemplatesServiceCreateQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateQrcodeTemplateResponse>> {
-        const requestOptions = await this.qrcodeTemplatesServiceCreateQrcodeTemplateRequestOpts(requestParameters);
+    async qrcodeTemplatesServiceCreateRaw(requestParameters: QrcodeTemplatesServiceCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateQrcodeTemplateResponse>> {
+        const requestOptions = await this.qrcodeTemplatesServiceCreateRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => CreateQrcodeTemplateResponseFromJSON(jsonValue));
@@ -473,19 +436,19 @@ export class QRCodeTemplatesApi extends runtime.BaseAPI implements QRCodeTemplat
      * Create a new QR code template using a fresh design. The design must not be used by any other links or templates.  Requires the `qrcodes:write` scope.
      * Create a new QR code template
      */
-    async qrcodeTemplatesServiceCreateQrcodeTemplate(requestParameters: QrcodeTemplatesServiceCreateQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateQrcodeTemplateResponse> {
-        const response = await this.qrcodeTemplatesServiceCreateQrcodeTemplateRaw(requestParameters, initOverrides);
+    async qrcodeTemplatesServiceCreate(requestParameters: QrcodeTemplatesServiceCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateQrcodeTemplateResponse> {
+        const response = await this.qrcodeTemplatesServiceCreateRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Creates request options for qrcodeTemplatesServiceDeleteQrcodeTemplate without sending the request
+     * Creates request options for qrcodeTemplatesServiceDelete without sending the request
      */
-    async qrcodeTemplatesServiceDeleteQrcodeTemplateRequestOpts(requestParameters: QrcodeTemplatesServiceDeleteQrcodeTemplateRequest): Promise<runtime.RequestOpts> {
+    async qrcodeTemplatesServiceDeleteRequestOpts(requestParameters: QrcodeTemplatesServiceDeleteRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
-                'Required parameter "id" was null or undefined when calling qrcodeTemplatesServiceDeleteQrcodeTemplate().'
+                'Required parameter "id" was null or undefined when calling qrcodeTemplatesServiceDelete().'
             );
         }
 
@@ -522,8 +485,8 @@ export class QRCodeTemplatesApi extends runtime.BaseAPI implements QRCodeTemplat
      * Remove a QR code template belonging to the authenticated caller\'s workspace.  Requires the `qrcodes:write` scope.
      * Delete a workspace QR code template
      */
-    async qrcodeTemplatesServiceDeleteQrcodeTemplateRaw(requestParameters: QrcodeTemplatesServiceDeleteQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>> {
-        const requestOptions = await this.qrcodeTemplatesServiceDeleteQrcodeTemplateRequestOpts(requestParameters);
+    async qrcodeTemplatesServiceDeleteRaw(requestParameters: QrcodeTemplatesServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>> {
+        const requestOptions = await this.qrcodeTemplatesServiceDeleteRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse<any>(response);
@@ -533,19 +496,19 @@ export class QRCodeTemplatesApi extends runtime.BaseAPI implements QRCodeTemplat
      * Remove a QR code template belonging to the authenticated caller\'s workspace.  Requires the `qrcodes:write` scope.
      * Delete a workspace QR code template
      */
-    async qrcodeTemplatesServiceDeleteQrcodeTemplate(requestParameters: QrcodeTemplatesServiceDeleteQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object> {
-        const response = await this.qrcodeTemplatesServiceDeleteQrcodeTemplateRaw(requestParameters, initOverrides);
+    async qrcodeTemplatesServiceDelete(requestParameters: QrcodeTemplatesServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object> {
+        const response = await this.qrcodeTemplatesServiceDeleteRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Creates request options for qrcodeTemplatesServiceGetQrcodeTemplate without sending the request
+     * Creates request options for qrcodeTemplatesServiceGet without sending the request
      */
-    async qrcodeTemplatesServiceGetQrcodeTemplateRequestOpts(requestParameters: QrcodeTemplatesServiceGetQrcodeTemplateRequest): Promise<runtime.RequestOpts> {
+    async qrcodeTemplatesServiceGetRequestOpts(requestParameters: QrcodeTemplatesServiceGetRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
-                'Required parameter "id" was null or undefined when calling qrcodeTemplatesServiceGetQrcodeTemplate().'
+                'Required parameter "id" was null or undefined when calling qrcodeTemplatesServiceGet().'
             );
         }
 
@@ -586,8 +549,8 @@ export class QRCodeTemplatesApi extends runtime.BaseAPI implements QRCodeTemplat
      * Retrieve a QR code template that belongs to the authenticated caller\'s workspace.  Requires the `qrcodes:read` scope.
      * Get a workspace QR code template
      */
-    async qrcodeTemplatesServiceGetQrcodeTemplateRaw(requestParameters: QrcodeTemplatesServiceGetQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<QrcodeTemplate>> {
-        const requestOptions = await this.qrcodeTemplatesServiceGetQrcodeTemplateRequestOpts(requestParameters);
+    async qrcodeTemplatesServiceGetRaw(requestParameters: QrcodeTemplatesServiceGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<QrcodeTemplate>> {
+        const requestOptions = await this.qrcodeTemplatesServiceGetRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => QrcodeTemplateFromJSON(jsonValue));
@@ -597,19 +560,70 @@ export class QRCodeTemplatesApi extends runtime.BaseAPI implements QRCodeTemplat
      * Retrieve a QR code template that belongs to the authenticated caller\'s workspace.  Requires the `qrcodes:read` scope.
      * Get a workspace QR code template
      */
-    async qrcodeTemplatesServiceGetQrcodeTemplate(requestParameters: QrcodeTemplatesServiceGetQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<QrcodeTemplate> {
-        const response = await this.qrcodeTemplatesServiceGetQrcodeTemplateRaw(requestParameters, initOverrides);
+    async qrcodeTemplatesServiceGet(requestParameters: QrcodeTemplatesServiceGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<QrcodeTemplate> {
+        const response = await this.qrcodeTemplatesServiceGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Creates request options for qrcodeTemplatesServiceImportQrcodeTemplate without sending the request
+     * Creates request options for qrcodeTemplatesServiceGetPublic without sending the request
      */
-    async qrcodeTemplatesServiceImportQrcodeTemplateRequestOpts(requestParameters: QrcodeTemplatesServiceImportQrcodeTemplateRequest): Promise<runtime.RequestOpts> {
+    async qrcodeTemplatesServiceGetPublicRequestOpts(requestParameters: QrcodeTemplatesServiceGetPublicRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['slug'] == null) {
+            throw new runtime.RequiredError(
+                'slug',
+                'Required parameter "slug" was null or undefined when calling qrcodeTemplatesServiceGetPublic().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['include'] != null) {
+            queryParameters['include'] = requestParameters['include'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/v1/public/qrcode-templates/{slug}`;
+        urlPath = urlPath.replace(`{${"slug"}}`, encodeURIComponent(String(requestParameters['slug'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Retrieve a single published QR code template that is visible in the public gallery.
+     * Get a public QR code template
+     */
+    async qrcodeTemplatesServiceGetPublicRaw(requestParameters: QrcodeTemplatesServiceGetPublicRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicQrcodeTemplate>> {
+        const requestOptions = await this.qrcodeTemplatesServiceGetPublicRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PublicQrcodeTemplateFromJSON(jsonValue));
+    }
+
+    /**
+     * Retrieve a single published QR code template that is visible in the public gallery.
+     * Get a public QR code template
+     */
+    async qrcodeTemplatesServiceGetPublic(requestParameters: QrcodeTemplatesServiceGetPublicRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicQrcodeTemplate> {
+        const response = await this.qrcodeTemplatesServiceGetPublicRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for qrcodeTemplatesServiceImport without sending the request
+     */
+    async qrcodeTemplatesServiceImportRequestOpts(requestParameters: QrcodeTemplatesServiceImportRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['importQrcodeTemplateRequest'] == null) {
             throw new runtime.RequiredError(
                 'importQrcodeTemplateRequest',
-                'Required parameter "importQrcodeTemplateRequest" was null or undefined when calling qrcodeTemplatesServiceImportQrcodeTemplate().'
+                'Required parameter "importQrcodeTemplateRequest" was null or undefined when calling qrcodeTemplatesServiceImport().'
             );
         }
 
@@ -652,8 +666,8 @@ export class QRCodeTemplatesApi extends runtime.BaseAPI implements QRCodeTemplat
      * Import a public QR code template into your workspace by slug. Creates a private copy owned by your workspace.  Requires the `qrcodes:write` scope.
      * Import a public QR code template
      */
-    async qrcodeTemplatesServiceImportQrcodeTemplateRaw(requestParameters: QrcodeTemplatesServiceImportQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ImportQrcodeTemplateResponse>> {
-        const requestOptions = await this.qrcodeTemplatesServiceImportQrcodeTemplateRequestOpts(requestParameters);
+    async qrcodeTemplatesServiceImportRaw(requestParameters: QrcodeTemplatesServiceImportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ImportQrcodeTemplateResponse>> {
+        const requestOptions = await this.qrcodeTemplatesServiceImportRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ImportQrcodeTemplateResponseFromJSON(jsonValue));
@@ -663,15 +677,15 @@ export class QRCodeTemplatesApi extends runtime.BaseAPI implements QRCodeTemplat
      * Import a public QR code template into your workspace by slug. Creates a private copy owned by your workspace.  Requires the `qrcodes:write` scope.
      * Import a public QR code template
      */
-    async qrcodeTemplatesServiceImportQrcodeTemplate(requestParameters: QrcodeTemplatesServiceImportQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ImportQrcodeTemplateResponse> {
-        const response = await this.qrcodeTemplatesServiceImportQrcodeTemplateRaw(requestParameters, initOverrides);
+    async qrcodeTemplatesServiceImport(requestParameters: QrcodeTemplatesServiceImportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ImportQrcodeTemplateResponse> {
+        const response = await this.qrcodeTemplatesServiceImportRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Creates request options for qrcodeTemplatesServiceListQrcodeTemplates without sending the request
+     * Creates request options for qrcodeTemplatesServiceList without sending the request
      */
-    async qrcodeTemplatesServiceListQrcodeTemplatesRequestOpts(requestParameters: QrcodeTemplatesServiceListQrcodeTemplatesRequest): Promise<runtime.RequestOpts> {
+    async qrcodeTemplatesServiceListRequestOpts(requestParameters: QrcodeTemplatesServiceListRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
         if (requestParameters['include'] != null) {
@@ -728,8 +742,8 @@ export class QRCodeTemplatesApi extends runtime.BaseAPI implements QRCodeTemplat
      * Retrieve QR code templates that belong to the authenticated caller\'s workspace.  Requires the `qrcodes:read` scope.
      * List my QR code templates
      */
-    async qrcodeTemplatesServiceListQrcodeTemplatesRaw(requestParameters: QrcodeTemplatesServiceListQrcodeTemplatesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListQrcodeTemplatesResponse>> {
-        const requestOptions = await this.qrcodeTemplatesServiceListQrcodeTemplatesRequestOpts(requestParameters);
+    async qrcodeTemplatesServiceListRaw(requestParameters: QrcodeTemplatesServiceListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListQrcodeTemplatesResponse>> {
+        const requestOptions = await this.qrcodeTemplatesServiceListRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ListQrcodeTemplatesResponseFromJSON(jsonValue));
@@ -739,66 +753,15 @@ export class QRCodeTemplatesApi extends runtime.BaseAPI implements QRCodeTemplat
      * Retrieve QR code templates that belong to the authenticated caller\'s workspace.  Requires the `qrcodes:read` scope.
      * List my QR code templates
      */
-    async qrcodeTemplatesServiceListQrcodeTemplates(requestParameters: QrcodeTemplatesServiceListQrcodeTemplatesRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListQrcodeTemplatesResponse> {
-        const response = await this.qrcodeTemplatesServiceListQrcodeTemplatesRaw(requestParameters, initOverrides);
+    async qrcodeTemplatesServiceList(requestParameters: QrcodeTemplatesServiceListRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListQrcodeTemplatesResponse> {
+        const response = await this.qrcodeTemplatesServiceListRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Creates request options for qrcodeTemplatesServicePublicGetQrcodeTemplate without sending the request
+     * Creates request options for qrcodeTemplatesServiceListPublic without sending the request
      */
-    async qrcodeTemplatesServicePublicGetQrcodeTemplateRequestOpts(requestParameters: QrcodeTemplatesServicePublicGetQrcodeTemplateRequest): Promise<runtime.RequestOpts> {
-        if (requestParameters['slug'] == null) {
-            throw new runtime.RequiredError(
-                'slug',
-                'Required parameter "slug" was null or undefined when calling qrcodeTemplatesServicePublicGetQrcodeTemplate().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        if (requestParameters['include'] != null) {
-            queryParameters['include'] = requestParameters['include'];
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/v1/public/qrcode-templates/{slug}`;
-        urlPath = urlPath.replace(`{${"slug"}}`, encodeURIComponent(String(requestParameters['slug'])));
-
-        return {
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     * Retrieve a single published QR code template that is visible in the public gallery.
-     * Get a public QR code template
-     */
-    async qrcodeTemplatesServicePublicGetQrcodeTemplateRaw(requestParameters: QrcodeTemplatesServicePublicGetQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicQrcodeTemplate>> {
-        const requestOptions = await this.qrcodeTemplatesServicePublicGetQrcodeTemplateRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => PublicQrcodeTemplateFromJSON(jsonValue));
-    }
-
-    /**
-     * Retrieve a single published QR code template that is visible in the public gallery.
-     * Get a public QR code template
-     */
-    async qrcodeTemplatesServicePublicGetQrcodeTemplate(requestParameters: QrcodeTemplatesServicePublicGetQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicQrcodeTemplate> {
-        const response = await this.qrcodeTemplatesServicePublicGetQrcodeTemplateRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for qrcodeTemplatesServicePublicListQrcodeTemplates without sending the request
-     */
-    async qrcodeTemplatesServicePublicListQrcodeTemplatesRequestOpts(requestParameters: QrcodeTemplatesServicePublicListQrcodeTemplatesRequest): Promise<runtime.RequestOpts> {
+    async qrcodeTemplatesServiceListPublicRequestOpts(requestParameters: QrcodeTemplatesServiceListPublicRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
         if (requestParameters['include'] != null) {
@@ -842,8 +805,8 @@ export class QRCodeTemplatesApi extends runtime.BaseAPI implements QRCodeTemplat
      * Retrieve available QR code templates, optionally filtered by search terms or link destination.
      * List QR code templates
      */
-    async qrcodeTemplatesServicePublicListQrcodeTemplatesRaw(requestParameters: QrcodeTemplatesServicePublicListQrcodeTemplatesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicListQrcodeTemplatesResponse>> {
-        const requestOptions = await this.qrcodeTemplatesServicePublicListQrcodeTemplatesRequestOpts(requestParameters);
+    async qrcodeTemplatesServiceListPublicRaw(requestParameters: QrcodeTemplatesServiceListPublicRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicListQrcodeTemplatesResponse>> {
+        const requestOptions = await this.qrcodeTemplatesServiceListPublicRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => PublicListQrcodeTemplatesResponseFromJSON(jsonValue));
@@ -853,26 +816,26 @@ export class QRCodeTemplatesApi extends runtime.BaseAPI implements QRCodeTemplat
      * Retrieve available QR code templates, optionally filtered by search terms or link destination.
      * List QR code templates
      */
-    async qrcodeTemplatesServicePublicListQrcodeTemplates(requestParameters: QrcodeTemplatesServicePublicListQrcodeTemplatesRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicListQrcodeTemplatesResponse> {
-        const response = await this.qrcodeTemplatesServicePublicListQrcodeTemplatesRaw(requestParameters, initOverrides);
+    async qrcodeTemplatesServiceListPublic(requestParameters: QrcodeTemplatesServiceListPublicRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicListQrcodeTemplatesResponse> {
+        const response = await this.qrcodeTemplatesServiceListPublicRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Creates request options for qrcodeTemplatesServicePublishQrcodeTemplate without sending the request
+     * Creates request options for qrcodeTemplatesServicePublish without sending the request
      */
-    async qrcodeTemplatesServicePublishQrcodeTemplateRequestOpts(requestParameters: QrcodeTemplatesServicePublishQrcodeTemplateRequest): Promise<runtime.RequestOpts> {
+    async qrcodeTemplatesServicePublishRequestOpts(requestParameters: QrcodeTemplatesServicePublishRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
-                'Required parameter "id" was null or undefined when calling qrcodeTemplatesServicePublishQrcodeTemplate().'
+                'Required parameter "id" was null or undefined when calling qrcodeTemplatesServicePublish().'
             );
         }
 
         if (requestParameters['body'] == null) {
             throw new runtime.RequiredError(
                 'body',
-                'Required parameter "body" was null or undefined when calling qrcodeTemplatesServicePublishQrcodeTemplate().'
+                'Required parameter "body" was null or undefined when calling qrcodeTemplatesServicePublish().'
             );
         }
 
@@ -916,8 +879,8 @@ export class QRCodeTemplatesApi extends runtime.BaseAPI implements QRCodeTemplat
      * Publish a QR code template to make it available in the public gallery. Requires workspace to be public and template to have slug, description, and name.  Requires the `qrcodes:write` scope.
      * Publish a workspace QR code template
      */
-    async qrcodeTemplatesServicePublishQrcodeTemplateRaw(requestParameters: QrcodeTemplatesServicePublishQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublishQrcodeTemplateResponse>> {
-        const requestOptions = await this.qrcodeTemplatesServicePublishQrcodeTemplateRequestOpts(requestParameters);
+    async qrcodeTemplatesServicePublishRaw(requestParameters: QrcodeTemplatesServicePublishRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublishQrcodeTemplateResponse>> {
+        const requestOptions = await this.qrcodeTemplatesServicePublishRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => PublishQrcodeTemplateResponseFromJSON(jsonValue));
@@ -927,92 +890,26 @@ export class QRCodeTemplatesApi extends runtime.BaseAPI implements QRCodeTemplat
      * Publish a QR code template to make it available in the public gallery. Requires workspace to be public and template to have slug, description, and name.  Requires the `qrcodes:write` scope.
      * Publish a workspace QR code template
      */
-    async qrcodeTemplatesServicePublishQrcodeTemplate(requestParameters: QrcodeTemplatesServicePublishQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublishQrcodeTemplateResponse> {
-        const response = await this.qrcodeTemplatesServicePublishQrcodeTemplateRaw(requestParameters, initOverrides);
+    async qrcodeTemplatesServicePublish(requestParameters: QrcodeTemplatesServicePublishRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublishQrcodeTemplateResponse> {
+        const response = await this.qrcodeTemplatesServicePublishRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Creates request options for qrcodeTemplatesServiceResolveQrcodeTemplateImages without sending the request
+     * Creates request options for qrcodeTemplatesServiceUpdate without sending the request
      */
-    async qrcodeTemplatesServiceResolveQrcodeTemplateImagesRequestOpts(requestParameters: QrcodeTemplatesServiceResolveQrcodeTemplateImagesRequest): Promise<runtime.RequestOpts> {
-        if (requestParameters['resolveQrcodeTemplateImagesRequest'] == null) {
-            throw new runtime.RequiredError(
-                'resolveQrcodeTemplateImagesRequest',
-                'Required parameter "resolveQrcodeTemplateImagesRequest" was null or undefined when calling qrcodeTemplatesServiceResolveQrcodeTemplateImages().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (requestParameters['idempotencyKey'] != null) {
-            headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["qrcodes:read"]);
-        }
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", ["qrcodes:read"]);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/v1/qrcode-templates/images:resolve`;
-
-        return {
-            path: urlPath,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: ResolveQrcodeTemplateImagesRequestToJSON(requestParameters['resolveQrcodeTemplateImagesRequest']),
-        };
-    }
-
-    /**
-     * Return freshly signed thumbnail URLs for the given templates. The URLs expire, so callers fetch them when they need to render rather than storing them.  Requires the `qrcodes:read` scope.
-     * Resolve QR code template thumbnails
-     */
-    async qrcodeTemplatesServiceResolveQrcodeTemplateImagesRaw(requestParameters: QrcodeTemplatesServiceResolveQrcodeTemplateImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResolveQrcodeTemplateImagesResponse>> {
-        const requestOptions = await this.qrcodeTemplatesServiceResolveQrcodeTemplateImagesRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ResolveQrcodeTemplateImagesResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Return freshly signed thumbnail URLs for the given templates. The URLs expire, so callers fetch them when they need to render rather than storing them.  Requires the `qrcodes:read` scope.
-     * Resolve QR code template thumbnails
-     */
-    async qrcodeTemplatesServiceResolveQrcodeTemplateImages(requestParameters: QrcodeTemplatesServiceResolveQrcodeTemplateImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResolveQrcodeTemplateImagesResponse> {
-        const response = await this.qrcodeTemplatesServiceResolveQrcodeTemplateImagesRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for qrcodeTemplatesServiceUpdateQrcodeTemplate without sending the request
-     */
-    async qrcodeTemplatesServiceUpdateQrcodeTemplateRequestOpts(requestParameters: QrcodeTemplatesServiceUpdateQrcodeTemplateRequest): Promise<runtime.RequestOpts> {
+    async qrcodeTemplatesServiceUpdateRequestOpts(requestParameters: QrcodeTemplatesServiceUpdateRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
-                'Required parameter "id" was null or undefined when calling qrcodeTemplatesServiceUpdateQrcodeTemplate().'
+                'Required parameter "id" was null or undefined when calling qrcodeTemplatesServiceUpdate().'
             );
         }
 
-        if (requestParameters['qrcodeTemplatesServiceUpdateQrcodeTemplateBody'] == null) {
+        if (requestParameters['qrcodeTemplatesServiceUpdateBody'] == null) {
             throw new runtime.RequiredError(
-                'qrcodeTemplatesServiceUpdateQrcodeTemplateBody',
-                'Required parameter "qrcodeTemplatesServiceUpdateQrcodeTemplateBody" was null or undefined when calling qrcodeTemplatesServiceUpdateQrcodeTemplate().'
+                'qrcodeTemplatesServiceUpdateBody',
+                'Required parameter "qrcodeTemplatesServiceUpdateBody" was null or undefined when calling qrcodeTemplatesServiceUpdate().'
             );
         }
 
@@ -1048,7 +945,7 @@ export class QRCodeTemplatesApi extends runtime.BaseAPI implements QRCodeTemplat
             method: 'PATCH',
             headers: headerParameters,
             query: queryParameters,
-            body: QrcodeTemplatesServiceUpdateQrcodeTemplateBodyToJSON(requestParameters['qrcodeTemplatesServiceUpdateQrcodeTemplateBody']),
+            body: QrcodeTemplatesServiceUpdateBodyToJSON(requestParameters['qrcodeTemplatesServiceUpdateBody']),
         };
     }
 
@@ -1056,8 +953,8 @@ export class QRCodeTemplatesApi extends runtime.BaseAPI implements QRCodeTemplat
      * Modify the name or description of a QR code template owned by the authenticated workspace.  Requires the `qrcodes:write` scope.
      * Update a workspace QR code template
      */
-    async qrcodeTemplatesServiceUpdateQrcodeTemplateRaw(requestParameters: QrcodeTemplatesServiceUpdateQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdateQrcodeTemplateResponse>> {
-        const requestOptions = await this.qrcodeTemplatesServiceUpdateQrcodeTemplateRequestOpts(requestParameters);
+    async qrcodeTemplatesServiceUpdateRaw(requestParameters: QrcodeTemplatesServiceUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdateQrcodeTemplateResponse>> {
+        const requestOptions = await this.qrcodeTemplatesServiceUpdateRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => UpdateQrcodeTemplateResponseFromJSON(jsonValue));
@@ -1067,8 +964,8 @@ export class QRCodeTemplatesApi extends runtime.BaseAPI implements QRCodeTemplat
      * Modify the name or description of a QR code template owned by the authenticated workspace.  Requires the `qrcodes:write` scope.
      * Update a workspace QR code template
      */
-    async qrcodeTemplatesServiceUpdateQrcodeTemplate(requestParameters: QrcodeTemplatesServiceUpdateQrcodeTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdateQrcodeTemplateResponse> {
-        const response = await this.qrcodeTemplatesServiceUpdateQrcodeTemplateRaw(requestParameters, initOverrides);
+    async qrcodeTemplatesServiceUpdate(requestParameters: QrcodeTemplatesServiceUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdateQrcodeTemplateResponse> {
+        const response = await this.qrcodeTemplatesServiceUpdateRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

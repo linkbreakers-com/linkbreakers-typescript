@@ -2,9 +2,9 @@
 /* eslint-disable */
 /**
  * Linkbreakers API
- * This is a documentation of all the APIs of Linkbreakers  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
+ * The Linkbreakers REST API: links, QR codes, workflows, visitors and analytics, as JSON over HTTPS. Send a workspace API token as `Authorization: Bearer <token>`.  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  A renamed operation keeps answering its former path until that path\'s sunset. Responses on a former path carry the same `Deprecation`, `Sunset` and `Link` header fields; this document lists only the current path, and the policy lists the former ones.  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
  *
- * The version of the OpenAPI document: 1.198.0
+ * The version of the OpenAPI document: 1.198.1
  * 
  *
  * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
@@ -28,7 +28,7 @@ import type {
   ResolveStepCollisionsResponse,
   UpdateWorkflowStepResponse,
   ValidateWorkflowResponse,
-  WorkflowStepsServiceConnectStepBody,
+  WorkflowStepsServiceConnectBody,
   WorkflowStepsServiceCreateBody,
   WorkflowStepsServiceUpdateBody,
 } from '../models/index';
@@ -59,8 +59,8 @@ import {
     UpdateWorkflowStepResponseToJSON,
     ValidateWorkflowResponseFromJSON,
     ValidateWorkflowResponseToJSON,
-    WorkflowStepsServiceConnectStepBodyFromJSON,
-    WorkflowStepsServiceConnectStepBodyToJSON,
+    WorkflowStepsServiceConnectBodyFromJSON,
+    WorkflowStepsServiceConnectBodyToJSON,
     WorkflowStepsServiceCreateBodyFromJSON,
     WorkflowStepsServiceCreateBodyToJSON,
     WorkflowStepsServiceUpdateBodyFromJSON,
@@ -73,16 +73,16 @@ export interface WorkflowStepsServiceAutoLayoutWorkflowRequest {
     idempotencyKey?: string;
 }
 
-export interface WorkflowStepsServiceBulkInsertWorkflowStepRequest {
+export interface WorkflowStepsServiceBulkInsertRequest {
     bulkInsertWorkflowStepRequest: BulkInsertWorkflowStepRequest;
     idempotencyKey?: string;
 }
 
-export interface WorkflowStepsServiceConnectStepRequest {
+export interface WorkflowStepsServiceConnectRequest {
     linkId: string;
     stepId: string;
     branchId: string;
-    workflowStepsServiceConnectStepBody: WorkflowStepsServiceConnectStepBody;
+    workflowStepsServiceConnectBody: WorkflowStepsServiceConnectBody;
     idempotencyKey?: string;
 }
 
@@ -97,7 +97,7 @@ export interface WorkflowStepsServiceDeleteRequest {
     id: string;
 }
 
-export interface WorkflowStepsServiceDisconnectStepRequest {
+export interface WorkflowStepsServiceDisconnectRequest {
     linkId: string;
     stepId: string;
     branchId: string;
@@ -115,7 +115,7 @@ export interface WorkflowStepsServiceListRequest {
     cursor?: string;
 }
 
-export interface WorkflowStepsServiceResolveStepCollisionsRequest {
+export interface WorkflowStepsServiceResolveCollisionsRequest {
     linkId: string;
     stepId: string;
     body: object;
@@ -144,7 +144,7 @@ export interface WorkflowStepsApiInterface {
      * Creates request options for workflowStepsServiceAutoLayoutWorkflow without sending the request
      * @param {string} linkId 
      * @param {object} body 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof WorkflowStepsApiInterface
      */
@@ -155,7 +155,7 @@ export interface WorkflowStepsApiInterface {
      * @summary Auto-layout workflow
      * @param {string} linkId 
      * @param {object} body 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorkflowStepsApiInterface
@@ -169,42 +169,42 @@ export interface WorkflowStepsApiInterface {
     workflowStepsServiceAutoLayoutWorkflow(requestParameters: WorkflowStepsServiceAutoLayoutWorkflowRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AutoLayoutWorkflowResponse>;
 
     /**
-     * Creates request options for workflowStepsServiceBulkInsertWorkflowStep without sending the request
+     * Creates request options for workflowStepsServiceBulkInsert without sending the request
      * @param {BulkInsertWorkflowStepRequest} bulkInsertWorkflowStepRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof WorkflowStepsApiInterface
      */
-    workflowStepsServiceBulkInsertWorkflowStepRequestOpts(requestParameters: WorkflowStepsServiceBulkInsertWorkflowStepRequest): Promise<runtime.RequestOpts>;
+    workflowStepsServiceBulkInsertRequestOpts(requestParameters: WorkflowStepsServiceBulkInsertRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Inserts the same step, usually a condition, into the workflow of up to 50 links, named by id or short link. Each link succeeds or fails on its own: read the result of each one. Calling again for a link that succeeded inserts a second step. A link with BULK_EDIT_NOT_STARTED was left untouched because the call ran out of time: send those again in a new call.  Requires the `workflows:write` scope.
      * @summary Insert one step into many links\' workflows
      * @param {BulkInsertWorkflowStepRequest} bulkInsertWorkflowStepRequest 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorkflowStepsApiInterface
      */
-    workflowStepsServiceBulkInsertWorkflowStepRaw(requestParameters: WorkflowStepsServiceBulkInsertWorkflowStepRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BulkInsertWorkflowStepResponse>>;
+    workflowStepsServiceBulkInsertRaw(requestParameters: WorkflowStepsServiceBulkInsertRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BulkInsertWorkflowStepResponse>>;
 
     /**
      * Inserts the same step, usually a condition, into the workflow of up to 50 links, named by id or short link. Each link succeeds or fails on its own: read the result of each one. Calling again for a link that succeeded inserts a second step. A link with BULK_EDIT_NOT_STARTED was left untouched because the call ran out of time: send those again in a new call.  Requires the `workflows:write` scope.
      * Insert one step into many links\' workflows
      */
-    workflowStepsServiceBulkInsertWorkflowStep(requestParameters: WorkflowStepsServiceBulkInsertWorkflowStepRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BulkInsertWorkflowStepResponse>;
+    workflowStepsServiceBulkInsert(requestParameters: WorkflowStepsServiceBulkInsertRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BulkInsertWorkflowStepResponse>;
 
     /**
-     * Creates request options for workflowStepsServiceConnectStep without sending the request
+     * Creates request options for workflowStepsServiceConnect without sending the request
      * @param {string} linkId The ID of the link (UUID)
      * @param {string} stepId The ID of the step the connection leaves from (UUID)
      * @param {string} branchId Which exit of that step to connect. \&quot;next\&quot; for atomic steps, or a button id, option id, range id, country code, or \&quot;else\&quot; for composite steps.
-     * @param {WorkflowStepsServiceConnectStepBody} workflowStepsServiceConnectStepBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {WorkflowStepsServiceConnectBody} workflowStepsServiceConnectBody 
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof WorkflowStepsApiInterface
      */
-    workflowStepsServiceConnectStepRequestOpts(requestParameters: WorkflowStepsServiceConnectStepRequest): Promise<runtime.RequestOpts>;
+    workflowStepsServiceConnectRequestOpts(requestParameters: WorkflowStepsServiceConnectRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Every workflow step is connected the same way: name the branch it leaves from, and the step it leads to.  Atomic steps (redirect, password, form, message page) have exactly one branch, \"next\". Composite steps (multi-link, conditions) have one branch per button, option or range, plus \"else\" for a condition\'s fallback. Exit steps end the journey and have no branches at all.  Read a step to see its branches, their ids and their current destinations. Idempotent: connecting a branch to the step it already leads to is a no-op.  Requires the `workflows:write` scope.
@@ -212,25 +212,25 @@ export interface WorkflowStepsApiInterface {
      * @param {string} linkId The ID of the link (UUID)
      * @param {string} stepId The ID of the step the connection leaves from (UUID)
      * @param {string} branchId Which exit of that step to connect. \&quot;next\&quot; for atomic steps, or a button id, option id, range id, country code, or \&quot;else\&quot; for composite steps.
-     * @param {WorkflowStepsServiceConnectStepBody} workflowStepsServiceConnectStepBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {WorkflowStepsServiceConnectBody} workflowStepsServiceConnectBody 
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorkflowStepsApiInterface
      */
-    workflowStepsServiceConnectStepRaw(requestParameters: WorkflowStepsServiceConnectStepRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ConnectWorkflowStepResponse>>;
+    workflowStepsServiceConnectRaw(requestParameters: WorkflowStepsServiceConnectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ConnectWorkflowStepResponse>>;
 
     /**
      * Every workflow step is connected the same way: name the branch it leaves from, and the step it leads to.  Atomic steps (redirect, password, form, message page) have exactly one branch, \"next\". Composite steps (multi-link, conditions) have one branch per button, option or range, plus \"else\" for a condition\'s fallback. Exit steps end the journey and have no branches at all.  Read a step to see its branches, their ids and their current destinations. Idempotent: connecting a branch to the step it already leads to is a no-op.  Requires the `workflows:write` scope.
      * Connect one exit of a workflow step to another step
      */
-    workflowStepsServiceConnectStep(requestParameters: WorkflowStepsServiceConnectStepRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ConnectWorkflowStepResponse>;
+    workflowStepsServiceConnect(requestParameters: WorkflowStepsServiceConnectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ConnectWorkflowStepResponse>;
 
     /**
      * Creates request options for workflowStepsServiceCreate without sending the request
      * @param {string} linkId The ID of the link to create the workflow step for (UUID)
      * @param {WorkflowStepsServiceCreateBody} workflowStepsServiceCreateBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof WorkflowStepsApiInterface
      */
@@ -241,7 +241,7 @@ export interface WorkflowStepsApiInterface {
      * @summary Create a new workflow step
      * @param {string} linkId The ID of the link to create the workflow step for (UUID)
      * @param {WorkflowStepsServiceCreateBody} workflowStepsServiceCreateBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorkflowStepsApiInterface
@@ -281,17 +281,17 @@ export interface WorkflowStepsApiInterface {
     workflowStepsServiceDelete(requestParameters: WorkflowStepsServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object>;
 
     /**
-     * Creates request options for workflowStepsServiceDisconnectStep without sending the request
+     * Creates request options for workflowStepsServiceDisconnect without sending the request
      * @param {string} linkId The ID of the link (UUID)
      * @param {string} stepId The ID of the step the connection leaves from (UUID)
      * @param {string} branchId Which exit of that step to clear. See ConnectWorkflowStepRequest.branch_id.
      * @throws {RequiredError}
      * @memberof WorkflowStepsApiInterface
      */
-    workflowStepsServiceDisconnectStepRequestOpts(requestParameters: WorkflowStepsServiceDisconnectStepRequest): Promise<runtime.RequestOpts>;
+    workflowStepsServiceDisconnectRequestOpts(requestParameters: WorkflowStepsServiceDisconnectRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * Leaves the branch with no destination. Clearing a branch that is already clear succeeds. See ConnectStep for what a branch id is.  Requires the `workflows:write` scope.
+     * Leaves the branch with no destination. Clearing a branch that is already clear succeeds. See Connect for what a branch id is.  Requires the `workflows:write` scope.
      * @summary Clear one exit of a workflow step
      * @param {string} linkId The ID of the link (UUID)
      * @param {string} stepId The ID of the step the connection leaves from (UUID)
@@ -300,13 +300,13 @@ export interface WorkflowStepsApiInterface {
      * @throws {RequiredError}
      * @memberof WorkflowStepsApiInterface
      */
-    workflowStepsServiceDisconnectStepRaw(requestParameters: WorkflowStepsServiceDisconnectStepRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DisconnectWorkflowStepResponse>>;
+    workflowStepsServiceDisconnectRaw(requestParameters: WorkflowStepsServiceDisconnectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DisconnectWorkflowStepResponse>>;
 
     /**
-     * Leaves the branch with no destination. Clearing a branch that is already clear succeeds. See ConnectStep for what a branch id is.  Requires the `workflows:write` scope.
+     * Leaves the branch with no destination. Clearing a branch that is already clear succeeds. See Connect for what a branch id is.  Requires the `workflows:write` scope.
      * Clear one exit of a workflow step
      */
-    workflowStepsServiceDisconnectStep(requestParameters: WorkflowStepsServiceDisconnectStepRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DisconnectWorkflowStepResponse>;
+    workflowStepsServiceDisconnect(requestParameters: WorkflowStepsServiceDisconnectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DisconnectWorkflowStepResponse>;
 
     /**
      * Creates request options for workflowStepsServiceGet without sending the request
@@ -342,7 +342,7 @@ export interface WorkflowStepsApiInterface {
     workflowStepsServiceGetWalletPassSupportRequestOpts(): Promise<runtime.RequestOpts>;
 
     /**
-     * Tells which wallets a contact card\'s wallet pass option (wallet_pass_enabled) can currently add the card to. A wallet that is not available shows no button to visitors.  Requires the `workflows:read` scope.
+     * Tells which wallets a contact card\'s wallet pass option (walletPassEnabled) can currently add the card to. A wallet that is not available shows no button to visitors.  Requires the `workflows:read` scope.
      * @summary Get wallet pass support
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -351,7 +351,7 @@ export interface WorkflowStepsApiInterface {
     workflowStepsServiceGetWalletPassSupportRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetWalletPassSupportResponse>>;
 
     /**
-     * Tells which wallets a contact card\'s wallet pass option (wallet_pass_enabled) can currently add the card to. A wallet that is not available shows no button to visitors.  Requires the `workflows:read` scope.
+     * Tells which wallets a contact card\'s wallet pass option (walletPassEnabled) can currently add the card to. A wallet that is not available shows no button to visitors.  Requires the `workflows:read` scope.
      * Get wallet pass support
      */
     workflowStepsServiceGetWalletPassSupport(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetWalletPassSupportResponse>;
@@ -387,15 +387,15 @@ export interface WorkflowStepsApiInterface {
     workflowStepsServiceList(requestParameters: WorkflowStepsServiceListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListWorkflowStepsResponse>;
 
     /**
-     * Creates request options for workflowStepsServiceResolveStepCollisions without sending the request
+     * Creates request options for workflowStepsServiceResolveCollisions without sending the request
      * @param {string} linkId 
      * @param {string} stepId 
      * @param {object} body 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof WorkflowStepsApiInterface
      */
-    workflowStepsServiceResolveStepCollisionsRequestOpts(requestParameters: WorkflowStepsServiceResolveStepCollisionsRequest): Promise<runtime.RequestOpts>;
+    workflowStepsServiceResolveCollisionsRequestOpts(requestParameters: WorkflowStepsServiceResolveCollisionsRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Pushes overlapping steps away from a given anchor step using iterative radial repulsion. The anchor step stays fixed. Use after adding or moving individual steps to preserve the existing layout.  Requires the `workflows:write` scope.
@@ -403,25 +403,25 @@ export interface WorkflowStepsApiInterface {
      * @param {string} linkId 
      * @param {string} stepId 
      * @param {object} body 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorkflowStepsApiInterface
      */
-    workflowStepsServiceResolveStepCollisionsRaw(requestParameters: WorkflowStepsServiceResolveStepCollisionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResolveStepCollisionsResponse>>;
+    workflowStepsServiceResolveCollisionsRaw(requestParameters: WorkflowStepsServiceResolveCollisionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResolveStepCollisionsResponse>>;
 
     /**
      * Pushes overlapping steps away from a given anchor step using iterative radial repulsion. The anchor step stays fixed. Use after adding or moving individual steps to preserve the existing layout.  Requires the `workflows:write` scope.
      * Resolve step collisions
      */
-    workflowStepsServiceResolveStepCollisions(requestParameters: WorkflowStepsServiceResolveStepCollisionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResolveStepCollisionsResponse>;
+    workflowStepsServiceResolveCollisions(requestParameters: WorkflowStepsServiceResolveCollisionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResolveStepCollisionsResponse>;
 
     /**
      * Creates request options for workflowStepsServiceUpdate without sending the request
      * @param {string} linkId The ID of the link (UUID)
      * @param {string} id The ID of the workflow step to update (UUID)
      * @param {WorkflowStepsServiceUpdateBody} workflowStepsServiceUpdateBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof WorkflowStepsApiInterface
      */
@@ -433,7 +433,7 @@ export interface WorkflowStepsApiInterface {
      * @param {string} linkId The ID of the link (UUID)
      * @param {string} id The ID of the workflow step to update (UUID)
      * @param {WorkflowStepsServiceUpdateBody} workflowStepsServiceUpdateBody 
-     * @param {string} [idempotencyKey] Makes retrying this request safe. See components.parameters.IdempotencyKey.
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorkflowStepsApiInterface
@@ -455,7 +455,8 @@ export interface WorkflowStepsApiInterface {
     workflowStepsServiceValidateWorkflowRequestOpts(requestParameters: WorkflowStepsServiceValidateWorkflowRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * Requires the `workflows:read` scope.
+     * Check the link\'s workflow for problems before visitors meet them: a start (Link Visit) that leads nowhere, steps no path from the start reaches, and steps other than exits that lead nowhere. An empty list of issues means the workflow is sound.  Requires the `workflows:read` scope.
+     * @summary Validate a link\'s workflow
      * @param {string} linkId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -464,7 +465,8 @@ export interface WorkflowStepsApiInterface {
     workflowStepsServiceValidateWorkflowRaw(requestParameters: WorkflowStepsServiceValidateWorkflowRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ValidateWorkflowResponse>>;
 
     /**
-     * Requires the `workflows:read` scope.
+     * Check the link\'s workflow for problems before visitors meet them: a start (Link Visit) that leads nowhere, steps no path from the start reaches, and steps other than exits that lead nowhere. An empty list of issues means the workflow is sound.  Requires the `workflows:read` scope.
+     * Validate a link\'s workflow
      */
     workflowStepsServiceValidateWorkflow(requestParameters: WorkflowStepsServiceValidateWorkflowRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ValidateWorkflowResponse>;
 
@@ -550,13 +552,13 @@ export class WorkflowStepsApi extends runtime.BaseAPI implements WorkflowStepsAp
     }
 
     /**
-     * Creates request options for workflowStepsServiceBulkInsertWorkflowStep without sending the request
+     * Creates request options for workflowStepsServiceBulkInsert without sending the request
      */
-    async workflowStepsServiceBulkInsertWorkflowStepRequestOpts(requestParameters: WorkflowStepsServiceBulkInsertWorkflowStepRequest): Promise<runtime.RequestOpts> {
+    async workflowStepsServiceBulkInsertRequestOpts(requestParameters: WorkflowStepsServiceBulkInsertRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['bulkInsertWorkflowStepRequest'] == null) {
             throw new runtime.RequiredError(
                 'bulkInsertWorkflowStepRequest',
-                'Required parameter "bulkInsertWorkflowStepRequest" was null or undefined when calling workflowStepsServiceBulkInsertWorkflowStep().'
+                'Required parameter "bulkInsertWorkflowStepRequest" was null or undefined when calling workflowStepsServiceBulkInsert().'
             );
         }
 
@@ -599,8 +601,8 @@ export class WorkflowStepsApi extends runtime.BaseAPI implements WorkflowStepsAp
      * Inserts the same step, usually a condition, into the workflow of up to 50 links, named by id or short link. Each link succeeds or fails on its own: read the result of each one. Calling again for a link that succeeded inserts a second step. A link with BULK_EDIT_NOT_STARTED was left untouched because the call ran out of time: send those again in a new call.  Requires the `workflows:write` scope.
      * Insert one step into many links\' workflows
      */
-    async workflowStepsServiceBulkInsertWorkflowStepRaw(requestParameters: WorkflowStepsServiceBulkInsertWorkflowStepRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BulkInsertWorkflowStepResponse>> {
-        const requestOptions = await this.workflowStepsServiceBulkInsertWorkflowStepRequestOpts(requestParameters);
+    async workflowStepsServiceBulkInsertRaw(requestParameters: WorkflowStepsServiceBulkInsertRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BulkInsertWorkflowStepResponse>> {
+        const requestOptions = await this.workflowStepsServiceBulkInsertRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => BulkInsertWorkflowStepResponseFromJSON(jsonValue));
@@ -610,40 +612,40 @@ export class WorkflowStepsApi extends runtime.BaseAPI implements WorkflowStepsAp
      * Inserts the same step, usually a condition, into the workflow of up to 50 links, named by id or short link. Each link succeeds or fails on its own: read the result of each one. Calling again for a link that succeeded inserts a second step. A link with BULK_EDIT_NOT_STARTED was left untouched because the call ran out of time: send those again in a new call.  Requires the `workflows:write` scope.
      * Insert one step into many links\' workflows
      */
-    async workflowStepsServiceBulkInsertWorkflowStep(requestParameters: WorkflowStepsServiceBulkInsertWorkflowStepRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BulkInsertWorkflowStepResponse> {
-        const response = await this.workflowStepsServiceBulkInsertWorkflowStepRaw(requestParameters, initOverrides);
+    async workflowStepsServiceBulkInsert(requestParameters: WorkflowStepsServiceBulkInsertRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BulkInsertWorkflowStepResponse> {
+        const response = await this.workflowStepsServiceBulkInsertRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Creates request options for workflowStepsServiceConnectStep without sending the request
+     * Creates request options for workflowStepsServiceConnect without sending the request
      */
-    async workflowStepsServiceConnectStepRequestOpts(requestParameters: WorkflowStepsServiceConnectStepRequest): Promise<runtime.RequestOpts> {
+    async workflowStepsServiceConnectRequestOpts(requestParameters: WorkflowStepsServiceConnectRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['linkId'] == null) {
             throw new runtime.RequiredError(
                 'linkId',
-                'Required parameter "linkId" was null or undefined when calling workflowStepsServiceConnectStep().'
+                'Required parameter "linkId" was null or undefined when calling workflowStepsServiceConnect().'
             );
         }
 
         if (requestParameters['stepId'] == null) {
             throw new runtime.RequiredError(
                 'stepId',
-                'Required parameter "stepId" was null or undefined when calling workflowStepsServiceConnectStep().'
+                'Required parameter "stepId" was null or undefined when calling workflowStepsServiceConnect().'
             );
         }
 
         if (requestParameters['branchId'] == null) {
             throw new runtime.RequiredError(
                 'branchId',
-                'Required parameter "branchId" was null or undefined when calling workflowStepsServiceConnectStep().'
+                'Required parameter "branchId" was null or undefined when calling workflowStepsServiceConnect().'
             );
         }
 
-        if (requestParameters['workflowStepsServiceConnectStepBody'] == null) {
+        if (requestParameters['workflowStepsServiceConnectBody'] == null) {
             throw new runtime.RequiredError(
-                'workflowStepsServiceConnectStepBody',
-                'Required parameter "workflowStepsServiceConnectStepBody" was null or undefined when calling workflowStepsServiceConnectStep().'
+                'workflowStepsServiceConnectBody',
+                'Required parameter "workflowStepsServiceConnectBody" was null or undefined when calling workflowStepsServiceConnect().'
             );
         }
 
@@ -681,7 +683,7 @@ export class WorkflowStepsApi extends runtime.BaseAPI implements WorkflowStepsAp
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
-            body: WorkflowStepsServiceConnectStepBodyToJSON(requestParameters['workflowStepsServiceConnectStepBody']),
+            body: WorkflowStepsServiceConnectBodyToJSON(requestParameters['workflowStepsServiceConnectBody']),
         };
     }
 
@@ -689,8 +691,8 @@ export class WorkflowStepsApi extends runtime.BaseAPI implements WorkflowStepsAp
      * Every workflow step is connected the same way: name the branch it leaves from, and the step it leads to.  Atomic steps (redirect, password, form, message page) have exactly one branch, \"next\". Composite steps (multi-link, conditions) have one branch per button, option or range, plus \"else\" for a condition\'s fallback. Exit steps end the journey and have no branches at all.  Read a step to see its branches, their ids and their current destinations. Idempotent: connecting a branch to the step it already leads to is a no-op.  Requires the `workflows:write` scope.
      * Connect one exit of a workflow step to another step
      */
-    async workflowStepsServiceConnectStepRaw(requestParameters: WorkflowStepsServiceConnectStepRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ConnectWorkflowStepResponse>> {
-        const requestOptions = await this.workflowStepsServiceConnectStepRequestOpts(requestParameters);
+    async workflowStepsServiceConnectRaw(requestParameters: WorkflowStepsServiceConnectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ConnectWorkflowStepResponse>> {
+        const requestOptions = await this.workflowStepsServiceConnectRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ConnectWorkflowStepResponseFromJSON(jsonValue));
@@ -700,8 +702,8 @@ export class WorkflowStepsApi extends runtime.BaseAPI implements WorkflowStepsAp
      * Every workflow step is connected the same way: name the branch it leaves from, and the step it leads to.  Atomic steps (redirect, password, form, message page) have exactly one branch, \"next\". Composite steps (multi-link, conditions) have one branch per button, option or range, plus \"else\" for a condition\'s fallback. Exit steps end the journey and have no branches at all.  Read a step to see its branches, their ids and their current destinations. Idempotent: connecting a branch to the step it already leads to is a no-op.  Requires the `workflows:write` scope.
      * Connect one exit of a workflow step to another step
      */
-    async workflowStepsServiceConnectStep(requestParameters: WorkflowStepsServiceConnectStepRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ConnectWorkflowStepResponse> {
-        const response = await this.workflowStepsServiceConnectStepRaw(requestParameters, initOverrides);
+    async workflowStepsServiceConnect(requestParameters: WorkflowStepsServiceConnectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ConnectWorkflowStepResponse> {
+        const response = await this.workflowStepsServiceConnectRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -848,27 +850,27 @@ export class WorkflowStepsApi extends runtime.BaseAPI implements WorkflowStepsAp
     }
 
     /**
-     * Creates request options for workflowStepsServiceDisconnectStep without sending the request
+     * Creates request options for workflowStepsServiceDisconnect without sending the request
      */
-    async workflowStepsServiceDisconnectStepRequestOpts(requestParameters: WorkflowStepsServiceDisconnectStepRequest): Promise<runtime.RequestOpts> {
+    async workflowStepsServiceDisconnectRequestOpts(requestParameters: WorkflowStepsServiceDisconnectRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['linkId'] == null) {
             throw new runtime.RequiredError(
                 'linkId',
-                'Required parameter "linkId" was null or undefined when calling workflowStepsServiceDisconnectStep().'
+                'Required parameter "linkId" was null or undefined when calling workflowStepsServiceDisconnect().'
             );
         }
 
         if (requestParameters['stepId'] == null) {
             throw new runtime.RequiredError(
                 'stepId',
-                'Required parameter "stepId" was null or undefined when calling workflowStepsServiceDisconnectStep().'
+                'Required parameter "stepId" was null or undefined when calling workflowStepsServiceDisconnect().'
             );
         }
 
         if (requestParameters['branchId'] == null) {
             throw new runtime.RequiredError(
                 'branchId',
-                'Required parameter "branchId" was null or undefined when calling workflowStepsServiceDisconnectStep().'
+                'Required parameter "branchId" was null or undefined when calling workflowStepsServiceDisconnect().'
             );
         }
 
@@ -904,22 +906,22 @@ export class WorkflowStepsApi extends runtime.BaseAPI implements WorkflowStepsAp
     }
 
     /**
-     * Leaves the branch with no destination. Clearing a branch that is already clear succeeds. See ConnectStep for what a branch id is.  Requires the `workflows:write` scope.
+     * Leaves the branch with no destination. Clearing a branch that is already clear succeeds. See Connect for what a branch id is.  Requires the `workflows:write` scope.
      * Clear one exit of a workflow step
      */
-    async workflowStepsServiceDisconnectStepRaw(requestParameters: WorkflowStepsServiceDisconnectStepRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DisconnectWorkflowStepResponse>> {
-        const requestOptions = await this.workflowStepsServiceDisconnectStepRequestOpts(requestParameters);
+    async workflowStepsServiceDisconnectRaw(requestParameters: WorkflowStepsServiceDisconnectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DisconnectWorkflowStepResponse>> {
+        const requestOptions = await this.workflowStepsServiceDisconnectRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => DisconnectWorkflowStepResponseFromJSON(jsonValue));
     }
 
     /**
-     * Leaves the branch with no destination. Clearing a branch that is already clear succeeds. See ConnectStep for what a branch id is.  Requires the `workflows:write` scope.
+     * Leaves the branch with no destination. Clearing a branch that is already clear succeeds. See Connect for what a branch id is.  Requires the `workflows:write` scope.
      * Clear one exit of a workflow step
      */
-    async workflowStepsServiceDisconnectStep(requestParameters: WorkflowStepsServiceDisconnectStepRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DisconnectWorkflowStepResponse> {
-        const response = await this.workflowStepsServiceDisconnectStepRaw(requestParameters, initOverrides);
+    async workflowStepsServiceDisconnect(requestParameters: WorkflowStepsServiceDisconnectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DisconnectWorkflowStepResponse> {
+        const response = await this.workflowStepsServiceDisconnectRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -1024,7 +1026,7 @@ export class WorkflowStepsApi extends runtime.BaseAPI implements WorkflowStepsAp
     }
 
     /**
-     * Tells which wallets a contact card\'s wallet pass option (wallet_pass_enabled) can currently add the card to. A wallet that is not available shows no button to visitors.  Requires the `workflows:read` scope.
+     * Tells which wallets a contact card\'s wallet pass option (walletPassEnabled) can currently add the card to. A wallet that is not available shows no button to visitors.  Requires the `workflows:read` scope.
      * Get wallet pass support
      */
     async workflowStepsServiceGetWalletPassSupportRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetWalletPassSupportResponse>> {
@@ -1035,7 +1037,7 @@ export class WorkflowStepsApi extends runtime.BaseAPI implements WorkflowStepsAp
     }
 
     /**
-     * Tells which wallets a contact card\'s wallet pass option (wallet_pass_enabled) can currently add the card to. A wallet that is not available shows no button to visitors.  Requires the `workflows:read` scope.
+     * Tells which wallets a contact card\'s wallet pass option (walletPassEnabled) can currently add the card to. A wallet that is not available shows no button to visitors.  Requires the `workflows:read` scope.
      * Get wallet pass support
      */
     async workflowStepsServiceGetWalletPassSupport(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetWalletPassSupportResponse> {
@@ -1116,27 +1118,27 @@ export class WorkflowStepsApi extends runtime.BaseAPI implements WorkflowStepsAp
     }
 
     /**
-     * Creates request options for workflowStepsServiceResolveStepCollisions without sending the request
+     * Creates request options for workflowStepsServiceResolveCollisions without sending the request
      */
-    async workflowStepsServiceResolveStepCollisionsRequestOpts(requestParameters: WorkflowStepsServiceResolveStepCollisionsRequest): Promise<runtime.RequestOpts> {
+    async workflowStepsServiceResolveCollisionsRequestOpts(requestParameters: WorkflowStepsServiceResolveCollisionsRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['linkId'] == null) {
             throw new runtime.RequiredError(
                 'linkId',
-                'Required parameter "linkId" was null or undefined when calling workflowStepsServiceResolveStepCollisions().'
+                'Required parameter "linkId" was null or undefined when calling workflowStepsServiceResolveCollisions().'
             );
         }
 
         if (requestParameters['stepId'] == null) {
             throw new runtime.RequiredError(
                 'stepId',
-                'Required parameter "stepId" was null or undefined when calling workflowStepsServiceResolveStepCollisions().'
+                'Required parameter "stepId" was null or undefined when calling workflowStepsServiceResolveCollisions().'
             );
         }
 
         if (requestParameters['body'] == null) {
             throw new runtime.RequiredError(
                 'body',
-                'Required parameter "body" was null or undefined when calling workflowStepsServiceResolveStepCollisions().'
+                'Required parameter "body" was null or undefined when calling workflowStepsServiceResolveCollisions().'
             );
         }
 
@@ -1181,8 +1183,8 @@ export class WorkflowStepsApi extends runtime.BaseAPI implements WorkflowStepsAp
      * Pushes overlapping steps away from a given anchor step using iterative radial repulsion. The anchor step stays fixed. Use after adding or moving individual steps to preserve the existing layout.  Requires the `workflows:write` scope.
      * Resolve step collisions
      */
-    async workflowStepsServiceResolveStepCollisionsRaw(requestParameters: WorkflowStepsServiceResolveStepCollisionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResolveStepCollisionsResponse>> {
-        const requestOptions = await this.workflowStepsServiceResolveStepCollisionsRequestOpts(requestParameters);
+    async workflowStepsServiceResolveCollisionsRaw(requestParameters: WorkflowStepsServiceResolveCollisionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResolveStepCollisionsResponse>> {
+        const requestOptions = await this.workflowStepsServiceResolveCollisionsRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ResolveStepCollisionsResponseFromJSON(jsonValue));
@@ -1192,8 +1194,8 @@ export class WorkflowStepsApi extends runtime.BaseAPI implements WorkflowStepsAp
      * Pushes overlapping steps away from a given anchor step using iterative radial repulsion. The anchor step stays fixed. Use after adding or moving individual steps to preserve the existing layout.  Requires the `workflows:write` scope.
      * Resolve step collisions
      */
-    async workflowStepsServiceResolveStepCollisions(requestParameters: WorkflowStepsServiceResolveStepCollisionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResolveStepCollisionsResponse> {
-        const response = await this.workflowStepsServiceResolveStepCollisionsRaw(requestParameters, initOverrides);
+    async workflowStepsServiceResolveCollisions(requestParameters: WorkflowStepsServiceResolveCollisionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResolveStepCollisionsResponse> {
+        const response = await this.workflowStepsServiceResolveCollisionsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -1320,7 +1322,8 @@ export class WorkflowStepsApi extends runtime.BaseAPI implements WorkflowStepsAp
     }
 
     /**
-     * Requires the `workflows:read` scope.
+     * Check the link\'s workflow for problems before visitors meet them: a start (Link Visit) that leads nowhere, steps no path from the start reaches, and steps other than exits that lead nowhere. An empty list of issues means the workflow is sound.  Requires the `workflows:read` scope.
+     * Validate a link\'s workflow
      */
     async workflowStepsServiceValidateWorkflowRaw(requestParameters: WorkflowStepsServiceValidateWorkflowRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ValidateWorkflowResponse>> {
         const requestOptions = await this.workflowStepsServiceValidateWorkflowRequestOpts(requestParameters);
@@ -1330,7 +1333,8 @@ export class WorkflowStepsApi extends runtime.BaseAPI implements WorkflowStepsAp
     }
 
     /**
-     * Requires the `workflows:read` scope.
+     * Check the link\'s workflow for problems before visitors meet them: a start (Link Visit) that leads nowhere, steps no path from the start reaches, and steps other than exits that lead nowhere. An empty list of issues means the workflow is sound.  Requires the `workflows:read` scope.
+     * Validate a link\'s workflow
      */
     async workflowStepsServiceValidateWorkflow(requestParameters: WorkflowStepsServiceValidateWorkflowRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ValidateWorkflowResponse> {
         const response = await this.workflowStepsServiceValidateWorkflowRaw(requestParameters, initOverrides);
