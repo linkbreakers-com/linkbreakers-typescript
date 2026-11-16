@@ -11,7 +11,6 @@ src/apis/IntegrationsApi.ts
 src/apis/IntegrationsContactToolsApi.ts
 src/apis/IntegrationsFormsApi.ts
 src/apis/IntegrationsGoogleAnalyticsApi.ts
-src/apis/IntegrationsGoogleFormsApi.ts
 src/apis/IntegrationsRetargetingPixelsApi.ts
 src/apis/IntegrationsSlackApi.ts
 src/apis/JobsApi.ts
@@ -271,6 +270,7 @@ src/models/FormConnectionStatus.ts
 src/models/FormField.ts
 src/models/FormFieldOption.ts
 src/models/FormFieldType.ts
+src/models/FormIntegrationsServiceChooseFormLinkBody.ts
 src/models/FormIntegrationsServiceCompleteOAuthBody.ts
 src/models/FormIntegrationsServiceConnectBody.ts
 src/models/FormIntegrationsServiceUpdateBody.ts

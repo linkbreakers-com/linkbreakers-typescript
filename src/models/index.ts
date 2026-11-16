@@ -238,6 +238,7 @@ export * from './FormConnectionStatus';
 export * from './FormField';
 export * from './FormFieldOption';
 export * from './FormFieldType';
+export * from './FormIntegrationsServiceChooseFormLinkBody';
 export * from './FormIntegrationsServiceCompleteOAuthBody';
 export * from './FormIntegrationsServiceConnectBody';
 export * from './FormIntegrationsServiceUpdateBody';

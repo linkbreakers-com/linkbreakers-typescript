@@ -11,7 +11,6 @@ export * from './IntegrationsApi';
 export * from './IntegrationsContactToolsApi';
 export * from './IntegrationsFormsApi';
 export * from './IntegrationsGoogleAnalyticsApi';
-export * from './IntegrationsGoogleFormsApi';
 export * from './IntegrationsRetargetingPixelsApi';
 export * from './IntegrationsSlackApi';
 export * from './JobsApi';
