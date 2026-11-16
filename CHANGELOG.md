@@ -1,5 +1,22 @@
 # Changelog
 
+## Next release after 1.200.0 (2026-11-16): files are uploaded, never sent in a request
+
+Breaking for code sending a file in a request. Versions follow the API's
+version.
+
+A file reaches Linkbreakers one way: uploaded straight to storage, which gives
+a media id, and every field that takes a file takes that id. Removed, with no
+outside caller in the last 14 days:
+
+| Removed | Use instead |
+|---|---|
+| `MediaApi.mediaServiceCreate` (and `CreateMediaRequest`, `CreateMediaResponse`) (`POST /v1/media`, the file base64 in the request) | `mediaServiceCreateUpload`, a PUT to `uploadUrl`, then `mediaServiceCompleteUpload` |
+| `centralImageData` on QR code design create and update (the logo base64) | `centralImageMediaId`: an image of your media library on update; a public upload on create |
+
+Added: `mediaServiceCreatePublicUpload` and `mediaServiceCompletePublicUpload` (`POST /v1/media/public-uploads`, no token), the logo upload for
+a QR code design created without a token.
+
 ## Next release after 1.200.0 (2026-11-16): four operations join the section they belong to
 
 Breaking for code calling the four operations below. Versions follow the
