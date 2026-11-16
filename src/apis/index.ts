@@ -18,7 +18,6 @@ export * from './MediaApi';
 export * from './MembersApi';
 export * from './PageThemeTemplatesApi';
 export * from './PageThemesApi';
-export * from './PlanUsageApi';
 export * from './PricingApi';
 export * from './QRCodeDesignsApi';
 export * from './QRCodeTemplatesApi';

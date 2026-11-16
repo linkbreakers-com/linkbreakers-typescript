@@ -4,7 +4,7 @@
  * Linkbreakers API
  * The Linkbreakers REST API: links, QR codes, workflows, visitors and analytics, as JSON over HTTPS. Send a workspace API token as `Authorization: Bearer <token>`.  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Paused workspaces  A free workspace whose members have not verified any email address is paused 7 days after sign-up. Its calls then answer `403` with the code `WORKSPACE_UNVERIFIED` and change nothing; QR codes and links keep working for visitors. To lift the pause, ask the workspace owner to verify their email: `POST /v1/members/email-verification` sends the verification email again, and works while the workspace is paused. `unverifiedPauseAt` on the workspace says when the pause starts.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  A renamed operation keeps answering its former path while clients still call it, until that path\'s sunset at the latest: a former path no client calls for 14 days is removed. Responses on a former path carry the same `Deprecation`, `Sunset` and `Link` header fields; this document lists only the current path, and the policy lists the former paths that still answer.  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
  *
- * The version of the OpenAPI document: 1.200.1
+ * The version of the OpenAPI document: 1.200.2
  * 
  *
  * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
@@ -13,131 +13,104 @@
  */
 
 import { mapValues } from '../runtime';
-import type { MediaType } from './MediaType';
+import type { PlanLimit } from './PlanLimit';
 import {
-    MediaTypeFromJSON,
-    MediaTypeFromJSONTyped,
-    MediaTypeToJSON,
-    MediaTypeToJSONTyped,
-} from './MediaType';
-import type { MediaUsage } from './MediaUsage';
+    PlanLimitFromJSON,
+    PlanLimitFromJSONTyped,
+    PlanLimitToJSON,
+    PlanLimitToJSONTyped,
+} from './PlanLimit';
+import type { WorkspaceAllowance } from './WorkspaceAllowance';
 import {
-    MediaUsageFromJSON,
-    MediaUsageFromJSONTyped,
-    MediaUsageToJSON,
-    MediaUsageToJSONTyped,
-} from './MediaUsage';
-import type { MediaUploadOrigin } from './MediaUploadOrigin';
-import {
-    MediaUploadOriginFromJSON,
-    MediaUploadOriginFromJSONTyped,
-    MediaUploadOriginToJSON,
-    MediaUploadOriginToJSONTyped,
-} from './MediaUploadOrigin';
-import type { MediaVisibility } from './MediaVisibility';
-import {
-    MediaVisibilityFromJSON,
-    MediaVisibilityFromJSONTyped,
-    MediaVisibilityToJSON,
-    MediaVisibilityToJSONTyped,
-} from './MediaVisibility';
+    WorkspaceAllowanceFromJSON,
+    WorkspaceAllowanceFromJSONTyped,
+    WorkspaceAllowanceToJSON,
+    WorkspaceAllowanceToJSONTyped,
+} from './WorkspaceAllowance';
 
 /**
- * 
+ * What the workspace has used of each limit its plan sets.
  * @export
- * @interface CreateMediaRequest
+ * @interface WorkspaceUsage
  */
-export interface CreateMediaRequest {
-    /**
-     * The file data to upload, at most 3 MB. It must be transmitted in a base64 string format when sending it through HTTP. Accepted formats are PNG, JPEG, WebP and SVG images, PDF documents and MP4 videos. Larger files go through CreateUpload.
-     * @type {string}
-     * @memberof CreateMediaRequest
-     */
-    fileData?: string;
+export interface WorkspaceUsage {
     /**
      * 
-     * @type {string}
-     * @memberof CreateMediaRequest
+     * @type {Array<WorkspaceAllowance>}
+     * @memberof WorkspaceUsage
      */
-    fileName?: string;
+    allowances?: Array<WorkspaceAllowance>;
     /**
-     * Deprecated: an upload no longer needs to say what the media is for. Optional, accepted for
-     * compatibility and recorded as uploadedFrom when uploadedFrom is not set; never validated against.
-     * @type {MediaType}
-     * @memberof CreateMediaRequest
+     * Every limit this workspace is allowed, as enforced for its subscription, including the ones not counted per cycle such as webhooks and the Assistant rate. A trial or sponsored workspace can be allowed less than the plan it reports, and these are what it gets.
+     * @type {Array<PlanLimit>}
+     * @memberof WorkspaceUsage
      */
-    mediaType?: MediaType;
+    limits?: Array<PlanLimit>;
     /**
-     * Where the media was uploaded from, so pickers can show a section's own uploads first. It does not
-     * limit where the media can be used; see references for where it is used. Unset means
-     * UPLOAD_ORIGIN_MEDIA_LIBRARY.
-     * @type {MediaUploadOrigin}
-     * @memberof CreateMediaRequest
-     */
-    uploadedFrom?: MediaUploadOrigin;
-    /**
-     * Deprecated: an upload no longer needs to say what the media is for, and this no longer limits the
-     * kinds or sizes accepted. Optional, accepted for compatibility and recorded as uploadedFrom when
-     * uploadedFrom is not set.
-     * @type {MediaUsage}
-     * @memberof CreateMediaRequest
-     */
-    usage?: MediaUsage;
-    /**
-     * The visibility of the media.
+     * The plan the limits come from. A trial or sponsored workspace reports the plan it is allowed what of.
      * 
-     * If not provided, the media file will be private.
-     * @type {MediaVisibility}
-     * @memberof CreateMediaRequest
+     * - PRICING_PLAN_ID_UNSPECIFIED: Not set
+     *  - PRICING_PLAN_ID_FREE: Free plan, no payment
+     *  - PRICING_PLAN_ID_LIGHT: Light plan
+     *  - PRICING_PLAN_ID_PRO: Pro plan. Trials and sponsored workspaces are allowed what Pro allows unless a limit says otherwise.
+     *  - PRICING_PLAN_ID_ENTERPRISE: Enterprise plan, billed on usage and priced on request through sales
+     * @type {WorkspaceUsagePlanEnum}
+     * @memberof WorkspaceUsage
      */
-    visibility?: MediaVisibility;
+    plan?: WorkspaceUsagePlanEnum;
 }
 
 
+/**
+ * @export
+ */
+export const WorkspaceUsagePlanEnum = {
+    PricingPlanIdUnspecified: 'PRICING_PLAN_ID_UNSPECIFIED',
+    PricingPlanIdFree: 'PRICING_PLAN_ID_FREE',
+    PricingPlanIdLight: 'PRICING_PLAN_ID_LIGHT',
+    PricingPlanIdPro: 'PRICING_PLAN_ID_PRO',
+    PricingPlanIdEnterprise: 'PRICING_PLAN_ID_ENTERPRISE'
+} as const;
+export type WorkspaceUsagePlanEnum = typeof WorkspaceUsagePlanEnum[keyof typeof WorkspaceUsagePlanEnum];
+
 
 /**
- * Check if a given object implements the CreateMediaRequest interface.
+ * Check if a given object implements the WorkspaceUsage interface.
  */
-export function instanceOfCreateMediaRequest(value: object): value is CreateMediaRequest {
+export function instanceOfWorkspaceUsage(value: object): value is WorkspaceUsage {
     return true;
 }
 
-export function CreateMediaRequestFromJSON(json: any): CreateMediaRequest {
-    return CreateMediaRequestFromJSONTyped(json, false);
+export function WorkspaceUsageFromJSON(json: any): WorkspaceUsage {
+    return WorkspaceUsageFromJSONTyped(json, false);
 }
 
-export function CreateMediaRequestFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateMediaRequest {
+export function WorkspaceUsageFromJSONTyped(json: any, ignoreDiscriminator: boolean): WorkspaceUsage {
     if (json == null) {
         return json;
     }
     return {
         
-        'fileData': json['fileData'] == null ? undefined : json['fileData'],
-        'fileName': json['fileName'] == null ? undefined : json['fileName'],
-        'mediaType': json['mediaType'] == null ? undefined : MediaTypeFromJSON(json['mediaType']),
-        'uploadedFrom': json['uploadedFrom'] == null ? undefined : MediaUploadOriginFromJSON(json['uploadedFrom']),
-        'usage': json['usage'] == null ? undefined : MediaUsageFromJSON(json['usage']),
-        'visibility': json['visibility'] == null ? undefined : MediaVisibilityFromJSON(json['visibility']),
+        'allowances': json['allowances'] == null ? undefined : ((json['allowances'] as Array<any>).map(WorkspaceAllowanceFromJSON)),
+        'limits': json['limits'] == null ? undefined : ((json['limits'] as Array<any>).map(PlanLimitFromJSON)),
+        'plan': json['plan'] == null ? undefined : json['plan'],
     };
 }
 
-export function CreateMediaRequestToJSON(json: any): CreateMediaRequest {
-    return CreateMediaRequestToJSONTyped(json, false);
+export function WorkspaceUsageToJSON(json: any): WorkspaceUsage {
+    return WorkspaceUsageToJSONTyped(json, false);
 }
 
-export function CreateMediaRequestToJSONTyped(value?: CreateMediaRequest | null, ignoreDiscriminator: boolean = false): any {
+export function WorkspaceUsageToJSONTyped(value?: WorkspaceUsage | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'fileData': value['fileData'],
-        'fileName': value['fileName'],
-        'mediaType': MediaTypeToJSON(value['mediaType']),
-        'uploadedFrom': MediaUploadOriginToJSON(value['uploadedFrom']),
-        'usage': MediaUsageToJSON(value['usage']),
-        'visibility': MediaVisibilityToJSON(value['visibility']),
+        'allowances': value['allowances'] == null ? undefined : ((value['allowances'] as Array<any>).map(WorkspaceAllowanceToJSON)),
+        'limits': value['limits'] == null ? undefined : ((value['limits'] as Array<any>).map(PlanLimitToJSON)),
+        'plan': value['plan'],
     };
 }
 

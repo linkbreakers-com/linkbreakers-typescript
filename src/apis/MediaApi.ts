@@ -4,7 +4,7 @@
  * Linkbreakers API
  * The Linkbreakers REST API: links, QR codes, workflows, visitors and analytics, as JSON over HTTPS. Send a workspace API token as `Authorization: Bearer <token>`.  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a job and a `Location` header; poll `GET /v1/jobs/{id}` until `status` is `JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `JOB_STATUS_FAILED` (`error` says why, and nothing was created). Jobs can be read for 24 hours after they finish.  ## Paused workspaces  A free workspace whose members have not verified any email address is paused 7 days after sign-up. Its calls then answer `403` with the code `WORKSPACE_UNVERIFIED` and change nothing; QR codes and links keep working for visitors. To lift the pause, ask the workspace owner to verify their email: `POST /v1/members/email-verification` sends the verification email again, and works while the workspace is paused. `unverifiedPauseAt` on the workspace says when the pause starts.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  A renamed operation keeps answering its former path while clients still call it, until that path\'s sunset at the latest: a former path no client calls for 14 days is removed. Responses on a former path carry the same `Deprecation`, `Sunset` and `Link` header fields; this document lists only the current path, and the policy lists the former paths that still answer.  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
  *
- * The version of the OpenAPI document: 1.200.1
+ * The version of the OpenAPI document: 1.200.2
  * 
  *
  * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
@@ -17,11 +17,12 @@ import * as runtime from '../runtime';
 import type {
   CompleteMediaReplaceResponse,
   CompleteMediaUploadResponse,
+  CompletePublicMediaUploadResponse,
   CreateMediaReplaceUploadResponse,
-  CreateMediaRequest,
-  CreateMediaResponse,
   CreateMediaUploadRequest,
   CreateMediaUploadResponse,
+  CreatePublicMediaUploadRequest,
+  CreatePublicMediaUploadResponse,
   ErrorResponse,
   GetMediaResponse,
   ImportMediaRequest,
@@ -36,16 +37,18 @@ import {
     CompleteMediaReplaceResponseToJSON,
     CompleteMediaUploadResponseFromJSON,
     CompleteMediaUploadResponseToJSON,
+    CompletePublicMediaUploadResponseFromJSON,
+    CompletePublicMediaUploadResponseToJSON,
     CreateMediaReplaceUploadResponseFromJSON,
     CreateMediaReplaceUploadResponseToJSON,
-    CreateMediaRequestFromJSON,
-    CreateMediaRequestToJSON,
-    CreateMediaResponseFromJSON,
-    CreateMediaResponseToJSON,
     CreateMediaUploadRequestFromJSON,
     CreateMediaUploadRequestToJSON,
     CreateMediaUploadResponseFromJSON,
     CreateMediaUploadResponseToJSON,
+    CreatePublicMediaUploadRequestFromJSON,
+    CreatePublicMediaUploadRequestToJSON,
+    CreatePublicMediaUploadResponseFromJSON,
+    CreatePublicMediaUploadResponseToJSON,
     ErrorResponseFromJSON,
     ErrorResponseToJSON,
     GetMediaResponseFromJSON,
@@ -64,6 +67,12 @@ import {
     ReplaceMediaImportResponseToJSON,
 } from '../models/index';
 
+export interface MediaServiceCompletePublicUploadRequest {
+    id: string;
+    body: object;
+    idempotencyKey?: string;
+}
+
 export interface MediaServiceCompleteReplaceRequest {
     id: string;
     replacementId: string;
@@ -77,8 +86,8 @@ export interface MediaServiceCompleteUploadRequest {
     idempotencyKey?: string;
 }
 
-export interface MediaServiceCreateRequest {
-    createMediaRequest: CreateMediaRequest;
+export interface MediaServiceCreatePublicUploadRequest {
+    createPublicMediaUploadRequest: CreatePublicMediaUploadRequest;
     idempotencyKey?: string;
 }
 
@@ -129,6 +138,34 @@ export interface MediaServiceReplaceImportRequest {
  */
 export interface MediaApiInterface {
     /**
+     * Creates request options for mediaServiceCompletePublicUpload without sending the request
+     * @param {string} id The id of the pending public upload (UUID), from CreatePublicUpload
+     * @param {object} body 
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
+     * @throws {RequiredError}
+     * @memberof MediaApiInterface
+     */
+    mediaServiceCompletePublicUploadRequestOpts(requestParameters: MediaServiceCompletePublicUploadRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * Checks the image PUT to the uploadUrl of a public upload: its size, and its real format read from its first bytes. When it matches what CreatePublicUpload declared, the upload is ready to be a QR code design\'s centralImageMediaId within the hour. When it does not, it is discarded and the error says why; start a new upload. Completing an upload that is already ready returns it.
+     * @summary Complete a public QR code logo upload
+     * @param {string} id The id of the pending public upload (UUID), from CreatePublicUpload
+     * @param {object} body 
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof MediaApiInterface
+     */
+    mediaServiceCompletePublicUploadRaw(requestParameters: MediaServiceCompletePublicUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CompletePublicMediaUploadResponse>>;
+
+    /**
+     * Checks the image PUT to the uploadUrl of a public upload: its size, and its real format read from its first bytes. When it matches what CreatePublicUpload declared, the upload is ready to be a QR code design\'s centralImageMediaId within the hour. When it does not, it is discarded and the error says why; start a new upload. Completing an upload that is already ready returns it.
+     * Complete a public QR code logo upload
+     */
+    mediaServiceCompletePublicUpload(requestParameters: MediaServiceCompletePublicUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CompletePublicMediaUploadResponse>;
+
+    /**
      * Creates request options for mediaServiceCompleteReplace without sending the request
      * @param {string} id The ID of the media item whose file is replaced (UUID)
      * @param {string} replacementId The replacement\&#39;s id (UUID), from CreateReplaceUpload
@@ -170,7 +207,7 @@ export interface MediaApiInterface {
 
     /**
      * Checks the file PUT to the uploadUrl: its size, its real format read from its first bytes, and the storage allowance. When it matches what CreateUpload declared, the media becomes READY and is returned with a signed URL. When it does not, the file and the media are discarded and the error says why; start a new upload. Completing a media item that is already READY returns it.  The server always establishes the file\'s SHA-256 itself, from the checksum storage verified or by reading the file back. A file the workspace already holds is discarded with 409 MEDIA_ALREADY_EXISTS; the error\'s metadata names the existing media in existingMediaId and existingFileName. Use that media instead.  Requires the `media:write` scope.
-     * @summary Complete a direct media upload
+     * @summary Complete a media upload
      * @param {string} id The ID of the pending media item (UUID), from CreateUpload
      * @param {object} body 
      * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
@@ -182,35 +219,35 @@ export interface MediaApiInterface {
 
     /**
      * Checks the file PUT to the uploadUrl: its size, its real format read from its first bytes, and the storage allowance. When it matches what CreateUpload declared, the media becomes READY and is returned with a signed URL. When it does not, the file and the media are discarded and the error says why; start a new upload. Completing a media item that is already READY returns it.  The server always establishes the file\'s SHA-256 itself, from the checksum storage verified or by reading the file back. A file the workspace already holds is discarded with 409 MEDIA_ALREADY_EXISTS; the error\'s metadata names the existing media in existingMediaId and existingFileName. Use that media instead.  Requires the `media:write` scope.
-     * Complete a direct media upload
+     * Complete a media upload
      */
     mediaServiceCompleteUpload(requestParameters: MediaServiceCompleteUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CompleteMediaUploadResponse>;
 
     /**
-     * Creates request options for mediaServiceCreate without sending the request
-     * @param {CreateMediaRequest} createMediaRequest 
+     * Creates request options for mediaServiceCreatePublicUpload without sending the request
+     * @param {CreatePublicMediaUploadRequest} createPublicMediaUploadRequest 
      * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof MediaApiInterface
      */
-    mediaServiceCreateRequestOpts(requestParameters: MediaServiceCreateRequest): Promise<runtime.RequestOpts>;
+    mediaServiceCreatePublicUploadRequestOpts(requestParameters: MediaServiceCreatePublicUploadRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * Uploads a file sent in the request itself, base64 encoded over HTTP, up to 3 MB. Larger files (a PDF brochure, a video) are uploaded straight to storage instead: CreateUpload, a PUT of the file to the returned uploadUrl, then CompleteUpload. A media item only has a kind, read from its bytes: images (PNG, JPEG, WebP, SVG) up to 10 MB, PDF documents up to 25 MB and MP4 videos up to 50 MB. Nothing about where it will be used is needed at upload: any image can then be a QR code logo, a background cover, a badge or a footer logo (up to 3 MB for those), and any media can be opened by an Open media step.  A workspace holds each file once. A file whose bytes (SHA-256) match media the workspace already has is refused with 409 MEDIA_ALREADY_EXISTS; the error\'s metadata names that media in existingMediaId and existingFileName. Use that media instead of uploading the file again.  Requires the `media:write` scope.
-     * @summary Upload a media file
-     * @param {CreateMediaRequest} createMediaRequest 
+     * Uploads a QR code logo without an API token, for a QR code design created without one (POST /v1/qrcode-designs). It is the same flow as CreateUpload, outside any workspace: declare the image\'s name, MIME type (image/png, image/jpeg, image/webp or image/svg+xml) and exact size in bytes, at most 3 MB; PUT its bytes to uploadUrl with the uploadHeaders before uploadExpiresAt; then call CompletePublicUpload and pass the media id as the design\'s centralImageMediaId. Anything but an image of at most 3 MB is refused with MEDIA_NOT_ALLOWED_HERE.  A public upload belongs to no workspace, is never listed and can only be a design\'s logo. The design keeps its own copy of the image, and the upload itself is deleted an hour after it started, used or not. With an API token, upload with CreateUpload instead.
+     * @summary Start a public QR code logo upload
+     * @param {CreatePublicMediaUploadRequest} createPublicMediaUploadRequest 
      * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof MediaApiInterface
      */
-    mediaServiceCreateRaw(requestParameters: MediaServiceCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateMediaResponse>>;
+    mediaServiceCreatePublicUploadRaw(requestParameters: MediaServiceCreatePublicUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreatePublicMediaUploadResponse>>;
 
     /**
-     * Uploads a file sent in the request itself, base64 encoded over HTTP, up to 3 MB. Larger files (a PDF brochure, a video) are uploaded straight to storage instead: CreateUpload, a PUT of the file to the returned uploadUrl, then CompleteUpload. A media item only has a kind, read from its bytes: images (PNG, JPEG, WebP, SVG) up to 10 MB, PDF documents up to 25 MB and MP4 videos up to 50 MB. Nothing about where it will be used is needed at upload: any image can then be a QR code logo, a background cover, a badge or a footer logo (up to 3 MB for those), and any media can be opened by an Open media step.  A workspace holds each file once. A file whose bytes (SHA-256) match media the workspace already has is refused with 409 MEDIA_ALREADY_EXISTS; the error\'s metadata names that media in existingMediaId and existingFileName. Use that media instead of uploading the file again.  Requires the `media:write` scope.
-     * Upload a media file
+     * Uploads a QR code logo without an API token, for a QR code design created without one (POST /v1/qrcode-designs). It is the same flow as CreateUpload, outside any workspace: declare the image\'s name, MIME type (image/png, image/jpeg, image/webp or image/svg+xml) and exact size in bytes, at most 3 MB; PUT its bytes to uploadUrl with the uploadHeaders before uploadExpiresAt; then call CompletePublicUpload and pass the media id as the design\'s centralImageMediaId. Anything but an image of at most 3 MB is refused with MEDIA_NOT_ALLOWED_HERE.  A public upload belongs to no workspace, is never listed and can only be a design\'s logo. The design keeps its own copy of the image, and the upload itself is deleted an hour after it started, used or not. With an API token, upload with CreateUpload instead.
+     * Start a public QR code logo upload
      */
-    mediaServiceCreate(requestParameters: MediaServiceCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateMediaResponse>;
+    mediaServiceCreatePublicUpload(requestParameters: MediaServiceCreatePublicUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreatePublicMediaUploadResponse>;
 
     /**
      * Creates request options for mediaServiceCreateReplaceUpload without sending the request
@@ -250,8 +287,8 @@ export interface MediaApiInterface {
     mediaServiceCreateUploadRequestOpts(requestParameters: MediaServiceCreateUploadRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * Reserves a media item for a file uploaded straight to storage, so large files never pass through the API. Declare the file\'s name, MIME type and exact size in bytes; they are checked against the limit for the file\'s kind (images up to 10 MB, PDF documents up to 25 MB, MP4 videos up to 50 MB) and against the workspace\'s storage allowance now, and against the uploaded bytes on completion. Then PUT the file\'s bytes to uploadUrl with the uploadHeaders (and a Content-Length equal to size) before uploadExpiresAt, and call CompleteUpload. Until completed the media is PENDING: it is not listed and cannot be used. An upload not completed within an hour is discarded.  A workspace holds each file once. Optionally declare sha256, the file\'s SHA-256 as hex: a file the workspace already holds is then refused here, before any upload, with 409 MEDIA_ALREADY_EXISTS, whose metadata names that media in existingMediaId and existingFileName (use it instead), and storage refuses bytes that do not match the hash, so the PUT must send the x-amz-checksum-sha256 header from uploadHeaders. Without sha256 the duplicate is caught on completion instead.  Requires the `media:write` scope.
-     * @summary Start a direct media upload
+     * The one way to put a file into Linkbreakers: every field that takes a file (an Open media step, a QR code logo, a page theme\'s background cover, badge or footer logo) takes the id of media uploaded this way, never the file itself. The file goes straight to storage and never passes through the API.  Declare the file\'s name, MIME type and exact size in bytes; they are checked against the limit for the file\'s kind (images up to 10 MB, PDF documents up to 25 MB, MP4 videos up to 50 MB) and against the workspace\'s storage allowance now, and against the uploaded bytes on completion. Then PUT the file\'s bytes to uploadUrl with the uploadHeaders (and a Content-Length equal to size) before uploadExpiresAt, and call CompleteUpload. Until completed the media is PENDING: it is not listed and cannot be used. An upload not completed within an hour is discarded. A media item only has a kind, read from its bytes: nothing about where it will be used is needed at upload, and any image of at most 3 MB can then be a QR code logo, a background cover, a badge or a footer logo.  A workspace holds each file once. Optionally declare sha256, the file\'s SHA-256 as hex: a file the workspace already holds is then refused here, before any upload, with 409 MEDIA_ALREADY_EXISTS, whose metadata names that media in existingMediaId and existingFileName (use it instead), and storage refuses bytes that do not match the hash, so the PUT must send the x-amz-checksum-sha256 header from uploadHeaders. Without sha256 the duplicate is caught on completion instead.  Requires the `media:write` scope.
+     * @summary Start a media upload
      * @param {CreateMediaUploadRequest} createMediaUploadRequest 
      * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
@@ -261,8 +298,8 @@ export interface MediaApiInterface {
     mediaServiceCreateUploadRaw(requestParameters: MediaServiceCreateUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateMediaUploadResponse>>;
 
     /**
-     * Reserves a media item for a file uploaded straight to storage, so large files never pass through the API. Declare the file\'s name, MIME type and exact size in bytes; they are checked against the limit for the file\'s kind (images up to 10 MB, PDF documents up to 25 MB, MP4 videos up to 50 MB) and against the workspace\'s storage allowance now, and against the uploaded bytes on completion. Then PUT the file\'s bytes to uploadUrl with the uploadHeaders (and a Content-Length equal to size) before uploadExpiresAt, and call CompleteUpload. Until completed the media is PENDING: it is not listed and cannot be used. An upload not completed within an hour is discarded.  A workspace holds each file once. Optionally declare sha256, the file\'s SHA-256 as hex: a file the workspace already holds is then refused here, before any upload, with 409 MEDIA_ALREADY_EXISTS, whose metadata names that media in existingMediaId and existingFileName (use it instead), and storage refuses bytes that do not match the hash, so the PUT must send the x-amz-checksum-sha256 header from uploadHeaders. Without sha256 the duplicate is caught on completion instead.  Requires the `media:write` scope.
-     * Start a direct media upload
+     * The one way to put a file into Linkbreakers: every field that takes a file (an Open media step, a QR code logo, a page theme\'s background cover, badge or footer logo) takes the id of media uploaded this way, never the file itself. The file goes straight to storage and never passes through the API.  Declare the file\'s name, MIME type and exact size in bytes; they are checked against the limit for the file\'s kind (images up to 10 MB, PDF documents up to 25 MB, MP4 videos up to 50 MB) and against the workspace\'s storage allowance now, and against the uploaded bytes on completion. Then PUT the file\'s bytes to uploadUrl with the uploadHeaders (and a Content-Length equal to size) before uploadExpiresAt, and call CompleteUpload. Until completed the media is PENDING: it is not listed and cannot be used. An upload not completed within an hour is discarded. A media item only has a kind, read from its bytes: nothing about where it will be used is needed at upload, and any image of at most 3 MB can then be a QR code logo, a background cover, a badge or a footer logo.  A workspace holds each file once. Optionally declare sha256, the file\'s SHA-256 as hex: a file the workspace already holds is then refused here, before any upload, with 409 MEDIA_ALREADY_EXISTS, whose metadata names that media in existingMediaId and existingFileName (use it instead), and storage refuses bytes that do not match the hash, so the PUT must send the x-amz-checksum-sha256 header from uploadHeaders. Without sha256 the duplicate is caught on completion instead.  Requires the `media:write` scope.
+     * Start a media upload
      */
     mediaServiceCreateUpload(requestParameters: MediaServiceCreateUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateMediaUploadResponse>;
 
@@ -410,6 +447,67 @@ export interface MediaApiInterface {
 export class MediaApi extends runtime.BaseAPI implements MediaApiInterface {
 
     /**
+     * Creates request options for mediaServiceCompletePublicUpload without sending the request
+     */
+    async mediaServiceCompletePublicUploadRequestOpts(requestParameters: MediaServiceCompletePublicUploadRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['id'] == null) {
+            throw new runtime.RequiredError(
+                'id',
+                'Required parameter "id" was null or undefined when calling mediaServiceCompletePublicUpload().'
+            );
+        }
+
+        if (requestParameters['body'] == null) {
+            throw new runtime.RequiredError(
+                'body',
+                'Required parameter "body" was null or undefined when calling mediaServiceCompletePublicUpload().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['idempotencyKey'] != null) {
+            headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
+        }
+
+
+        let urlPath = `/v1/media/public-uploads/{id}:complete`;
+        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: requestParameters['body'] as any,
+        };
+    }
+
+    /**
+     * Checks the image PUT to the uploadUrl of a public upload: its size, and its real format read from its first bytes. When it matches what CreatePublicUpload declared, the upload is ready to be a QR code design\'s centralImageMediaId within the hour. When it does not, it is discarded and the error says why; start a new upload. Completing an upload that is already ready returns it.
+     * Complete a public QR code logo upload
+     */
+    async mediaServiceCompletePublicUploadRaw(requestParameters: MediaServiceCompletePublicUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CompletePublicMediaUploadResponse>> {
+        const requestOptions = await this.mediaServiceCompletePublicUploadRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => CompletePublicMediaUploadResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Checks the image PUT to the uploadUrl of a public upload: its size, and its real format read from its first bytes. When it matches what CreatePublicUpload declared, the upload is ready to be a QR code design\'s centralImageMediaId within the hour. When it does not, it is discarded and the error says why; start a new upload. Completing an upload that is already ready returns it.
+     * Complete a public QR code logo upload
+     */
+    async mediaServiceCompletePublicUpload(requestParameters: MediaServiceCompletePublicUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CompletePublicMediaUploadResponse> {
+        const response = await this.mediaServiceCompletePublicUploadRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Creates request options for mediaServiceCompleteReplace without sending the request
      */
     async mediaServiceCompleteReplaceRequestOpts(requestParameters: MediaServiceCompleteReplaceRequest): Promise<runtime.RequestOpts> {
@@ -547,7 +645,7 @@ export class MediaApi extends runtime.BaseAPI implements MediaApiInterface {
 
     /**
      * Checks the file PUT to the uploadUrl: its size, its real format read from its first bytes, and the storage allowance. When it matches what CreateUpload declared, the media becomes READY and is returned with a signed URL. When it does not, the file and the media are discarded and the error says why; start a new upload. Completing a media item that is already READY returns it.  The server always establishes the file\'s SHA-256 itself, from the checksum storage verified or by reading the file back. A file the workspace already holds is discarded with 409 MEDIA_ALREADY_EXISTS; the error\'s metadata names the existing media in existingMediaId and existingFileName. Use that media instead.  Requires the `media:write` scope.
-     * Complete a direct media upload
+     * Complete a media upload
      */
     async mediaServiceCompleteUploadRaw(requestParameters: MediaServiceCompleteUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CompleteMediaUploadResponse>> {
         const requestOptions = await this.mediaServiceCompleteUploadRequestOpts(requestParameters);
@@ -558,7 +656,7 @@ export class MediaApi extends runtime.BaseAPI implements MediaApiInterface {
 
     /**
      * Checks the file PUT to the uploadUrl: its size, its real format read from its first bytes, and the storage allowance. When it matches what CreateUpload declared, the media becomes READY and is returned with a signed URL. When it does not, the file and the media are discarded and the error says why; start a new upload. Completing a media item that is already READY returns it.  The server always establishes the file\'s SHA-256 itself, from the checksum storage verified or by reading the file back. A file the workspace already holds is discarded with 409 MEDIA_ALREADY_EXISTS; the error\'s metadata names the existing media in existingMediaId and existingFileName. Use that media instead.  Requires the `media:write` scope.
-     * Complete a direct media upload
+     * Complete a media upload
      */
     async mediaServiceCompleteUpload(requestParameters: MediaServiceCompleteUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CompleteMediaUploadResponse> {
         const response = await this.mediaServiceCompleteUploadRaw(requestParameters, initOverrides);
@@ -566,13 +664,13 @@ export class MediaApi extends runtime.BaseAPI implements MediaApiInterface {
     }
 
     /**
-     * Creates request options for mediaServiceCreate without sending the request
+     * Creates request options for mediaServiceCreatePublicUpload without sending the request
      */
-    async mediaServiceCreateRequestOpts(requestParameters: MediaServiceCreateRequest): Promise<runtime.RequestOpts> {
-        if (requestParameters['createMediaRequest'] == null) {
+    async mediaServiceCreatePublicUploadRequestOpts(requestParameters: MediaServiceCreatePublicUploadRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['createPublicMediaUploadRequest'] == null) {
             throw new runtime.RequiredError(
-                'createMediaRequest',
-                'Required parameter "createMediaRequest" was null or undefined when calling mediaServiceCreate().'
+                'createPublicMediaUploadRequest',
+                'Required parameter "createPublicMediaUploadRequest" was null or undefined when calling mediaServiceCreatePublicUpload().'
             );
         }
 
@@ -586,48 +684,35 @@ export class MediaApi extends runtime.BaseAPI implements MediaApiInterface {
             headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
         }
 
-        if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["media:write"]);
-        }
 
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", ["media:write"]);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/v1/media`;
+        let urlPath = `/v1/media/public-uploads`;
 
         return {
             path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: CreateMediaRequestToJSON(requestParameters['createMediaRequest']),
+            body: CreatePublicMediaUploadRequestToJSON(requestParameters['createPublicMediaUploadRequest']),
         };
     }
 
     /**
-     * Uploads a file sent in the request itself, base64 encoded over HTTP, up to 3 MB. Larger files (a PDF brochure, a video) are uploaded straight to storage instead: CreateUpload, a PUT of the file to the returned uploadUrl, then CompleteUpload. A media item only has a kind, read from its bytes: images (PNG, JPEG, WebP, SVG) up to 10 MB, PDF documents up to 25 MB and MP4 videos up to 50 MB. Nothing about where it will be used is needed at upload: any image can then be a QR code logo, a background cover, a badge or a footer logo (up to 3 MB for those), and any media can be opened by an Open media step.  A workspace holds each file once. A file whose bytes (SHA-256) match media the workspace already has is refused with 409 MEDIA_ALREADY_EXISTS; the error\'s metadata names that media in existingMediaId and existingFileName. Use that media instead of uploading the file again.  Requires the `media:write` scope.
-     * Upload a media file
+     * Uploads a QR code logo without an API token, for a QR code design created without one (POST /v1/qrcode-designs). It is the same flow as CreateUpload, outside any workspace: declare the image\'s name, MIME type (image/png, image/jpeg, image/webp or image/svg+xml) and exact size in bytes, at most 3 MB; PUT its bytes to uploadUrl with the uploadHeaders before uploadExpiresAt; then call CompletePublicUpload and pass the media id as the design\'s centralImageMediaId. Anything but an image of at most 3 MB is refused with MEDIA_NOT_ALLOWED_HERE.  A public upload belongs to no workspace, is never listed and can only be a design\'s logo. The design keeps its own copy of the image, and the upload itself is deleted an hour after it started, used or not. With an API token, upload with CreateUpload instead.
+     * Start a public QR code logo upload
      */
-    async mediaServiceCreateRaw(requestParameters: MediaServiceCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateMediaResponse>> {
-        const requestOptions = await this.mediaServiceCreateRequestOpts(requestParameters);
+    async mediaServiceCreatePublicUploadRaw(requestParameters: MediaServiceCreatePublicUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreatePublicMediaUploadResponse>> {
+        const requestOptions = await this.mediaServiceCreatePublicUploadRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => CreateMediaResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => CreatePublicMediaUploadResponseFromJSON(jsonValue));
     }
 
     /**
-     * Uploads a file sent in the request itself, base64 encoded over HTTP, up to 3 MB. Larger files (a PDF brochure, a video) are uploaded straight to storage instead: CreateUpload, a PUT of the file to the returned uploadUrl, then CompleteUpload. A media item only has a kind, read from its bytes: images (PNG, JPEG, WebP, SVG) up to 10 MB, PDF documents up to 25 MB and MP4 videos up to 50 MB. Nothing about where it will be used is needed at upload: any image can then be a QR code logo, a background cover, a badge or a footer logo (up to 3 MB for those), and any media can be opened by an Open media step.  A workspace holds each file once. A file whose bytes (SHA-256) match media the workspace already has is refused with 409 MEDIA_ALREADY_EXISTS; the error\'s metadata names that media in existingMediaId and existingFileName. Use that media instead of uploading the file again.  Requires the `media:write` scope.
-     * Upload a media file
+     * Uploads a QR code logo without an API token, for a QR code design created without one (POST /v1/qrcode-designs). It is the same flow as CreateUpload, outside any workspace: declare the image\'s name, MIME type (image/png, image/jpeg, image/webp or image/svg+xml) and exact size in bytes, at most 3 MB; PUT its bytes to uploadUrl with the uploadHeaders before uploadExpiresAt; then call CompletePublicUpload and pass the media id as the design\'s centralImageMediaId. Anything but an image of at most 3 MB is refused with MEDIA_NOT_ALLOWED_HERE.  A public upload belongs to no workspace, is never listed and can only be a design\'s logo. The design keeps its own copy of the image, and the upload itself is deleted an hour after it started, used or not. With an API token, upload with CreateUpload instead.
+     * Start a public QR code logo upload
      */
-    async mediaServiceCreate(requestParameters: MediaServiceCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateMediaResponse> {
-        const response = await this.mediaServiceCreateRaw(requestParameters, initOverrides);
+    async mediaServiceCreatePublicUpload(requestParameters: MediaServiceCreatePublicUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreatePublicMediaUploadResponse> {
+        const response = await this.mediaServiceCreatePublicUploadRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -752,8 +837,8 @@ export class MediaApi extends runtime.BaseAPI implements MediaApiInterface {
     }
 
     /**
-     * Reserves a media item for a file uploaded straight to storage, so large files never pass through the API. Declare the file\'s name, MIME type and exact size in bytes; they are checked against the limit for the file\'s kind (images up to 10 MB, PDF documents up to 25 MB, MP4 videos up to 50 MB) and against the workspace\'s storage allowance now, and against the uploaded bytes on completion. Then PUT the file\'s bytes to uploadUrl with the uploadHeaders (and a Content-Length equal to size) before uploadExpiresAt, and call CompleteUpload. Until completed the media is PENDING: it is not listed and cannot be used. An upload not completed within an hour is discarded.  A workspace holds each file once. Optionally declare sha256, the file\'s SHA-256 as hex: a file the workspace already holds is then refused here, before any upload, with 409 MEDIA_ALREADY_EXISTS, whose metadata names that media in existingMediaId and existingFileName (use it instead), and storage refuses bytes that do not match the hash, so the PUT must send the x-amz-checksum-sha256 header from uploadHeaders. Without sha256 the duplicate is caught on completion instead.  Requires the `media:write` scope.
-     * Start a direct media upload
+     * The one way to put a file into Linkbreakers: every field that takes a file (an Open media step, a QR code logo, a page theme\'s background cover, badge or footer logo) takes the id of media uploaded this way, never the file itself. The file goes straight to storage and never passes through the API.  Declare the file\'s name, MIME type and exact size in bytes; they are checked against the limit for the file\'s kind (images up to 10 MB, PDF documents up to 25 MB, MP4 videos up to 50 MB) and against the workspace\'s storage allowance now, and against the uploaded bytes on completion. Then PUT the file\'s bytes to uploadUrl with the uploadHeaders (and a Content-Length equal to size) before uploadExpiresAt, and call CompleteUpload. Until completed the media is PENDING: it is not listed and cannot be used. An upload not completed within an hour is discarded. A media item only has a kind, read from its bytes: nothing about where it will be used is needed at upload, and any image of at most 3 MB can then be a QR code logo, a background cover, a badge or a footer logo.  A workspace holds each file once. Optionally declare sha256, the file\'s SHA-256 as hex: a file the workspace already holds is then refused here, before any upload, with 409 MEDIA_ALREADY_EXISTS, whose metadata names that media in existingMediaId and existingFileName (use it instead), and storage refuses bytes that do not match the hash, so the PUT must send the x-amz-checksum-sha256 header from uploadHeaders. Without sha256 the duplicate is caught on completion instead.  Requires the `media:write` scope.
+     * Start a media upload
      */
     async mediaServiceCreateUploadRaw(requestParameters: MediaServiceCreateUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateMediaUploadResponse>> {
         const requestOptions = await this.mediaServiceCreateUploadRequestOpts(requestParameters);
@@ -763,8 +848,8 @@ export class MediaApi extends runtime.BaseAPI implements MediaApiInterface {
     }
 
     /**
-     * Reserves a media item for a file uploaded straight to storage, so large files never pass through the API. Declare the file\'s name, MIME type and exact size in bytes; they are checked against the limit for the file\'s kind (images up to 10 MB, PDF documents up to 25 MB, MP4 videos up to 50 MB) and against the workspace\'s storage allowance now, and against the uploaded bytes on completion. Then PUT the file\'s bytes to uploadUrl with the uploadHeaders (and a Content-Length equal to size) before uploadExpiresAt, and call CompleteUpload. Until completed the media is PENDING: it is not listed and cannot be used. An upload not completed within an hour is discarded.  A workspace holds each file once. Optionally declare sha256, the file\'s SHA-256 as hex: a file the workspace already holds is then refused here, before any upload, with 409 MEDIA_ALREADY_EXISTS, whose metadata names that media in existingMediaId and existingFileName (use it instead), and storage refuses bytes that do not match the hash, so the PUT must send the x-amz-checksum-sha256 header from uploadHeaders. Without sha256 the duplicate is caught on completion instead.  Requires the `media:write` scope.
-     * Start a direct media upload
+     * The one way to put a file into Linkbreakers: every field that takes a file (an Open media step, a QR code logo, a page theme\'s background cover, badge or footer logo) takes the id of media uploaded this way, never the file itself. The file goes straight to storage and never passes through the API.  Declare the file\'s name, MIME type and exact size in bytes; they are checked against the limit for the file\'s kind (images up to 10 MB, PDF documents up to 25 MB, MP4 videos up to 50 MB) and against the workspace\'s storage allowance now, and against the uploaded bytes on completion. Then PUT the file\'s bytes to uploadUrl with the uploadHeaders (and a Content-Length equal to size) before uploadExpiresAt, and call CompleteUpload. Until completed the media is PENDING: it is not listed and cannot be used. An upload not completed within an hour is discarded. A media item only has a kind, read from its bytes: nothing about where it will be used is needed at upload, and any image of at most 3 MB can then be a QR code logo, a background cover, a badge or a footer logo.  A workspace holds each file once. Optionally declare sha256, the file\'s SHA-256 as hex: a file the workspace already holds is then refused here, before any upload, with 409 MEDIA_ALREADY_EXISTS, whose metadata names that media in existingMediaId and existingFileName (use it instead), and storage refuses bytes that do not match the hash, so the PUT must send the x-amz-checksum-sha256 header from uploadHeaders. Without sha256 the duplicate is caught on completion instead.  Requires the `media:write` scope.
+     * Start a media upload
      */
     async mediaServiceCreateUpload(requestParameters: MediaServiceCreateUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateMediaUploadResponse> {
         const response = await this.mediaServiceCreateUploadRaw(requestParameters, initOverrides);

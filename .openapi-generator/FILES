@@ -18,7 +18,6 @@ src/apis/MediaApi.ts
 src/apis/MembersApi.ts
 src/apis/PageThemeTemplatesApi.ts
 src/apis/PageThemesApi.ts
-src/apis/PlanUsageApi.ts
 src/apis/PricingApi.ts
 src/apis/QRCodeDesignsApi.ts
 src/apis/QRCodeTemplatesApi.ts
@@ -72,8 +71,6 @@ src/models/AssistantDisplayMessageAttachment.ts
 src/models/AssistantGetConversationResponse.ts
 src/models/AssistantMarkConversationReadRequest.ts
 src/models/AssistantMarkConversationReadResponse.ts
-src/models/AssistantUploadFileRequest.ts
-src/models/AssistantUploadFileResponse.ts
 src/models/AttributeCapture.ts
 src/models/AttributeValueDataPoint.ts
 src/models/AttributeValueEntry.ts
@@ -113,6 +110,7 @@ src/models/CompleteContactToolOAuthResponse.ts
 src/models/CompleteFormToolOAuthResponse.ts
 src/models/CompleteMediaReplaceResponse.ts
 src/models/CompleteMediaUploadResponse.ts
+src/models/CompletePublicMediaUploadResponse.ts
 src/models/CompleteSlackOAuthRequest.ts
 src/models/CompleteSlackOAuthResponse.ts
 src/models/ConnectContactToolResponse.ts
@@ -162,8 +160,6 @@ src/models/CreateEventTraceResponse.ts
 src/models/CreateLinkRequest.ts
 src/models/CreateLinkResponse.ts
 src/models/CreateMediaReplaceUploadResponse.ts
-src/models/CreateMediaRequest.ts
-src/models/CreateMediaResponse.ts
 src/models/CreateMediaUploadRequest.ts
 src/models/CreateMediaUploadResponse.ts
 src/models/CreateMyWorkspaceRequest.ts
@@ -172,6 +168,8 @@ src/models/CreateOpenMediaLinkRequest.ts
 src/models/CreateOpenMediaLinkResponse.ts
 src/models/CreatePageThemeTemplateRequest.ts
 src/models/CreatePageThemeTemplateResponse.ts
+src/models/CreatePublicMediaUploadRequest.ts
+src/models/CreatePublicMediaUploadResponse.ts
 src/models/CreateQrcodeDesignRequest.ts
 src/models/CreateQrcodeDesignResponse.ts
 src/models/CreateQrcodeTemplateRequest.ts
@@ -240,7 +238,7 @@ src/models/DigestFrequency.ts
 src/models/DirectoriesServiceUpdateBody.ts
 src/models/Directory.ts
 src/models/DisconnectWorkflowStepResponse.ts
-src/models/DismissAllowanceNoticeRequest.ts
+src/models/DismissWorkspaceUsageNoticeRequest.ts
 src/models/DnsProvider.ts
 src/models/DnsRecordPurpose.ts
 src/models/DnsRecordType.ts
@@ -371,7 +369,6 @@ src/models/LinksServiceRenderQrcodeImagesBody.ts
 src/models/LinksServiceUpdateBody.ts
 src/models/ListAgentPresetsResponse.ts
 src/models/ListAgentsResponse.ts
-src/models/ListAllowancesResponse.ts
 src/models/ListApiScopesResponse.ts
 src/models/ListContactConnectionsResponse.ts
 src/models/ListContactToolFieldsResponse.ts
@@ -425,6 +422,7 @@ src/models/MediaUploadOrigin.ts
 src/models/MediaUsage.ts
 src/models/MediaVisibility.ts
 src/models/Member.ts
+src/models/MemberSession.ts
 src/models/MembersServiceSwitchWorkspaceBody.ts
 src/models/MembersServiceUpdateBody.ts
 src/models/MessagePageNavigationType.ts
@@ -652,6 +650,7 @@ src/models/WorkspaceMetric.ts
 src/models/WorkspaceToken.ts
 src/models/WorkspaceTokenKeyType.ts
 src/models/WorkspaceTokensServiceUpdateBody.ts
+src/models/WorkspaceUsage.ts
 src/models/index.ts
 src/runtime.ts
 src/safe-config.ts
