@@ -1,13 +1,11 @@
 /* tslint:disable */
 /* eslint-disable */
-export * from './APIScopesApi';
 export * from './AgentsApi';
 export * from './AnalyticsApi';
 export * from './AnalyticsDashboardsApi';
 export * from './CustomDomainsApi';
 export * from './DirectoriesApi';
 export * from './EventsApi';
-export * from './IntegrationsApi';
 export * from './IntegrationsContactToolsApi';
 export * from './IntegrationsFormsApi';
 export * from './IntegrationsGoogleAnalyticsApi';

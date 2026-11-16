@@ -1,13 +1,11 @@
 README.md
 package.json
-src/apis/APIScopesApi.ts
 src/apis/AgentsApi.ts
 src/apis/AnalyticsApi.ts
 src/apis/AnalyticsDashboardsApi.ts
 src/apis/CustomDomainsApi.ts
 src/apis/DirectoriesApi.ts
 src/apis/EventsApi.ts
-src/apis/IntegrationsApi.ts
 src/apis/IntegrationsContactToolsApi.ts
 src/apis/IntegrationsFormsApi.ts
 src/apis/IntegrationsGoogleAnalyticsApi.ts
@@ -113,8 +111,6 @@ src/models/ClaimAgentWorkspaceRequest.ts
 src/models/ClientRedirectPayload.ts
 src/models/CompleteContactToolOAuthResponse.ts
 src/models/CompleteFormToolOAuthResponse.ts
-src/models/CompleteGoogleFormsOAuthRequest.ts
-src/models/CompleteGoogleFormsOAuthResponse.ts
 src/models/CompleteMediaReplaceResponse.ts
 src/models/CompleteMediaUploadResponse.ts
 src/models/CompleteSlackOAuthRequest.ts
@@ -209,7 +205,6 @@ src/models/DayOfWeekConditionTraceOption.ts
 src/models/DayOfWeekOption.ts
 src/models/DeleteAttributeResponse.ts
 src/models/DeleteVisitorResponse.ts
-src/models/DetectedGoogleForm.ts
 src/models/DetectedToolForm.ts
 src/models/Device.ts
 src/models/DeviceActor.ts
@@ -309,8 +304,6 @@ src/models/GetFormToolOAuthURLResponse.ts
 src/models/GetGeoBreakdownRequest.ts
 src/models/GetGeoBreakdownResponse.ts
 src/models/GetGoogleAnalyticsIntegrationResponse.ts
-src/models/GetGoogleFormsIntegrationResponse.ts
-src/models/GetGoogleFormsOAuthURLResponse.ts
 src/models/GetGroupedTimeSeriesRequest.ts
 src/models/GetGroupedTimeSeriesResponse.ts
 src/models/GetHourOfDayDistributionRequest.ts
@@ -340,9 +333,6 @@ src/models/GetWorkflowStepResponse.ts
 src/models/GetWorkspaceTokenResponse.ts
 src/models/GoogleAnalyticsAttributeKeys.ts
 src/models/GoogleAnalyticsIntegration.ts
-src/models/GoogleFormsIntegration.ts
-src/models/GoogleFormsIntegrationStatus.ts
-src/models/GoogleFormsIntegrationsServiceChooseFormLinkBody.ts
 src/models/GooglerpcStatus.ts
 src/models/GroupByDimension.ts
 src/models/HourOfDayDataPoint.ts
@@ -389,7 +379,6 @@ src/models/ListContactToolListsResponse.ts
 src/models/ListContactToolPipelinesResponse.ts
 src/models/ListCustomDomainsResponse.ts
 src/models/ListDashboardsResponse.ts
-src/models/ListDetectedGoogleFormsResponse.ts
 src/models/ListDirectoriesResponse.ts
 src/models/ListEventTracesResponse.ts
 src/models/ListEventsCsvResponse.ts
@@ -554,7 +543,6 @@ src/models/SubmitReviewRewardRequest.ts
 src/models/SubmitReviewRewardResponse.ts
 src/models/SubscriptionType.ts
 src/models/SwitchWorkspaceResponse.ts
-src/models/SyncGoogleFormsResponse.ts
 src/models/TestContactConnectionResponse.ts
 src/models/TestGoogleAnalyticsIntegrationResponse.ts
 src/models/TestSlackIntegrationResponse.ts
@@ -586,8 +574,6 @@ src/models/UpdateDirectoryResponse.ts
 src/models/UpdateFormConnectionResponse.ts
 src/models/UpdateGoogleAnalyticsIntegrationRequest.ts
 src/models/UpdateGoogleAnalyticsIntegrationResponse.ts
-src/models/UpdateGoogleFormsIntegrationRequest.ts
-src/models/UpdateGoogleFormsIntegrationResponse.ts
 src/models/UpdateLinkResponse.ts
 src/models/UpdateLinkSettingResponse.ts
 src/models/UpdateMeRequest.ts
