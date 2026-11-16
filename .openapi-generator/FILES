@@ -4,7 +4,6 @@ src/apis/APIScopesApi.ts
 src/apis/AgentsApi.ts
 src/apis/AnalyticsApi.ts
 src/apis/AnalyticsDashboardsApi.ts
-src/apis/AuthApi.ts
 src/apis/CustomDomainsApi.ts
 src/apis/DirectoriesApi.ts
 src/apis/EventsApi.ts
