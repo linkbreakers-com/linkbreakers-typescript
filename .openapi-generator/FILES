@@ -441,8 +441,14 @@ src/models/PageTheme.ts
 src/models/PageThemeBadgeShape.ts
 src/models/PageThemeBorderStyle.ts
 src/models/PageThemeCanvasCoverMode.ts
+src/models/PageThemeCanvasTexture.ts
+src/models/PageThemeChoiceLayout.ts
 src/models/PageThemeContainerVariant.ts
 src/models/PageThemeFontFamily.ts
+src/models/PageThemeQuestionStyle.ts
+src/models/PageThemeRole.ts
+src/models/PageThemeRoleOverride.ts
+src/models/PageThemeRoleStyle.ts
 src/models/PageThemeStyling.ts
 src/models/PageThemeTemplate.ts
 src/models/PageThemeTemplateImages.ts
