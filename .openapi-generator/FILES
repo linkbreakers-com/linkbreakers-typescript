@@ -11,7 +11,7 @@ src/apis/IntegrationsFormsApi.ts
 src/apis/IntegrationsGoogleAnalyticsApi.ts
 src/apis/IntegrationsRetargetingPixelsApi.ts
 src/apis/IntegrationsSlackApi.ts
-src/apis/JobsApi.ts
+src/apis/LinkJobsApi.ts
 src/apis/LinkSettingsApi.ts
 src/apis/LinksApi.ts
 src/apis/MediaApi.ts
@@ -348,10 +348,6 @@ src/models/InAppBrowserDetails.ts
 src/models/IntegrationDelivery.ts
 src/models/IntegrationVisitorData.ts
 src/models/InviteMemberRequest.ts
-src/models/Job.ts
-src/models/JobError.ts
-src/models/JobStatus.ts
-src/models/JobType.ts
 src/models/JourneyProgress.ts
 src/models/LanguageConditionOutcome.ts
 src/models/LanguageConditionPayload.ts
@@ -360,6 +356,10 @@ src/models/LanguageConditionTraceOption.ts
 src/models/Link.ts
 src/models/LinkIntegration.ts
 src/models/LinkIntegrationKind.ts
+src/models/LinkJob.ts
+src/models/LinkJobError.ts
+src/models/LinkJobStatus.ts
+src/models/LinkJobType.ts
 src/models/LinkSetting.ts
 src/models/LinkSettingsServiceUpdateBody.ts
 src/models/LinkSortField.ts
