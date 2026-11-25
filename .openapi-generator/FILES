@@ -36,7 +36,9 @@ src/models/AgentClaimStatus.ts
 src/models/AgentGuardrail.ts
 src/models/AgentGuardrailList.ts
 src/models/AgentGuardrailPreset.ts
-src/models/AgentKnowledgeDocument.ts
+src/models/AgentKnowledgeItem.ts
+src/models/AgentKnowledgeItemKind.ts
+src/models/AgentKnowledgeItemStatus.ts
 src/models/AgentLimits.ts
 src/models/AgentQuestionHandling.ts
 src/models/AgentQuestionHandlingPreset.ts
@@ -47,9 +49,9 @@ src/models/AgentRolePreset.ts
 src/models/AgentTone.ts
 src/models/AgentTonePreset.ts
 src/models/AgentUsage.ts
-src/models/AgentsServiceCreateKnowledgeDocumentBody.ts
+src/models/AgentsServiceCreateKnowledgeItemBody.ts
 src/models/AgentsServiceUpdateBody.ts
-src/models/AgentsServiceUpdateKnowledgeDocumentBody.ts
+src/models/AgentsServiceUpdateKnowledgeItemBody.ts
 src/models/AnalyticsDashboard.ts
 src/models/AnalyticsDashboardsServiceGenerateWidgetSummaryBody.ts
 src/models/AnalyticsDashboardsServiceUpdateBody.ts
@@ -143,7 +145,7 @@ src/models/CountryConditionOutcome.ts
 src/models/CountryConditionPayload.ts
 src/models/CountryConditionTraceData.ts
 src/models/CountryConditionTraceOption.ts
-src/models/CreateAgentKnowledgeDocumentResponse.ts
+src/models/CreateAgentKnowledgeItemResponse.ts
 src/models/CreateAgentRequest.ts
 src/models/CreateAgentResponse.ts
 src/models/CreateBulkLinksRequest.ts
@@ -492,6 +494,7 @@ src/models/QrcodeTemplateScope.ts
 src/models/QrcodeTemplatesServiceUpdateBody.ts
 src/models/RedirectTraceData.ts
 src/models/RedirectTraceDataFallbackReason.ts
+src/models/RefreshAgentKnowledgeItemResponse.ts
 src/models/RenderQrcodeImagesResponse.ts
 src/models/RenderedQrcode.ts
 src/models/ReplaceMediaImportResponse.ts
@@ -572,7 +575,7 @@ src/models/TrafficSplitVariant.ts
 src/models/TrafficSplitVariantResult.ts
 src/models/TriggeredBy.ts
 src/models/TypeDate.ts
-src/models/UpdateAgentKnowledgeDocumentResponse.ts
+src/models/UpdateAgentKnowledgeItemResponse.ts
 src/models/UpdateAgentResponse.ts
 src/models/UpdateContactConnectionResponse.ts
 src/models/UpdateCustomDomainResponse.ts
@@ -652,6 +655,7 @@ src/models/WorkflowStepBranch.ts
 src/models/WorkflowStepCopyNotice.ts
 src/models/WorkflowStepCopyNoticeType.ts
 src/models/WorkflowStepKind.ts
+src/models/WorkflowStepMedia.ts
 src/models/WorkflowStepNodeType.ts
 src/models/WorkflowStepPayload.ts
 src/models/WorkflowStepsDocument.ts
@@ -659,6 +663,7 @@ src/models/WorkflowStepsDocumentEdge.ts
 src/models/WorkflowStepsDocumentEntry.ts
 src/models/WorkflowStepsDocumentMedia.ts
 src/models/WorkflowStepsDocumentStep.ts
+src/models/WorkflowStepsDocumentStepMedia.ts
 src/models/WorkflowStepsServiceConnectBody.ts
 src/models/WorkflowStepsServiceCreateBody.ts
 src/models/WorkflowStepsServiceExportBody.ts

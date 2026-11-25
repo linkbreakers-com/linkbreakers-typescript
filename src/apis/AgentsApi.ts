@@ -4,7 +4,7 @@
  * Linkbreakers API
  * The Linkbreakers REST API: links, QR codes, workflows, visitors and analytics, as JSON over HTTPS. Send a workspace API token as `Authorization: Bearer <token>`.  ## Entry points  `GET https://api.linkbreakers.com/` and `GET https://api.linkbreakers.com/v1` answer without credentials with the API\'s name, version and links. This document is served at `https://api.linkbreakers.com/openapi.json`.  ## Rate limits  Every response describes where the caller stands in the IETF `RateLimit-Policy` and `RateLimit` header fields (draft-ietf-httpapi-ratelimit-headers), and in `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` and `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` (a Unix timestamp) for clients that read those. A request past the limit gets `429 Too Many Requests` with `Retry-After` in seconds.  - Workspace API token: 720 requests per 60 seconds, per token. - Dashboard session or OAuth token: 600 requests per 60 seconds, per token. - No credentials: 300 requests per 60 seconds, per client IP.  Each plan also includes a number of API calls per billing cycle. Past it, calls answer `429` with the code `MAX_PUBLIC_API_QUERIED_REACHED` until the cycle renews or the plan changes.  ## Pagination  Every list pages with opaque cursors (AIP-158). Pass `pageSize`, then send the `nextPageToken` of each response back as `pageToken` (or its alias `cursor`) to get the next page. An empty or absent `nextPageToken` means the list is complete. Each list operation describes this in `x-pagination`.  ## Batches and background jobs  `POST /v1/links/bulk` creates up to 250 links in one transactional request; `POST /v1/links/batch` takes the same links as a bare JSON array. `POST /v1/links/bulk/jobs` accepts the same batch and answers `202 Accepted` at once with a link job and a `Location` header; poll `GET /v1/links/jobs/{id}` until `status` is `LINK_JOB_STATUS_SUCCEEDED` (the created link ids are in `linksBulkCreate.linkIds`) or `LINK_JOB_STATUS_FAILED` (`error` says why, and nothing was created). Link jobs can be read for 24 hours after they finish.  ## Paused workspaces  A free workspace whose members have not verified any email address is paused 7 days after sign-up. Its calls then answer `403` with the code `WORKSPACE_UNVERIFIED` and change nothing; QR codes and links keep working for visitors. To lift the pause, ask the workspace owner to verify their email: `POST /v1/members/email-verification` sends the verification email again, and works while the workspace is paused. `unverifiedPauseAt` on the workspace says when the pause starts.  ## Versioning and deprecation  The version is in the path: every operation lives under `/v1`. Within a version, changes are additive only: new operations, new optional request fields, new response fields and new enum values. Clients should ignore fields and enum values they do not know. Anything that would break an existing client ships under a new path version instead.  An operation is retired in two steps. First it is deprecated: it keeps working, is flagged `deprecated: true` in this document, and every response carries a `Deprecation` header field (RFC 9745) with the time it was deprecated and a `Link` with `rel=\"deprecation\"` to the policy. Then, at least 180 days later, it may be removed; that date is announced in advance in a `Sunset` header field (RFC 8594) and as `x-sunset` on the operation. The full policy: https://linkbreakers.com/help/article/api-versioning-and-deprecation-policy  A renamed operation keeps answering its former path while clients still call it, until that path\'s sunset at the latest: a former path no client calls for 14 days is removed. Responses on a former path carry the same `Deprecation`, `Sunset` and `Link` header fields; this document lists only the current path, and the policy lists the former paths that still answer.  ## Idempotent retries  Every POST, PUT and PATCH accepts an optional `Idempotency-Key` header (draft-ietf-httpapi-idempotency-key-header). Send a new unique value, such as a UUID, with each logical request and reuse it only to retry that request. A retry with the same key and the same request returns the first response, marked `Idempotent-Replayed: true`, instead of running again. Keys are scoped to the token and kept for 24 hours. The same key with a different request is refused with `422`, and a retry while the first request is still running gets `409` with `Retry-After`. Server errors (5xx) and refusals such as 401, 403 and 429 are not stored, so retrying them runs the request again.  ## Identifying your client  Send a `Linkbreakers-Client` request header saying which client made the call: `<client>/<version> (<details>)`, for example `my-integration/1.2.0 (python 3.12; linux)`. The official SDKs, the CLI and the MCP bridge set it for you, as `sdk-python/2.3.1 (python 3.12.4; linux)` or `cli/1.4.0 (darwin arm64)`. It is optional and changes nothing about how a request is handled; it tells us which clients and versions are in use, so we know what can be retired and what to fix first. Keep the details short and free of personal data. Browsers may send it too: it is allowed by CORS.
  *
- * The version of the OpenAPI document: 1.205.1
+ * The version of the OpenAPI document: 1.205.2
  * 
  *
  * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
@@ -15,28 +15,29 @@
 
 import * as runtime from '../runtime';
 import type {
-  AgentsServiceCreateKnowledgeDocumentBody,
+  AgentsServiceCreateKnowledgeItemBody,
   AgentsServiceUpdateBody,
-  AgentsServiceUpdateKnowledgeDocumentBody,
-  CreateAgentKnowledgeDocumentResponse,
+  AgentsServiceUpdateKnowledgeItemBody,
+  CreateAgentKnowledgeItemResponse,
   CreateAgentRequest,
   CreateAgentResponse,
   ErrorResponse,
   GetAgentResponse,
   ListAgentPresetsResponse,
   ListAgentsResponse,
-  UpdateAgentKnowledgeDocumentResponse,
+  RefreshAgentKnowledgeItemResponse,
+  UpdateAgentKnowledgeItemResponse,
   UpdateAgentResponse,
 } from '../models/index';
 import {
-    AgentsServiceCreateKnowledgeDocumentBodyFromJSON,
-    AgentsServiceCreateKnowledgeDocumentBodyToJSON,
+    AgentsServiceCreateKnowledgeItemBodyFromJSON,
+    AgentsServiceCreateKnowledgeItemBodyToJSON,
     AgentsServiceUpdateBodyFromJSON,
     AgentsServiceUpdateBodyToJSON,
-    AgentsServiceUpdateKnowledgeDocumentBodyFromJSON,
-    AgentsServiceUpdateKnowledgeDocumentBodyToJSON,
-    CreateAgentKnowledgeDocumentResponseFromJSON,
-    CreateAgentKnowledgeDocumentResponseToJSON,
+    AgentsServiceUpdateKnowledgeItemBodyFromJSON,
+    AgentsServiceUpdateKnowledgeItemBodyToJSON,
+    CreateAgentKnowledgeItemResponseFromJSON,
+    CreateAgentKnowledgeItemResponseToJSON,
     CreateAgentRequestFromJSON,
     CreateAgentRequestToJSON,
     CreateAgentResponseFromJSON,
@@ -49,8 +50,10 @@ import {
     ListAgentPresetsResponseToJSON,
     ListAgentsResponseFromJSON,
     ListAgentsResponseToJSON,
-    UpdateAgentKnowledgeDocumentResponseFromJSON,
-    UpdateAgentKnowledgeDocumentResponseToJSON,
+    RefreshAgentKnowledgeItemResponseFromJSON,
+    RefreshAgentKnowledgeItemResponseToJSON,
+    UpdateAgentKnowledgeItemResponseFromJSON,
+    UpdateAgentKnowledgeItemResponseToJSON,
     UpdateAgentResponseFromJSON,
     UpdateAgentResponseToJSON,
 } from '../models/index';
@@ -60,9 +63,9 @@ export interface AgentsServiceCreateRequest {
     idempotencyKey?: string;
 }
 
-export interface AgentsServiceCreateKnowledgeDocumentRequest {
+export interface AgentsServiceCreateKnowledgeItemRequest {
     agentId: string;
-    agentsServiceCreateKnowledgeDocumentBody: AgentsServiceCreateKnowledgeDocumentBody;
+    agentsServiceCreateKnowledgeItemBody: AgentsServiceCreateKnowledgeItemBody;
     idempotencyKey?: string;
 }
 
@@ -70,7 +73,7 @@ export interface AgentsServiceDeleteRequest {
     id: string;
 }
 
-export interface AgentsServiceDeleteKnowledgeDocumentRequest {
+export interface AgentsServiceDeleteKnowledgeItemRequest {
     agentId: string;
     id: string;
 }
@@ -85,16 +88,23 @@ export interface AgentsServiceListRequest {
     cursor?: string;
 }
 
+export interface AgentsServiceRefreshKnowledgeItemRequest {
+    agentId: string;
+    id: string;
+    body: object;
+    idempotencyKey?: string;
+}
+
 export interface AgentsServiceUpdateRequest {
     id: string;
     agentsServiceUpdateBody: AgentsServiceUpdateBody;
     idempotencyKey?: string;
 }
 
-export interface AgentsServiceUpdateKnowledgeDocumentRequest {
+export interface AgentsServiceUpdateKnowledgeItemRequest {
     agentId: string;
     id: string;
-    agentsServiceUpdateKnowledgeDocumentBody: AgentsServiceUpdateKnowledgeDocumentBody;
+    agentsServiceUpdateKnowledgeItemBody: AgentsServiceUpdateKnowledgeItemBody;
     idempotencyKey?: string;
 }
 
@@ -132,32 +142,32 @@ export interface AgentsApiInterface {
     agentsServiceCreate(requestParameters: AgentsServiceCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateAgentResponse>;
 
     /**
-     * Creates request options for agentsServiceCreateKnowledgeDocument without sending the request
+     * Creates request options for agentsServiceCreateKnowledgeItem without sending the request
      * @param {string} agentId The agent\&#39;s ID (UUID).
-     * @param {AgentsServiceCreateKnowledgeDocumentBody} agentsServiceCreateKnowledgeDocumentBody 
+     * @param {AgentsServiceCreateKnowledgeItemBody} agentsServiceCreateKnowledgeItemBody 
      * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof AgentsApiInterface
      */
-    agentsServiceCreateKnowledgeDocumentRequestOpts(requestParameters: AgentsServiceCreateKnowledgeDocumentRequest): Promise<runtime.RequestOpts>;
+    agentsServiceCreateKnowledgeItemRequestOpts(requestParameters: AgentsServiceCreateKnowledgeItemRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * Add a Markdown document to an agent\'s knowledge.  Requires the `agents:write` scope.
-     * @summary Add a knowledge document
+     * Add an item to an agent\'s knowledge: Markdown text, a web page read from its URL, or a PDF or image of the media library. A web page or media item is read in the background: it is returned with the status reading, then becomes ready, or failed with a reason. Only ready items are part of what the agent knows.  Requires the `agents:write` scope.
+     * @summary Add a knowledge item
      * @param {string} agentId The agent\&#39;s ID (UUID).
-     * @param {AgentsServiceCreateKnowledgeDocumentBody} agentsServiceCreateKnowledgeDocumentBody 
+     * @param {AgentsServiceCreateKnowledgeItemBody} agentsServiceCreateKnowledgeItemBody 
      * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AgentsApiInterface
      */
-    agentsServiceCreateKnowledgeDocumentRaw(requestParameters: AgentsServiceCreateKnowledgeDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateAgentKnowledgeDocumentResponse>>;
+    agentsServiceCreateKnowledgeItemRaw(requestParameters: AgentsServiceCreateKnowledgeItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateAgentKnowledgeItemResponse>>;
 
     /**
-     * Add a Markdown document to an agent\'s knowledge.  Requires the `agents:write` scope.
-     * Add a knowledge document
+     * Add an item to an agent\'s knowledge: Markdown text, a web page read from its URL, or a PDF or image of the media library. A web page or media item is read in the background: it is returned with the status reading, then becomes ready, or failed with a reason. Only ready items are part of what the agent knows.  Requires the `agents:write` scope.
+     * Add a knowledge item
      */
-    agentsServiceCreateKnowledgeDocument(requestParameters: AgentsServiceCreateKnowledgeDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateAgentKnowledgeDocumentResponse>;
+    agentsServiceCreateKnowledgeItem(requestParameters: AgentsServiceCreateKnowledgeItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateAgentKnowledgeItemResponse>;
 
     /**
      * Creates request options for agentsServiceDelete without sending the request
@@ -168,7 +178,7 @@ export interface AgentsApiInterface {
     agentsServiceDeleteRequestOpts(requestParameters: AgentsServiceDeleteRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * Delete an agent and its knowledge documents.  Requires the `agents:write` scope.
+     * Delete an agent and its knowledge items.  Requires the `agents:write` scope.
      * @summary Delete an agent
      * @param {string} id The agent\&#39;s ID (UUID).
      * @param {*} [options] Override http request option.
@@ -178,36 +188,36 @@ export interface AgentsApiInterface {
     agentsServiceDeleteRaw(requestParameters: AgentsServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>>;
 
     /**
-     * Delete an agent and its knowledge documents.  Requires the `agents:write` scope.
+     * Delete an agent and its knowledge items.  Requires the `agents:write` scope.
      * Delete an agent
      */
     agentsServiceDelete(requestParameters: AgentsServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object>;
 
     /**
-     * Creates request options for agentsServiceDeleteKnowledgeDocument without sending the request
+     * Creates request options for agentsServiceDeleteKnowledgeItem without sending the request
      * @param {string} agentId The agent\&#39;s ID (UUID).
-     * @param {string} id The document\&#39;s ID (UUID).
+     * @param {string} id The item\&#39;s ID (UUID).
      * @throws {RequiredError}
      * @memberof AgentsApiInterface
      */
-    agentsServiceDeleteKnowledgeDocumentRequestOpts(requestParameters: AgentsServiceDeleteKnowledgeDocumentRequest): Promise<runtime.RequestOpts>;
+    agentsServiceDeleteKnowledgeItemRequestOpts(requestParameters: AgentsServiceDeleteKnowledgeItemRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * Remove a document from an agent\'s knowledge.  Requires the `agents:write` scope.
-     * @summary Delete a knowledge document
+     * Remove an item from an agent\'s knowledge. A media file it read stays in the media library.  Requires the `agents:write` scope.
+     * @summary Delete a knowledge item
      * @param {string} agentId The agent\&#39;s ID (UUID).
-     * @param {string} id The document\&#39;s ID (UUID).
+     * @param {string} id The item\&#39;s ID (UUID).
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AgentsApiInterface
      */
-    agentsServiceDeleteKnowledgeDocumentRaw(requestParameters: AgentsServiceDeleteKnowledgeDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>>;
+    agentsServiceDeleteKnowledgeItemRaw(requestParameters: AgentsServiceDeleteKnowledgeItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>>;
 
     /**
-     * Remove a document from an agent\'s knowledge.  Requires the `agents:write` scope.
-     * Delete a knowledge document
+     * Remove an item from an agent\'s knowledge. A media file it read stays in the media library.  Requires the `agents:write` scope.
+     * Delete a knowledge item
      */
-    agentsServiceDeleteKnowledgeDocument(requestParameters: AgentsServiceDeleteKnowledgeDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object>;
+    agentsServiceDeleteKnowledgeItem(requestParameters: AgentsServiceDeleteKnowledgeItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object>;
 
     /**
      * Creates request options for agentsServiceGet without sending the request
@@ -218,7 +228,7 @@ export interface AgentsApiInterface {
     agentsServiceGetRequestOpts(requestParameters: AgentsServiceGetRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * Retrieve an agent with its knowledge documents.  Requires the `agents:read` scope.
+     * Retrieve an agent with its knowledge items.  Requires the `agents:read` scope.
      * @summary Get an agent
      * @param {string} id The agent\&#39;s ID (UUID).
      * @param {*} [options] Override http request option.
@@ -228,7 +238,7 @@ export interface AgentsApiInterface {
     agentsServiceGetRaw(requestParameters: AgentsServiceGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetAgentResponse>>;
 
     /**
-     * Retrieve an agent with its knowledge documents.  Requires the `agents:read` scope.
+     * Retrieve an agent with its knowledge items.  Requires the `agents:read` scope.
      * Get an agent
      */
     agentsServiceGet(requestParameters: AgentsServiceGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetAgentResponse>;
@@ -244,7 +254,7 @@ export interface AgentsApiInterface {
     agentsServiceListRequestOpts(requestParameters: AgentsServiceListRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * List the workspace\'s agents, without their knowledge documents.  Requires the `agents:read` scope.
+     * List the workspace\'s agents, without their knowledge items.  Requires the `agents:read` scope.
      * @summary List agents
      * @param {number} [pageSize] Maximum number of agents to return. Defaults to 50.
      * @param {string} [pageToken] Token from a previous response\&#39;s nextPageToken.
@@ -256,7 +266,7 @@ export interface AgentsApiInterface {
     agentsServiceListRaw(requestParameters: AgentsServiceListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListAgentsResponse>>;
 
     /**
-     * List the workspace\'s agents, without their knowledge documents.  Requires the `agents:read` scope.
+     * List the workspace\'s agents, without their knowledge items.  Requires the `agents:read` scope.
      * List agents
      */
     agentsServiceList(requestParameters: AgentsServiceListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListAgentsResponse>;
@@ -282,6 +292,36 @@ export interface AgentsApiInterface {
      * List agent presets
      */
     agentsServiceListPresets(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListAgentPresetsResponse>;
+
+    /**
+     * Creates request options for agentsServiceRefreshKnowledgeItem without sending the request
+     * @param {string} agentId The agent\&#39;s ID (UUID).
+     * @param {string} id The item\&#39;s ID (UUID).
+     * @param {object} body 
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
+     * @throws {RequiredError}
+     * @memberof AgentsApiInterface
+     */
+    agentsServiceRefreshKnowledgeItemRequestOpts(requestParameters: AgentsServiceRefreshKnowledgeItemRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * Read a web page or media item again, in the background: after the page or file changed, or to retry an item that failed. The agent keeps the text read before until the new reading is ready. A Markdown item has nothing to read and is refused.  Requires the `agents:write` scope.
+     * @summary Refresh a knowledge item
+     * @param {string} agentId The agent\&#39;s ID (UUID).
+     * @param {string} id The item\&#39;s ID (UUID).
+     * @param {object} body 
+     * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AgentsApiInterface
+     */
+    agentsServiceRefreshKnowledgeItemRaw(requestParameters: AgentsServiceRefreshKnowledgeItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<RefreshAgentKnowledgeItemResponse>>;
+
+    /**
+     * Read a web page or media item again, in the background: after the page or file changed, or to retry an item that failed. The agent keeps the text read before until the new reading is ready. A Markdown item has nothing to read and is refused.  Requires the `agents:write` scope.
+     * Refresh a knowledge item
+     */
+    agentsServiceRefreshKnowledgeItem(requestParameters: AgentsServiceRefreshKnowledgeItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RefreshAgentKnowledgeItemResponse>;
 
     /**
      * Creates request options for agentsServiceUpdate without sending the request
@@ -312,34 +352,34 @@ export interface AgentsApiInterface {
     agentsServiceUpdate(requestParameters: AgentsServiceUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdateAgentResponse>;
 
     /**
-     * Creates request options for agentsServiceUpdateKnowledgeDocument without sending the request
+     * Creates request options for agentsServiceUpdateKnowledgeItem without sending the request
      * @param {string} agentId The agent\&#39;s ID (UUID).
-     * @param {string} id The document\&#39;s ID (UUID).
-     * @param {AgentsServiceUpdateKnowledgeDocumentBody} agentsServiceUpdateKnowledgeDocumentBody 
+     * @param {string} id The item\&#39;s ID (UUID).
+     * @param {AgentsServiceUpdateKnowledgeItemBody} agentsServiceUpdateKnowledgeItemBody 
      * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @throws {RequiredError}
      * @memberof AgentsApiInterface
      */
-    agentsServiceUpdateKnowledgeDocumentRequestOpts(requestParameters: AgentsServiceUpdateKnowledgeDocumentRequest): Promise<runtime.RequestOpts>;
+    agentsServiceUpdateKnowledgeItemRequestOpts(requestParameters: AgentsServiceUpdateKnowledgeItemRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * Change a knowledge document\'s title or content.  Requires the `agents:write` scope.
-     * @summary Update a knowledge document
+     * Change a knowledge item\'s title, a Markdown item\'s content, a web page item\'s URL or a media item\'s file. A new URL or file is read again in the background. The kind of an item cannot change.  Requires the `agents:write` scope.
+     * @summary Update a knowledge item
      * @param {string} agentId The agent\&#39;s ID (UUID).
-     * @param {string} id The document\&#39;s ID (UUID).
-     * @param {AgentsServiceUpdateKnowledgeDocumentBody} agentsServiceUpdateKnowledgeDocumentBody 
+     * @param {string} id The item\&#39;s ID (UUID).
+     * @param {AgentsServiceUpdateKnowledgeItemBody} agentsServiceUpdateKnowledgeItemBody 
      * @param {string} [idempotencyKey] A unique value per request, such as a UUID, that makes retrying it safe: a retry with the same key and body returns the first response instead of acting twice.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AgentsApiInterface
      */
-    agentsServiceUpdateKnowledgeDocumentRaw(requestParameters: AgentsServiceUpdateKnowledgeDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdateAgentKnowledgeDocumentResponse>>;
+    agentsServiceUpdateKnowledgeItemRaw(requestParameters: AgentsServiceUpdateKnowledgeItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdateAgentKnowledgeItemResponse>>;
 
     /**
-     * Change a knowledge document\'s title or content.  Requires the `agents:write` scope.
-     * Update a knowledge document
+     * Change a knowledge item\'s title, a Markdown item\'s content, a web page item\'s URL or a media item\'s file. A new URL or file is read again in the background. The kind of an item cannot change.  Requires the `agents:write` scope.
+     * Update a knowledge item
      */
-    agentsServiceUpdateKnowledgeDocument(requestParameters: AgentsServiceUpdateKnowledgeDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdateAgentKnowledgeDocumentResponse>;
+    agentsServiceUpdateKnowledgeItem(requestParameters: AgentsServiceUpdateKnowledgeItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdateAgentKnowledgeItemResponse>;
 
 }
 
@@ -415,20 +455,20 @@ export class AgentsApi extends runtime.BaseAPI implements AgentsApiInterface {
     }
 
     /**
-     * Creates request options for agentsServiceCreateKnowledgeDocument without sending the request
+     * Creates request options for agentsServiceCreateKnowledgeItem without sending the request
      */
-    async agentsServiceCreateKnowledgeDocumentRequestOpts(requestParameters: AgentsServiceCreateKnowledgeDocumentRequest): Promise<runtime.RequestOpts> {
+    async agentsServiceCreateKnowledgeItemRequestOpts(requestParameters: AgentsServiceCreateKnowledgeItemRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['agentId'] == null) {
             throw new runtime.RequiredError(
                 'agentId',
-                'Required parameter "agentId" was null or undefined when calling agentsServiceCreateKnowledgeDocument().'
+                'Required parameter "agentId" was null or undefined when calling agentsServiceCreateKnowledgeItem().'
             );
         }
 
-        if (requestParameters['agentsServiceCreateKnowledgeDocumentBody'] == null) {
+        if (requestParameters['agentsServiceCreateKnowledgeItemBody'] == null) {
             throw new runtime.RequiredError(
-                'agentsServiceCreateKnowledgeDocumentBody',
-                'Required parameter "agentsServiceCreateKnowledgeDocumentBody" was null or undefined when calling agentsServiceCreateKnowledgeDocument().'
+                'agentsServiceCreateKnowledgeItemBody',
+                'Required parameter "agentsServiceCreateKnowledgeItemBody" was null or undefined when calling agentsServiceCreateKnowledgeItem().'
             );
         }
 
@@ -456,7 +496,7 @@ export class AgentsApi extends runtime.BaseAPI implements AgentsApiInterface {
             }
         }
 
-        let urlPath = `/v1/agents/{agentId}/knowledge-documents`;
+        let urlPath = `/v1/agents/{agentId}/knowledge-items`;
         urlPath = urlPath.replace(`{${"agentId"}}`, encodeURIComponent(String(requestParameters['agentId'])));
 
         return {
@@ -464,27 +504,27 @@ export class AgentsApi extends runtime.BaseAPI implements AgentsApiInterface {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: AgentsServiceCreateKnowledgeDocumentBodyToJSON(requestParameters['agentsServiceCreateKnowledgeDocumentBody']),
+            body: AgentsServiceCreateKnowledgeItemBodyToJSON(requestParameters['agentsServiceCreateKnowledgeItemBody']),
         };
     }
 
     /**
-     * Add a Markdown document to an agent\'s knowledge.  Requires the `agents:write` scope.
-     * Add a knowledge document
+     * Add an item to an agent\'s knowledge: Markdown text, a web page read from its URL, or a PDF or image of the media library. A web page or media item is read in the background: it is returned with the status reading, then becomes ready, or failed with a reason. Only ready items are part of what the agent knows.  Requires the `agents:write` scope.
+     * Add a knowledge item
      */
-    async agentsServiceCreateKnowledgeDocumentRaw(requestParameters: AgentsServiceCreateKnowledgeDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateAgentKnowledgeDocumentResponse>> {
-        const requestOptions = await this.agentsServiceCreateKnowledgeDocumentRequestOpts(requestParameters);
+    async agentsServiceCreateKnowledgeItemRaw(requestParameters: AgentsServiceCreateKnowledgeItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateAgentKnowledgeItemResponse>> {
+        const requestOptions = await this.agentsServiceCreateKnowledgeItemRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => CreateAgentKnowledgeDocumentResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => CreateAgentKnowledgeItemResponseFromJSON(jsonValue));
     }
 
     /**
-     * Add a Markdown document to an agent\'s knowledge.  Requires the `agents:write` scope.
-     * Add a knowledge document
+     * Add an item to an agent\'s knowledge: Markdown text, a web page read from its URL, or a PDF or image of the media library. A web page or media item is read in the background: it is returned with the status reading, then becomes ready, or failed with a reason. Only ready items are part of what the agent knows.  Requires the `agents:write` scope.
+     * Add a knowledge item
      */
-    async agentsServiceCreateKnowledgeDocument(requestParameters: AgentsServiceCreateKnowledgeDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateAgentKnowledgeDocumentResponse> {
-        const response = await this.agentsServiceCreateKnowledgeDocumentRaw(requestParameters, initOverrides);
+    async agentsServiceCreateKnowledgeItem(requestParameters: AgentsServiceCreateKnowledgeItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateAgentKnowledgeItemResponse> {
+        const response = await this.agentsServiceCreateKnowledgeItemRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -529,7 +569,7 @@ export class AgentsApi extends runtime.BaseAPI implements AgentsApiInterface {
     }
 
     /**
-     * Delete an agent and its knowledge documents.  Requires the `agents:write` scope.
+     * Delete an agent and its knowledge items.  Requires the `agents:write` scope.
      * Delete an agent
      */
     async agentsServiceDeleteRaw(requestParameters: AgentsServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>> {
@@ -540,7 +580,7 @@ export class AgentsApi extends runtime.BaseAPI implements AgentsApiInterface {
     }
 
     /**
-     * Delete an agent and its knowledge documents.  Requires the `agents:write` scope.
+     * Delete an agent and its knowledge items.  Requires the `agents:write` scope.
      * Delete an agent
      */
     async agentsServiceDelete(requestParameters: AgentsServiceDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object> {
@@ -549,20 +589,20 @@ export class AgentsApi extends runtime.BaseAPI implements AgentsApiInterface {
     }
 
     /**
-     * Creates request options for agentsServiceDeleteKnowledgeDocument without sending the request
+     * Creates request options for agentsServiceDeleteKnowledgeItem without sending the request
      */
-    async agentsServiceDeleteKnowledgeDocumentRequestOpts(requestParameters: AgentsServiceDeleteKnowledgeDocumentRequest): Promise<runtime.RequestOpts> {
+    async agentsServiceDeleteKnowledgeItemRequestOpts(requestParameters: AgentsServiceDeleteKnowledgeItemRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['agentId'] == null) {
             throw new runtime.RequiredError(
                 'agentId',
-                'Required parameter "agentId" was null or undefined when calling agentsServiceDeleteKnowledgeDocument().'
+                'Required parameter "agentId" was null or undefined when calling agentsServiceDeleteKnowledgeItem().'
             );
         }
 
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
-                'Required parameter "id" was null or undefined when calling agentsServiceDeleteKnowledgeDocument().'
+                'Required parameter "id" was null or undefined when calling agentsServiceDeleteKnowledgeItem().'
             );
         }
 
@@ -584,7 +624,7 @@ export class AgentsApi extends runtime.BaseAPI implements AgentsApiInterface {
             }
         }
 
-        let urlPath = `/v1/agents/{agentId}/knowledge-documents/{id}`;
+        let urlPath = `/v1/agents/{agentId}/knowledge-items/{id}`;
         urlPath = urlPath.replace(`{${"agentId"}}`, encodeURIComponent(String(requestParameters['agentId'])));
         urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
 
@@ -597,22 +637,22 @@ export class AgentsApi extends runtime.BaseAPI implements AgentsApiInterface {
     }
 
     /**
-     * Remove a document from an agent\'s knowledge.  Requires the `agents:write` scope.
-     * Delete a knowledge document
+     * Remove an item from an agent\'s knowledge. A media file it read stays in the media library.  Requires the `agents:write` scope.
+     * Delete a knowledge item
      */
-    async agentsServiceDeleteKnowledgeDocumentRaw(requestParameters: AgentsServiceDeleteKnowledgeDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>> {
-        const requestOptions = await this.agentsServiceDeleteKnowledgeDocumentRequestOpts(requestParameters);
+    async agentsServiceDeleteKnowledgeItemRaw(requestParameters: AgentsServiceDeleteKnowledgeItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>> {
+        const requestOptions = await this.agentsServiceDeleteKnowledgeItemRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse<any>(response);
     }
 
     /**
-     * Remove a document from an agent\'s knowledge.  Requires the `agents:write` scope.
-     * Delete a knowledge document
+     * Remove an item from an agent\'s knowledge. A media file it read stays in the media library.  Requires the `agents:write` scope.
+     * Delete a knowledge item
      */
-    async agentsServiceDeleteKnowledgeDocument(requestParameters: AgentsServiceDeleteKnowledgeDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object> {
-        const response = await this.agentsServiceDeleteKnowledgeDocumentRaw(requestParameters, initOverrides);
+    async agentsServiceDeleteKnowledgeItem(requestParameters: AgentsServiceDeleteKnowledgeItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object> {
+        const response = await this.agentsServiceDeleteKnowledgeItemRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -657,7 +697,7 @@ export class AgentsApi extends runtime.BaseAPI implements AgentsApiInterface {
     }
 
     /**
-     * Retrieve an agent with its knowledge documents.  Requires the `agents:read` scope.
+     * Retrieve an agent with its knowledge items.  Requires the `agents:read` scope.
      * Get an agent
      */
     async agentsServiceGetRaw(requestParameters: AgentsServiceGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetAgentResponse>> {
@@ -668,7 +708,7 @@ export class AgentsApi extends runtime.BaseAPI implements AgentsApiInterface {
     }
 
     /**
-     * Retrieve an agent with its knowledge documents.  Requires the `agents:read` scope.
+     * Retrieve an agent with its knowledge items.  Requires the `agents:read` scope.
      * Get an agent
      */
     async agentsServiceGet(requestParameters: AgentsServiceGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetAgentResponse> {
@@ -721,7 +761,7 @@ export class AgentsApi extends runtime.BaseAPI implements AgentsApiInterface {
     }
 
     /**
-     * List the workspace\'s agents, without their knowledge documents.  Requires the `agents:read` scope.
+     * List the workspace\'s agents, without their knowledge items.  Requires the `agents:read` scope.
      * List agents
      */
     async agentsServiceListRaw(requestParameters: AgentsServiceListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListAgentsResponse>> {
@@ -732,7 +772,7 @@ export class AgentsApi extends runtime.BaseAPI implements AgentsApiInterface {
     }
 
     /**
-     * List the workspace\'s agents, without their knowledge documents.  Requires the `agents:read` scope.
+     * List the workspace\'s agents, without their knowledge items.  Requires the `agents:read` scope.
      * List agents
      */
     async agentsServiceList(requestParameters: AgentsServiceListRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListAgentsResponse> {
@@ -789,6 +829,88 @@ export class AgentsApi extends runtime.BaseAPI implements AgentsApiInterface {
      */
     async agentsServiceListPresets(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListAgentPresetsResponse> {
         const response = await this.agentsServiceListPresetsRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for agentsServiceRefreshKnowledgeItem without sending the request
+     */
+    async agentsServiceRefreshKnowledgeItemRequestOpts(requestParameters: AgentsServiceRefreshKnowledgeItemRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['agentId'] == null) {
+            throw new runtime.RequiredError(
+                'agentId',
+                'Required parameter "agentId" was null or undefined when calling agentsServiceRefreshKnowledgeItem().'
+            );
+        }
+
+        if (requestParameters['id'] == null) {
+            throw new runtime.RequiredError(
+                'id',
+                'Required parameter "id" was null or undefined when calling agentsServiceRefreshKnowledgeItem().'
+            );
+        }
+
+        if (requestParameters['body'] == null) {
+            throw new runtime.RequiredError(
+                'body',
+                'Required parameter "body" was null or undefined when calling agentsServiceRefreshKnowledgeItem().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['idempotencyKey'] != null) {
+            headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
+        }
+
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2", ["agents:write"]);
+        }
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", ["agents:write"]);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/v1/agents/{agentId}/knowledge-items/{id}:refresh`;
+        urlPath = urlPath.replace(`{${"agentId"}}`, encodeURIComponent(String(requestParameters['agentId'])));
+        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: requestParameters['body'] as any,
+        };
+    }
+
+    /**
+     * Read a web page or media item again, in the background: after the page or file changed, or to retry an item that failed. The agent keeps the text read before until the new reading is ready. A Markdown item has nothing to read and is refused.  Requires the `agents:write` scope.
+     * Refresh a knowledge item
+     */
+    async agentsServiceRefreshKnowledgeItemRaw(requestParameters: AgentsServiceRefreshKnowledgeItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<RefreshAgentKnowledgeItemResponse>> {
+        const requestOptions = await this.agentsServiceRefreshKnowledgeItemRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => RefreshAgentKnowledgeItemResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Read a web page or media item again, in the background: after the page or file changed, or to retry an item that failed. The agent keeps the text read before until the new reading is ready. A Markdown item has nothing to read and is refused.  Requires the `agents:write` scope.
+     * Refresh a knowledge item
+     */
+    async agentsServiceRefreshKnowledgeItem(requestParameters: AgentsServiceRefreshKnowledgeItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RefreshAgentKnowledgeItemResponse> {
+        const response = await this.agentsServiceRefreshKnowledgeItemRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -867,27 +989,27 @@ export class AgentsApi extends runtime.BaseAPI implements AgentsApiInterface {
     }
 
     /**
-     * Creates request options for agentsServiceUpdateKnowledgeDocument without sending the request
+     * Creates request options for agentsServiceUpdateKnowledgeItem without sending the request
      */
-    async agentsServiceUpdateKnowledgeDocumentRequestOpts(requestParameters: AgentsServiceUpdateKnowledgeDocumentRequest): Promise<runtime.RequestOpts> {
+    async agentsServiceUpdateKnowledgeItemRequestOpts(requestParameters: AgentsServiceUpdateKnowledgeItemRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['agentId'] == null) {
             throw new runtime.RequiredError(
                 'agentId',
-                'Required parameter "agentId" was null or undefined when calling agentsServiceUpdateKnowledgeDocument().'
+                'Required parameter "agentId" was null or undefined when calling agentsServiceUpdateKnowledgeItem().'
             );
         }
 
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
-                'Required parameter "id" was null or undefined when calling agentsServiceUpdateKnowledgeDocument().'
+                'Required parameter "id" was null or undefined when calling agentsServiceUpdateKnowledgeItem().'
             );
         }
 
-        if (requestParameters['agentsServiceUpdateKnowledgeDocumentBody'] == null) {
+        if (requestParameters['agentsServiceUpdateKnowledgeItemBody'] == null) {
             throw new runtime.RequiredError(
-                'agentsServiceUpdateKnowledgeDocumentBody',
-                'Required parameter "agentsServiceUpdateKnowledgeDocumentBody" was null or undefined when calling agentsServiceUpdateKnowledgeDocument().'
+                'agentsServiceUpdateKnowledgeItemBody',
+                'Required parameter "agentsServiceUpdateKnowledgeItemBody" was null or undefined when calling agentsServiceUpdateKnowledgeItem().'
             );
         }
 
@@ -915,7 +1037,7 @@ export class AgentsApi extends runtime.BaseAPI implements AgentsApiInterface {
             }
         }
 
-        let urlPath = `/v1/agents/{agentId}/knowledge-documents/{id}`;
+        let urlPath = `/v1/agents/{agentId}/knowledge-items/{id}`;
         urlPath = urlPath.replace(`{${"agentId"}}`, encodeURIComponent(String(requestParameters['agentId'])));
         urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
 
@@ -924,27 +1046,27 @@ export class AgentsApi extends runtime.BaseAPI implements AgentsApiInterface {
             method: 'PATCH',
             headers: headerParameters,
             query: queryParameters,
-            body: AgentsServiceUpdateKnowledgeDocumentBodyToJSON(requestParameters['agentsServiceUpdateKnowledgeDocumentBody']),
+            body: AgentsServiceUpdateKnowledgeItemBodyToJSON(requestParameters['agentsServiceUpdateKnowledgeItemBody']),
         };
     }
 
     /**
-     * Change a knowledge document\'s title or content.  Requires the `agents:write` scope.
-     * Update a knowledge document
+     * Change a knowledge item\'s title, a Markdown item\'s content, a web page item\'s URL or a media item\'s file. A new URL or file is read again in the background. The kind of an item cannot change.  Requires the `agents:write` scope.
+     * Update a knowledge item
      */
-    async agentsServiceUpdateKnowledgeDocumentRaw(requestParameters: AgentsServiceUpdateKnowledgeDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdateAgentKnowledgeDocumentResponse>> {
-        const requestOptions = await this.agentsServiceUpdateKnowledgeDocumentRequestOpts(requestParameters);
+    async agentsServiceUpdateKnowledgeItemRaw(requestParameters: AgentsServiceUpdateKnowledgeItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdateAgentKnowledgeItemResponse>> {
+        const requestOptions = await this.agentsServiceUpdateKnowledgeItemRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => UpdateAgentKnowledgeDocumentResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => UpdateAgentKnowledgeItemResponseFromJSON(jsonValue));
     }
 
     /**
-     * Change a knowledge document\'s title or content.  Requires the `agents:write` scope.
-     * Update a knowledge document
+     * Change a knowledge item\'s title, a Markdown item\'s content, a web page item\'s URL or a media item\'s file. A new URL or file is read again in the background. The kind of an item cannot change.  Requires the `agents:write` scope.
+     * Update a knowledge item
      */
-    async agentsServiceUpdateKnowledgeDocument(requestParameters: AgentsServiceUpdateKnowledgeDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdateAgentKnowledgeDocumentResponse> {
-        const response = await this.agentsServiceUpdateKnowledgeDocumentRaw(requestParameters, initOverrides);
+    async agentsServiceUpdateKnowledgeItem(requestParameters: AgentsServiceUpdateKnowledgeItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdateAgentKnowledgeItemResponse> {
+        const response = await this.agentsServiceUpdateKnowledgeItemRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
