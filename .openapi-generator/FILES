@@ -255,6 +255,7 @@ src/models/EventsServiceCreateTraceBody.ts
 src/models/EventsServiceUpdateDeviceBody.ts
 src/models/EventsTimeSeries.ts
 src/models/EventsTimeSeriesData.ts
+src/models/ExportWorkflowStepsResponse.ts
 src/models/FindMatchingPageThemeTemplateResponse.ts
 src/models/FiringRetargetingPixel.ts
 src/models/FontConfig.ts
@@ -343,6 +344,8 @@ src/models/ImportPageThemeTemplateRequest.ts
 src/models/ImportPageThemeTemplateResponse.ts
 src/models/ImportQrcodeTemplateRequest.ts
 src/models/ImportQrcodeTemplateResponse.ts
+src/models/ImportWorkflowStepsResponse.ts
+src/models/ImportedWorkflowStep.ts
 src/models/InAppBrowser.ts
 src/models/InAppBrowserDetails.ts
 src/models/IntegrationDelivery.ts
@@ -646,11 +649,20 @@ src/models/WidgetVisualization.ts
 src/models/WorkflowIssue.ts
 src/models/WorkflowStep.ts
 src/models/WorkflowStepBranch.ts
+src/models/WorkflowStepCopyNotice.ts
+src/models/WorkflowStepCopyNoticeType.ts
 src/models/WorkflowStepKind.ts
 src/models/WorkflowStepNodeType.ts
 src/models/WorkflowStepPayload.ts
+src/models/WorkflowStepsDocument.ts
+src/models/WorkflowStepsDocumentEdge.ts
+src/models/WorkflowStepsDocumentEntry.ts
+src/models/WorkflowStepsDocumentMedia.ts
+src/models/WorkflowStepsDocumentStep.ts
 src/models/WorkflowStepsServiceConnectBody.ts
 src/models/WorkflowStepsServiceCreateBody.ts
+src/models/WorkflowStepsServiceExportBody.ts
+src/models/WorkflowStepsServiceImportBody.ts
 src/models/WorkflowStepsServiceUpdateBody.ts
 src/models/Workspace.ts
 src/models/WorkspaceAllowance.ts
